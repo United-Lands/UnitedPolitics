@@ -1,0 +1,16 @@
+name: UnitedPolitics
+version: 0.1
+main: org.unitedlands.politics.UnitedPolitics
+api-version: 1.18
+description: A custom United Lands plugin that for politcal relations.
+author: Theriel_
+depend: [ UnitedLib ]
+softdepend: [ Towny, UnitedTrade ]
+permissions:
+  united.politics.admin:
+    default: op
+commands:
+  unitedpoliticsadmin:
+    description: Politics Admin commands.
+    permission: united.politics.admin
+    aliases: [upa]

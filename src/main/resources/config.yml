@@ -1,0 +1,159 @@
+###################################################
+# +---------------------------------------------+ #
+# |             Database Connection             | #
+# +---------------------------------------------+ #
+###################################################
+
+# CAUTION! Developer mode will drop all database tables on startup. DO NOT USE IN PRODUCTION.
+developer-mode: true
+
+# Database connection settings.
+mysql:
+  host: localhost
+  port: 3306
+  username: unitedpolitics
+  password: unitedpolitics
+  database: unitedpolitics
+
+# Whether reputation changes on one level will also change reputation on higher or lower levels.
+# Each consecutive level will be multiplied by the factor. Example: with upward passthrough of 0.5,
+# a town reputation change of +10 will propagate to +5 for the region and +2.5 for the nation.
+# With downward passthrough of 0.1, a nation reputation change of -50 will propagate to -5 for
+# all regions and -0.5 for all towns.
+rep-passthrough-up:
+  enabled: true
+  factor: 0.5
+rep-passthrough-down:
+  enabled: true
+  factor: 0.5
+
+# +---------------------------------------------+ #
+# |  Modifiers for reputation actions & events  | #
+# +---------------------------------------------+ #
+
+modifiers:
+
+  # Paying tribute to a town, region or nation
+  tribute:
+    # How much reputation will be given per unit of currency (default: 1 for 10,000)
+    reputationPerMoneyUnit: 0.0001
+    # If supported, log entry messages for the economy plugin
+    moneyLogReasonSource: "Paid tribute to "
+    moneyLogReasonTarget: "Tribute paid by "
+
+  # Integrations
+
+  # UnitedTrade events
+  ut-trade-complete:
+    # Amount of reputation for completed trades
+    amount: 5
+  ut-trade-failed:
+    # Amount of reputation for failed trades
+    amount: -5
+
+# +---------------------------------------------+ #
+# |            Record definitions               | #
+# +---------------------------------------------+ #
+
+record-definitions:
+  # UnitedPolitics default reputation records
+  paid-tribute:
+    description: "They paid tribute to us"
+    amount: 0
+    low-cap: -25
+    high-cap: 25
+    decay: 1
+  # UnitedTrade integration reputation records
+  ut-trade-complete:
+    description: "They completed trade orders"
+    amount: 5
+    low-cap: 0
+    hight-cap: 25
+    decay: -2
+  ut-trade-failed:
+    description: "They failed trade orders"
+    amount: -5
+    low-cap: -25
+    hight-cap: 0
+    decay: 2
+
+# +---------------------------------------------+ #
+# |       Special integration mechanics         | #
+# +---------------------------------------------+ #
+
+integration-mechanics:
+  UnitedTrade:
+    # Disallow picking up trade orders if reputation with NPC town is below minimum
+    use-minimum-town-reputation: true
+    minimum-town-reputation: -5
+    # Disallow picking up trade orders if reputation with NPC nation is below minimum
+    use-minimum-nation-reputation: true
+    minimum-nation-reputation: -5
+    minimum-fail-message: "<red>You can't take trade orders from this client, your reputation with {name} is too low (needs to be at least {minimum}).</red>"
+
+# +---------------------------------------------+ #
+# |                 Messages                    | #
+# +---------------------------------------------+ #
+
+messages:
+  prefix: "<bold><red>U</red><white>L</white> Politics <dark_gray>» </dark_gray></bold>"
+  reload: "<green>Plugin reloaded.</green>"
+  forced-new-day: "<green>Forced exeution of new day.</green>"
+
+  reputation-changed: "<gray>Reputation - {prefix} <gold><bold>{name}</bold>: {modifier}</gray>"
+
+  usages:
+    reputation:
+      create:
+        - "Usage: /upa create <nation_A | town_A> <nation_B | town_B> <key> <value>"
+        - "<gray>Creates a reputation score for B with A with key <em>key</em> and value <em>value</em>.</gray>"
+      set:
+        - "Usage: /upa reputation set <nation_A | town_A> <nation_B | town_B> <value> <key>"
+        - "<gray>Sets the reputation score <em>key</em> of A with B to a new value."
+      add:
+        - "Usage: /upa reputation add <nation_A | town_A> <nation_B | town_B> <amount> <key>"
+        - "<gray>Adds <em>amount</em> to a reputation score <em>key</em> of B with A.</gray>"
+      remove:
+        - "Usage: /upa reputation remove <nation_A | town_A> <nation_B | town_B> <key>"
+        - "<gray>Removes a reputation score <em>key</em> for B with A.</gray>"
+
+  errors:
+    general:
+      geopol-obj-not-found: "<red>'{obj-name}' not found.</red>"
+      number-format-error: "<red>'{input}' is not a valid number.</red>"
+      db-save-error: "<red>Error while saving.</red>"
+      no-town-resident: "<red>You're not a resident in any town.</red>"
+      no-rank: "<red>You don't have the necessary rank to use this.</red>"
+
+    reputation:
+      no-record: "<red>Reputation record not found, use create first.</red>"
+      existing-record: "<red>A record with that key already exists, use set, add or remove instead."
+
+  success:
+    reputation:
+      create: "<dark_green>Created reputation entry of {modifier} for {target-name} with {subject-name} for key {key}."
+      add: "<dark_green>Added {modifier} to reputation of {target-name} with {subject-name} for key {key}"
+      set: "<dark_green>Set reputation of {target-name} with {subject-name} to {modifier} for key {key} ({description})"
+      remove: "<dark_green>Removed reputation of {target-name} with {subject-name} for key {key}"
+
+  tribute:
+    usage: "<gray>Usage: /t paytribute <receiver> <amount></gray>. Will give you reputation with the receiver in exchange for money (1 point per 10,000, capped at +25)"
+    success: "<green>You've paid a tribute of {amount} to {target-name}.</green>"
+    error: "<red>Something went wrong while trying to pay {amount} to {target-name}. Please contact an Admin or open a support ticket.</red>"
+
+  reputation-info-header:
+    - "<red><strikethrough>+|✦                         </strikethrough><bold>[<white> Reputation </white>]</bold><strikethrough>                          |✦+</strikethrough></red>"
+    - "<gold>Your town's reputation scores:</gold>"
+  reputation-info-empty: "<gray><em>Your town doesn't have any reputation with anyone</em></gray>"
+  reputation-info-entry: "<gray><gold><bold>{prefix} {subject-name}</bold></gold>: {score}</gray>"
+  reputation-entry-footer:
+    - '<gray>Type "/t reputation <name>" to see details.</gray>'
+    - "<red><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></red>"
+
+  reputation-details-header:
+    - "<red><strikethrough>+|✦                         </strikethrough><bold>[<white> Reputation </white>]</bold><strikethrough>                          |✦+</strikethrough></red>"
+    - "<gold>Your town's reputation with {subject-name}:</gold>"
+  reputation-details-empty: "<gray><em>You don't have any reputation with {subject-name}.</em></gray>"
+  reputation-details-entry: "<gray><bold>{description}</bold>: {score} ({decay} per day)</gray>"
+  reputation-details-footer:
+    - "<red><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></red>"
