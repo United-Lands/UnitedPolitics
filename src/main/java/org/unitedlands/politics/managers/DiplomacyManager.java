@@ -32,8 +32,8 @@ public class DiplomacyManager {
         }
 
         var config = plugin.getConfig();
-        String moneyLogReasonSource = config.getString("modifiers.tribute.moneyLogReasonSource", "Paid tribute to");
-        String moneyLogReasonTarget = config.getString("modifiers.tribute.moneyLogReasonTarget", "Tribute paid by");
+        String moneyLogReasonSource = config.getString("settings.tribute.moneyLogReasonSource", "Paid tribute to");
+        String moneyLogReasonTarget = config.getString("settings.tribute.moneyLogReasonTarget", "Tribute paid by");
 
         try {
             targetAccount.addMoney(amount, moneyLogReasonTarget + payer.getName());
@@ -49,7 +49,7 @@ public class DiplomacyManager {
             return false;
         }
 
-        double repPerUnit = config.getDouble("modifiers.tribute.reputationPerMoneyUnit", 0.001d);
+        double repPerUnit = config.getDouble("settings.tribute.reputationPerMoneyUnit", 0.001d);
         double modifier = repPerUnit * amount;
 
         plugin.getReputationManager().handleReputationChange(receiver, payer, modifier, "paid-tribute", player);

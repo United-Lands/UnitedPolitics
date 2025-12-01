@@ -8,6 +8,7 @@ import org.unitedlands.politics.commands.AdminCommands;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownPayTributeCommand;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationCommand;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
+import org.unitedlands.politics.listeners.DeathListener;
 import org.unitedlands.politics.listeners.ServerEventListener;
 import org.unitedlands.politics.managers.DatabaseManager;
 import org.unitedlands.politics.managers.ReputationManager;
@@ -56,6 +57,7 @@ public class UnitedPolitics extends JavaPlugin {
 
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new ServerEventListener(this), this);
+        getServer().getPluginManager().registerEvents(new DeathListener(this), this);
     }
 
     private void registerCommands() {

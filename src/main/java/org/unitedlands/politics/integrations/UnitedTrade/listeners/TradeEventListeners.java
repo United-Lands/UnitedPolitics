@@ -31,26 +31,18 @@ public class TradeEventListeners implements Listener {
         if (tradePoint == null)
             return;
         
-        Logger.log(tradePoint.getName());
-
         var location = tradePoint.getLocation();
         if (location == null)
             return;
-
-        Logger.log(location.toString());
 
         ITownWrapper tradeTown = plugin.getGeopolWrapper().getTownAtLocation(location);
         if (tradeTown == null)
             return;
 
-        Logger.log(tradeTown.getName());
-
         var player = event.getPlayer();
         ITownWrapper playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
         if (player == null)
             return;
-
-        Logger.log(playerTown.getName());
 
         if (plugin.getConfig().getBoolean("integration-mechanics.UnitedTrade.use-minimum-town-reputation")) {
 
@@ -116,7 +108,7 @@ public class TradeEventListeners implements Listener {
         if (tradeTown.getUUID().equals(playerTown.getUUID()))
             return;
 
-        var amount = plugin.getConfig().getDouble("modifiers.ut-trade-complete.amount");
+        var amount = plugin.getConfig().getDouble("settings.ut-trade-complete.amount");
         plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-complete",
                 event.getPlayer());
 
@@ -145,7 +137,7 @@ public class TradeEventListeners implements Listener {
         if (tradeTown.getUUID().equals(playerTown.getUUID()))
             return;
 
-        var amount = plugin.getConfig().getDouble("modifiers.ut-trade-failed.amount");
+        var amount = plugin.getConfig().getDouble("settings.ut-trade-failed.amount");
         plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-failed",
                 event.getPlayer());
 
