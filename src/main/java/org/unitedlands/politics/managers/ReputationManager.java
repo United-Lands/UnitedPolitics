@@ -49,74 +49,52 @@ public class ReputationManager {
 
     }
 
-    public Collection<ReputationScoreEntry> getReputationEntriesForSubject(UUID subjectId) {
-        return reputationScoreEntries.stream().filter(r -> r.getSubject().equals(subjectId))
-                .collect(Collectors.toList());
-    }
-
-    public List<String> getReputationKeysForSubject(UUID subjectId) {
-        return reputationScoreEntries.stream().filter(r -> r.getSubject().equals(subjectId))
+    public List<String> getReputationKeys(UUID observerId, UUID subjectId) {
+        return reputationScoreEntries.stream()
+                .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
                 .map(ReputationScoreEntry::getKey)
                 .collect(Collectors.toList());
     }
 
-    public List<String> getReputationKeysForSubject(UUID subjectId, UUID targetId) {
+    public double getTotalReputationScore(UUID observerId, UUID subjectId) {
         return reputationScoreEntries.stream()
-                .filter(r -> r.getSubject().equals(subjectId) && r.getTarget().equals(targetId))
-                .map(ReputationScoreEntry::getKey)
-                .collect(Collectors.toList());
-    }
-
-    public Collection<ReputationScoreEntry> getReputationEntriesForSubject(UUID subjectId, UUID targetId) {
-        return reputationScoreEntries.stream()
-                .filter(r -> r.getSubject().equals(subjectId) && r.getTarget().equals(targetId))
-                .collect(Collectors.toList());
-    }
-
-    public double getReputationScoreForSubject(UUID subjectId) {
-        return reputationScoreEntries.stream().filter(r -> r.getSubject().equals(subjectId))
+                .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
     }
 
-    public double getReputationScoreForSubject(UUID subjectId, UUID targetId) {
+    public Collection<ReputationScoreEntry> getReputationScoreEntries(UUID observerId, UUID subjectId) {
         return reputationScoreEntries.stream()
-                .filter(r -> r.getSubject().equals(subjectId) && r.getTarget().equals(targetId))
-                .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
-    }
-
-    public Collection<ReputationScoreEntry> getReputationEntriesForTarget(UUID targetId) {
-        return reputationScoreEntries.stream().filter(r -> r.getTarget().equals(targetId))
+                .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
                 .collect(Collectors.toList());
     }
 
-    public List<String> getReputationKeysForTarget(UUID targetId) {
-        return reputationScoreEntries.stream().filter(r -> r.getTarget().equals(targetId))
-                .map(ReputationScoreEntry::getKey)
+    public ReputationScoreEntry getReputationScoreEntryWithKey(UUID observerId, UUID subjectId, String key) {
+        return reputationScoreEntries.stream().filter(r -> r.getObserver().equals(observerId)
+                && r.getSubject().equals(subjectId) && r.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
+    }
+
+    public Collection<ReputationScoreEntry> getReputationScoreEntriesForSubject(UUID subjectId) {
+        return reputationScoreEntries.stream().filter(r -> r.getSubject().equals(subjectId))
                 .collect(Collectors.toList());
     }
 
-    // General
-
-    public ReputationScoreEntry getKeyedReputationScoreEntry(UUID holder, UUID with, String key) {
-        return reputationScoreEntries.stream().filter(r -> r.getSubject().equals(holder)
-                && r.getTarget().equals(with) && r.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
-    }
-
-    public @Nonnull ReputationScoreEntry getOrCreateReputationScoreEntry(UUID holder, UUID with, String configKey) {
+    public @Nonnull ReputationScoreEntry getOrCreateReputationScoreEntry(UUID observerId, UUID subjectId,
+            String configSectionKey) {
 
         var config = plugin.getConfig();
 
-        ReputationScoreEntry entry = getKeyedReputationScoreEntry(holder, with, configKey);
+        ReputationScoreEntry entry = getReputationScoreEntryWithKey(observerId, subjectId, configSectionKey);
         if (entry == null) {
-            String description = config.getString("record-definitions." + configKey + ".description", "Unknown Reason");
-            double lowCap = config.getDouble("record-definitions." + configKey + ".low-cap", -200d);
-            double highCap = config.getDouble("record-definitions." + configKey + ".high-cap", 200d);
-            double decay = config.getDouble("record-definitions." + configKey + ".decay", 0d);
+            String description = config.getString("record-definitions." + configSectionKey + ".description",
+                    "Unknown Reason");
+            double lowCap = config.getDouble("record-definitions." + configSectionKey + ".low-cap", -200d);
+            double highCap = config.getDouble("record-definitions." + configSectionKey + ".high-cap", 200d);
+            double decay = config.getDouble("record-definitions." + configSectionKey + ".decay", 0d);
             entry = new ReputationScoreEntry();
             entry.setTimestamp(System.currentTimeMillis());
-            entry.setSubject(holder);
-            entry.setTarget(with);
-            entry.setKey(configKey);
+            entry.setObserver(observerId);
+            entry.setSubject(subjectId);
+            entry.setKey(configSectionKey);
             entry.setDescription(description);
             entry.setLowCap(lowCap);
             entry.setHighCap(highCap);
@@ -146,11 +124,11 @@ public class ReputationManager {
         return service.delete(entry.getId());
     }
 
-    public void handleReputationChange(IGeopolObjectWrapper holder, IGeopolObjectWrapper with, double modifier,
+    public void handleReputationChange(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, double modifier,
             String configKey, Player player) {
 
         // Main entry
-        var entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(holder.getUUID(), with.getUUID(),
+        var entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(),
                 configKey);
         entry.setModifier(entry.getModifier() + modifier);
 
@@ -160,7 +138,8 @@ public class ReputationManager {
         var prefix = messageProvider.get("messages.prefix");
 
         Messenger.sendMessage(player, msg,
-                Map.of("name", holder.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(holder), "modifier",
+                Map.of("name", observer.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(observer),
+                        "modifier",
                         ColorFormatter.getAmountColored(entry.getModifier())),
                 prefix);
 
@@ -168,11 +147,11 @@ public class ReputationManager {
 
         if (plugin.getConfig().getBoolean("rep-passthrough-up.enabled", false)) {
             double factor = plugin.getConfig().getDouble("rep-passthrough-up.factor");
-            if (holder instanceof ITownWrapper town) {
+            if (observer instanceof ITownWrapper town) {
                 var region = town.getRegion();
                 if (region != null) {
                     var regionEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(region.getUUID(),
-                            with.getUUID(), configKey);
+                            subject.getUUID(), configKey);
                     regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
                     plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry);
                     Messenger.sendMessage(player, msg,
@@ -184,7 +163,7 @@ public class ReputationManager {
                 var nation = town.getNation();
                 if (nation != null) {
                     var nationEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(nation.getUUID(),
-                            with.getUUID(), configKey);
+                            subject.getUUID(), configKey);
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor * factor));
                     plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry);
                     Messenger.sendMessage(player, msg,
@@ -193,11 +172,11 @@ public class ReputationManager {
                                     ColorFormatter.getAmountColored(nationEntry.getModifier())),
                             prefix);
                 }
-            } else if (holder instanceof IRegionWrapper region) {
+            } else if (observer instanceof IRegionWrapper region) {
                 var nation = region.getNation();
                 if (nation != null) {
                     var nationEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(nation.getUUID(),
-                            with.getUUID(), configKey);
+                            subject.getUUID(), configKey);
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor));
                     plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry);
                     Messenger.sendMessage(player, msg,
@@ -210,13 +189,13 @@ public class ReputationManager {
         }
         if (plugin.getConfig().getBoolean("rep-passthrough-down.enabled", false)) {
             double factor = plugin.getConfig().getDouble("rep-passthrough-down.factor");
-            if (holder instanceof INationWrapper nation) {
+            if (observer instanceof INationWrapper nation) {
                 var regions = nation.getRegions();
                 if (regions != null && !regions.isEmpty()) {
                     for (IRegionWrapper region : regions) {
                         var regionEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(
                                 region.getUUID(),
-                                with.getUUID(), configKey);
+                                subject.getUUID(), configKey);
                         regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
                         plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry);
                         Messenger.sendMessage(player, msg,
@@ -230,7 +209,7 @@ public class ReputationManager {
                 if (towns != null && !towns.isEmpty()) {
                     for (ITownWrapper town : towns) {
                         var townEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(town.getUUID(),
-                                with.getUUID(), configKey);
+                                subject.getUUID(), configKey);
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor * factor));
                         plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry);
                         Messenger.sendMessage(player, msg,
@@ -239,12 +218,12 @@ public class ReputationManager {
                                 prefix);
                     }
                 }
-            } else if (holder instanceof IRegionWrapper region) {
+            } else if (observer instanceof IRegionWrapper region) {
                 var towns = region.getTowns();
                 if (towns != null && !towns.isEmpty()) {
                     for (ITownWrapper town : towns) {
                         var townEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(town.getUUID(),
-                                with.getUUID(), configKey);
+                                subject.getUUID(), configKey);
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor));
                         plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry);
                         Messenger.sendMessage(player, msg,
@@ -269,11 +248,11 @@ public class ReputationManager {
                     .sorted(Comparator.comparing(ReputationScoreEntry::getId)).collect(Collectors.toList());
             for (ReputationScoreEntry entry : sortedEntries) {
 
-                IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(entry.getSubject());
-                IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(entry.getTarget());
+                IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(entry.getObserver());
+                IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(entry.getSubject());
 
-                String subjectStr = subject != null ? subject.getName() : entry.getSubject().toString();
-                String targetStr = target != null ? target.getName() : entry.getTarget().toString();
+                String subjectStr = subject != null ? subject.getName() : entry.getObserver().toString();
+                String targetStr = target != null ? target.getName() : entry.getSubject().toString();
 
                 var decay = entry.getDecayRate();
                 var currentModifier = entry.getModifier();

@@ -67,14 +67,14 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
 
             Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-info-header"));
 
-            var records = plugin.getReputationManager().getReputationEntriesForTarget(residentTown.getUUID());
+            var records = plugin.getReputationManager().getReputationScoreEntriesForSubject(residentTown.getUUID());
             if (records == null || records.isEmpty()) {
                 Messenger.sendMessage(sender, messageProvider.get("messages.reputation-info-empty"));
                 Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-entry-footer"));
                 return false;
             }
 
-            var grouped = records.stream().collect(Collectors.groupingBy(ReputationScoreEntry::getSubject));
+            var grouped = records.stream().collect(Collectors.groupingBy(ReputationScoreEntry::getObserver));
 
             for (var item : grouped.entrySet()) {
                 var geopolObject = GeopolUtils.findGeopolObject(item.getKey());
@@ -105,7 +105,7 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
                         Map.of("subject-name", args[0]));
             }
 
-            var entries = plugin.getReputationManager().getReputationEntriesForSubject(geopolObj.getUUID(),
+            var entries = plugin.getReputationManager().getReputationScoreEntries(geopolObj.getUUID(),
                     residentTown.getUUID());
             if (entries == null || entries.isEmpty()) {
                 Messenger.sendMessage(sender, messageProvider.get("messages.reputation-details-empty"),

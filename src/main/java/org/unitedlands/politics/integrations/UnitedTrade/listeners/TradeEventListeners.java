@@ -56,7 +56,7 @@ public class TradeEventListeners implements Listener {
 
             double minimum = plugin.getConfig().getDouble("integration-mechanics.UnitedTrade.minimum-town-reputation",
                     0);
-            var score = plugin.getReputationManager().getReputationScoreForSubject(tradeTown.getUUID(),
+            var score = plugin.getReputationManager().getTotalReputationScore(tradeTown.getUUID(),
                     playerTown.getUUID());
 
             if (score < minimum) {
@@ -77,7 +77,7 @@ public class TradeEventListeners implements Listener {
 
             double minimum = plugin.getConfig().getDouble("integration-mechanics.UnitedTrade.minimum-nation-reputation",
                     0);
-            var score = plugin.getReputationManager().getReputationScoreForSubject(nation.getUUID(),
+            var score = plugin.getReputationManager().getTotalReputationScore(nation.getUUID(),
                     playerTown.getUUID());
 
             if (score < minimum) {

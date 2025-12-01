@@ -108,10 +108,10 @@ messages:
         - "Usage: /upa create <nation_A | town_A> <nation_B | town_B> <key> <value>"
         - "<gray>Creates a reputation score for B with A with key <em>key</em> and value <em>value</em>.</gray>"
       set:
-        - "Usage: /upa reputation set <nation_A | town_A> <nation_B | town_B> <value> <key>"
+        - "Usage: /upa reputation set <nation_A | town_A> <nation_B | town_B> <key> <value>"
         - "<gray>Sets the reputation score <em>key</em> of A with B to a new value."
       add:
-        - "Usage: /upa reputation add <nation_A | town_A> <nation_B | town_B> <amount> <key>"
+        - "Usage: /upa reputation add <nation_A | town_A> <nation_B | town_B> <key> <amount>"
         - "<gray>Adds <em>amount</em> to a reputation score <em>key</em> of B with A.</gray>"
       remove:
         - "Usage: /upa reputation remove <nation_A | town_A> <nation_B | town_B> <key>"
@@ -131,10 +131,10 @@ messages:
 
   success:
     reputation:
-      create: "<dark_green>Created reputation entry of {modifier} for {target-name} with {subject-name} for key {key}."
-      add: "<dark_green>Added {modifier} to reputation of {target-name} with {subject-name} for key {key}"
-      set: "<dark_green>Set reputation of {target-name} with {subject-name} to {modifier} for key {key} ({description})"
-      remove: "<dark_green>Removed reputation of {target-name} with {subject-name} for key {key}"
+      create: "<dark_green>Created reputation entry of {modifier} for {subject-name} with {observer-name} for key {key}."
+      add: "<dark_green>Added {modifier} to reputation of {subject-name} with {observer-name} for key {key}"
+      set: "<dark_green>Set reputation of {subject-name} with {observer-name} to {modifier} for key {key} ({description})"
+      remove: "<dark_green>Removed reputation of {subject-name} with {observer-name} for key {key}"
 
   tribute:
     usage: "<gray>Usage: /t paytribute <receiver> <amount></gray>. Will give you reputation with the receiver in exchange for money (1 point per 10,000, capped at +25)"

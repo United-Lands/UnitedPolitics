@@ -31,11 +31,11 @@ public class AdminAddReputationCommand extends BaseCommandHandler<UnitedPolitics
                     .collect(Collectors.toList());
             names1.addAll(names2);
             return names1;
-        } else if (args.length == 4) {
+        } else if (args.length == 3) {
             IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(args[0]);
             IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(args[1]);
             if (subject != null && target != null)
-                return plugin.getReputationManager().getReputationKeysForSubject(subject.getUUID(),
+                return plugin.getReputationManager().getReputationKeys(subject.getUUID(),
                         target.getUUID());
 
         }
@@ -50,31 +50,31 @@ public class AdminAddReputationCommand extends BaseCommandHandler<UnitedPolitics
             return;
         }
 
-        IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(args[0]);
-        if (subject == null) {
+        IGeopolObjectWrapper observer = GeopolUtils.findGeopolObject(args[0]);
+        if (observer == null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
                     Map.of("obj-name", args[0]), messageProvider.get("messages.prefix"));
             return;
         }
 
-        IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(args[1]);
-        if (target == null) {
+        IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(args[1]);
+        if (subject == null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
                     Map.of("obj-name", args[1]), messageProvider.get("messages.prefix"));
             return;
         }
 
+        var key = args[2];
+
         double modifier = 0;
         try {
-            modifier = Double.parseDouble(args[2]);
+            modifier = Double.parseDouble(args[3]);
         } catch (Exception ex) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.number-format-error"),
-                    Map.of("input", args[2]), messageProvider.get("messages.prefix"));
+                    Map.of("input", args[3]), messageProvider.get("messages.prefix"));
         }
 
-        var key = args[3];
-
-        ReputationScoreEntry entry = plugin.getReputationManager().getKeyedReputationScoreEntry(subject.getUUID(), target.getUUID(), key);
+        ReputationScoreEntry entry = plugin.getReputationManager().getReputationScoreEntryWithKey(observer.getUUID(), subject.getUUID(), key);
         if (entry == null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.reputation.no-record"), null, messageProvider.get("messages.prefix"));
             return;
@@ -84,7 +84,7 @@ public class AdminAddReputationCommand extends BaseCommandHandler<UnitedPolitics
 
         if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(entry)) {
             Messenger.sendMessage(sender, messageProvider.get("messages.success.reputation.add"),
-                    Map.of("target-name", args[1], "subject-name", args[0], "modifier", args[2], "key", key),
+                    Map.of("observer-name", args[0], "subject-name", args[1], "key", args[2], "modifier", args[3]),
                     messageProvider.get("messages.prefix"));
         } else {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.db-save-error"),

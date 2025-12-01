@@ -13,9 +13,9 @@ public class ReputationScoreEntry implements Identifiable {
     @DatabaseField(canBeNull = false)
     private Long timestamp;
     @DatabaseField(canBeNull = false, width = 36)
-    private UUID subject;
+    private UUID observer;
     @DatabaseField(canBeNull = false, width = 36)
-    private UUID target;
+    private UUID subject;
     @DatabaseField(canBeNull = false, width = 64)
     private String key;
     @DatabaseField(width = 512, canBeNull = true)
@@ -45,20 +45,20 @@ public class ReputationScoreEntry implements Identifiable {
         this.timestamp = timestamp;
     }
 
+    public UUID getObserver() {
+        return observer;
+    }
+
+    public void setObserver(UUID subject) {
+        this.observer = subject;
+    }
+
     public UUID getSubject() {
         return subject;
     }
 
-    public void setSubject(UUID subject) {
-        this.subject = subject;
-    }
-
-    public UUID getTarget() {
-        return target;
-    }
-
-    public void setTarget(UUID target) {
-        this.target = target;
+    public void setSubject(UUID target) {
+        this.subject = target;
     }
 
     public String getKey() {

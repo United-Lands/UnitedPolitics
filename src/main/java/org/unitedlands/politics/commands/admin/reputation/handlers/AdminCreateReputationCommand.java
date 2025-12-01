@@ -46,15 +46,15 @@ public class AdminCreateReputationCommand extends BaseCommandHandler<UnitedPolit
             return;
         }
 
-        IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(args[0]);
-        if (subject == null) {
+        IGeopolObjectWrapper observer = GeopolUtils.findGeopolObject(args[0]);
+        if (observer == null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
                     Map.of("obj-name", args[0]), messageProvider.get("messages.prefix"));
             return;
         }
 
-        IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(args[1]);
-        if (target == null) {
+        IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(args[1]);
+        if (subject == null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
                     Map.of("obj-name", args[1]), messageProvider.get("messages.prefix"));
             return;
@@ -71,19 +71,19 @@ public class AdminCreateReputationCommand extends BaseCommandHandler<UnitedPolit
             return;
         }
 
-        ReputationScoreEntry existingEntry = plugin.getReputationManager().getKeyedReputationScoreEntry(subject.getUUID(), target.getUUID(), key);
+        ReputationScoreEntry existingEntry = plugin.getReputationManager().getReputationScoreEntryWithKey(observer.getUUID(), subject.getUUID(), key);
         if (existingEntry != null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.reputation.existing-record"), null,
                     messageProvider.get("messages.prefix"));
             return;
         }
 
-        var entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(subject.getUUID(), target.getUUID(), key);
+        var entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(), key);
         entry.setModifier(modifier);
 
         if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(entry)) {
             Messenger.sendMessage(sender, messageProvider.get("messages.success.reputation.create"),
-                    Map.of("target-name", args[1], "subject-name", args[0], "modifier", args[3], "key", key),
+                    Map.of("observer-name", args[0], "subject-name", args[1], "key", args[2], "modifier", args[3]),
                     messageProvider.get("messages.prefix"));
         } else {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.db-save-error"),

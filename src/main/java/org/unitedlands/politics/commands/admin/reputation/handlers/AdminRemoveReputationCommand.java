@@ -35,7 +35,7 @@ public class AdminRemoveReputationCommand extends BaseCommandHandler<UnitedPolit
             IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(args[0]);
             IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(args[1]);
             if (subject != null && target != null)
-                return plugin.getReputationManager().getReputationKeysForSubject(subject.getUUID(),
+                return plugin.getReputationManager().getReputationKeys(subject.getUUID(),
                         target.getUUID());
 
         }
@@ -50,15 +50,15 @@ public class AdminRemoveReputationCommand extends BaseCommandHandler<UnitedPolit
             return;
         }
 
-        IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(args[0]);
-        if (subject == null) {
+        IGeopolObjectWrapper observer = GeopolUtils.findGeopolObject(args[0]);
+        if (observer == null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
                     Map.of("obj-name", args[0]), messageProvider.get("messages.prefix"));
             return;
         }
 
-        IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(args[1]);
-        if (target == null) {
+        IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(args[1]);
+        if (subject == null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
                     Map.of("obj-name", args[1]), messageProvider.get("messages.prefix"));
             return;
@@ -66,8 +66,8 @@ public class AdminRemoveReputationCommand extends BaseCommandHandler<UnitedPolit
 
         var key = args[2];
 
-        ReputationScoreEntry entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(subject.getUUID(),
-                target.getUUID(), key);
+        ReputationScoreEntry entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(observer.getUUID(),
+                subject.getUUID(), key);
         if (entry == null) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.reputation.no-record"), null,
                     messageProvider.get("messages.prefix"));
@@ -76,7 +76,7 @@ public class AdminRemoveReputationCommand extends BaseCommandHandler<UnitedPolit
 
         if (plugin.getReputationManager().removeReputationEntry(entry)) {
             Messenger.sendMessage(sender, messageProvider.get("messages.success.reputation.remove"),
-                    Map.of("target-name", args[1], "subject-name", args[0], "key", key),
+                    Map.of("observer-name", args[0], "subject-name", args[1], "key", args[2]),
                     messageProvider.get("messages.prefix"));
         } else {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.db-save-error"),
