@@ -5,7 +5,7 @@
 ###################################################
 
 # CAUTION! Developer mode will drop all database tables on startup. DO NOT USE IN PRODUCTION.
-developer-mode: true
+developer-mode: false
 
 # Database connection settings.
 mysql:
@@ -55,7 +55,21 @@ settings:
   # Integrations
   # ************
 
-  # UnitedTrade events
+  # Towny
+  townscreen:
+    enabled: true
+    after-component: "founder"
+    content-observer: "<dark_green>Their opinion of us: {score}"
+    content-subject: "<dark_green>Our opinion of them: {score}"
+    details: "<dark_green>Click for more information</dark_green>"
+  nationscreen:
+    enabled: true
+    after-component: "capital"
+    content-observer: "<dark_green>Their opinion of us: {score}"
+    content-subject: "<dark_green>Our opinion of them: {score}"
+    details: "<dark_green>Click for more information</dark_green>"
+
+  # UnitedTrade 
   ut-trade-complete:
     # Amount of reputation for completed trades
     amount: 5

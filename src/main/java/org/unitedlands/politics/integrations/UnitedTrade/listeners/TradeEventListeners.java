@@ -11,7 +11,6 @@ import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.trade.classes.events.TradeOrderBookPreTakeEvent;
 import org.unitedlands.trade.classes.events.TradeOrderCompletedEvent;
 import org.unitedlands.trade.classes.events.TradeOrderFailedEvent;
-import org.unitedlands.utils.Logger;
 import org.unitedlands.utils.Messenger;
 
 public class TradeEventListeners implements Listener {

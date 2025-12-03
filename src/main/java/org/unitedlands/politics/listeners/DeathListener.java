@@ -5,7 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.unitedlands.politics.UnitedPolitics;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
+import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 
 public class DeathListener implements Listener {
 
@@ -26,8 +26,7 @@ public class DeathListener implements Listener {
                 return;
 
             var blacklist = plugin.getConfig().getStringList("settings.killed.blacklisted-worlds");
-            if (blacklist != null && !blacklist.isEmpty())
-            {
+            if (blacklist != null && !blacklist.isEmpty()) {
                 var deathWorld = killer.getLocation().getWorld().getName();
                 if (blacklist.contains(deathWorld))
                     return;
@@ -35,20 +34,25 @@ public class DeathListener implements Listener {
 
             var victim = (Player) event.getPlayer();
 
-            IGeopolObjectWrapper victimTown = plugin.getGeopolWrapper().getTownByPlayer(victim);
+            ITownWrapper victimTown = plugin.getGeopolWrapper().getTownByPlayer(victim);
             if (victimTown == null)
                 return;
 
-            IGeopolObjectWrapper killerTown = plugin.getGeopolWrapper().getTownByPlayer(killingPlayer);
+            ITownWrapper killerTown = plugin.getGeopolWrapper().getTownByPlayer(killingPlayer);
             if (killerTown == null)
                 return;
 
             if (victimTown.getUUID().equals(killerTown.getUUID()))
                 return;
 
+            if (victimTown.getNation() != null && killerTown.getNation() != null) {
+                if (victimTown.getNation().getUUID().equals(killerTown.getNation().getUUID()))
+                    return;
+            }
+
             var amount = plugin.getConfig().getDouble("settings.killed.amount");
             plugin.getReputationManager().handleReputationChange(victimTown, killerTown, amount, "killed-member",
-                killingPlayer);
+                    killingPlayer);
         }
     }
 

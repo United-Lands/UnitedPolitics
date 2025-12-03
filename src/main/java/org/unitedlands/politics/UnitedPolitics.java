@@ -7,6 +7,7 @@ import org.unitedlands.politics.classes.MessageProvider;
 import org.unitedlands.politics.commands.AdminCommands;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownPayTributeCommand;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationCommand;
+import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
 import org.unitedlands.politics.listeners.DeathListener;
 import org.unitedlands.politics.listeners.ServerEventListener;
@@ -86,6 +87,7 @@ public class UnitedPolitics extends JavaPlugin {
             Logger.log("Enabling Towny integrations.", "UnitedPolitics");
             new TownyTownReputationCommand(this, messageProvider);
             new TownyTownPayTributeCommand(this, messageProvider);
+            getServer().getPluginManager().registerEvents(new TownScreenListener(this), this);
         }
 
         Plugin unitedTrade = Bukkit.getPluginManager().getPlugin("UnitedTrade");
