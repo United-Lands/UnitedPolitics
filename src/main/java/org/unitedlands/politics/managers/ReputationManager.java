@@ -3,6 +3,7 @@ package org.unitedlands.politics.managers;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -60,6 +61,24 @@ public class ReputationManager {
         return reputationScoreEntries.stream()
                 .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
+    }
+
+        public Map<IGeopolObjectWrapper, Double> getTotalReputationScores(UUID observerId) {
+
+            var records = reputationScoreEntries.stream()
+                .filter(r -> r.getObserver().equals(observerId)).collect(Collectors.groupingBy(g -> g.getSubject()));
+
+            var result = new HashMap<IGeopolObjectWrapper, Double>();
+            for (var entry : records.entrySet())
+            {
+                var subjectObj = GeopolUtils.findGeopolObject(entry.getKey());
+                if (subjectObj == null)
+                    continue;
+                var score = entry.getValue().stream().collect(Collectors.summingDouble(r -> r.getModifier()));
+                result.put(subjectObj, score);
+            }
+
+            return result;
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntries(UUID observerId, UUID subjectId) {

@@ -3,7 +3,6 @@ package org.unitedlands.politics.integrations.Towny.listeners;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,13 +12,9 @@ import org.unitedlands.politics.wrappers.Towny.TownyNationWrapper;
 import org.unitedlands.politics.wrappers.Towny.TownyTownWrapper;
 import org.unitedlands.utils.Logger;
 
-
 import com.palmergames.bukkit.towny.event.statusscreen.NationStatusScreenEvent;
 import com.palmergames.bukkit.towny.event.statusscreen.TownStatusScreenEvent;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 

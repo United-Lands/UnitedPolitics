@@ -7,6 +7,8 @@ author: Theriel_
 depend: [ UnitedLib ]
 softdepend: [ Towny, UnitedTrade ]
 permissions:
+  united.politics.player:
+    default: true
   united.politics.admin:
     default: op
 commands:
@@ -14,3 +16,6 @@ commands:
     description: Politics Admin commands.
     permission: united.politics.admin
     aliases: [upa]
+  opinion:
+    description: Displays reputation information.
+    permission: united.politics.player

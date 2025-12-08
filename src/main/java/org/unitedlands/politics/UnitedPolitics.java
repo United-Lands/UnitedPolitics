@@ -5,6 +5,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.unitedlands.politics.classes.MessageProvider;
 import org.unitedlands.politics.commands.AdminCommands;
+import org.unitedlands.politics.commands.OpinionCommand;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownPayTributeCommand;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationCommand;
 import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
@@ -65,6 +66,10 @@ public class UnitedPolitics extends JavaPlugin {
         var adminCommands = new AdminCommands(this, messageProvider);
         getCommand("unitedpoliticsadmin").setExecutor(adminCommands);
         getCommand("unitedpoliticsadmin").setTabCompleter(adminCommands);
+
+        var opinionCommand = new OpinionCommand(instance, messageProvider);
+        getCommand("opinion").setExecutor(opinionCommand);
+        getCommand("opinion").setTabCompleter(opinionCommand);
     }
 
     private void loadManagers() {
@@ -116,7 +121,5 @@ public class UnitedPolitics extends JavaPlugin {
     public DiplomacyManager getDiplomacyManager() {
         return diplomacyManager;
     }
-
-    
 
 }
