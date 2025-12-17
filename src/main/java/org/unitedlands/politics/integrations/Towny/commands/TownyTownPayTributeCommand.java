@@ -75,12 +75,43 @@ public class TownyTownPayTributeCommand implements CommandExecutor, TabCompleter
             return false;
         }
 
+        if (target.getUUID().equals(residentTown.getUUID())) {
+            Messenger.sendMessage(sender, messageProvider.get("messages.tribute.same-entity"), null, messageProvider.get("messages.prefix"));
+            return false;
+        }
+
+        if (target instanceof INationWrapper nation)
+        {
+            if (residentTown.getNationOrNull() != null && residentTown.getNationOrNull().getUUID().equals(nation.getUUID()))
+            {
+                Messenger.sendMessage(sender, messageProvider.get("messages.tribute.is-nation"), null, messageProvider.get("messages.prefix"));
+                return false;
+            }
+        } else if (target instanceof ITownWrapper town)
+        {
+            if (town.getNation() != null && residentTown.getNationOrNull() != null)
+            {
+                if (town.getNation().getUUID().equals(residentTown.getNationOrNull().getUUID()))
+                {
+                    Messenger.sendMessage(sender, messageProvider.get("messages.tribute.same-nation"), null, messageProvider.get("messages.prefix"));
+                    return false;                    
+                }
+            }
+        }
+
         double amount = 0;
         try {
             amount = Double.parseDouble(args[1]);
         } catch (Exception ex) {
             Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.number-format-error"),
                     Map.of("input", args[1]), messageProvider.get("messages.prefix"));
+        }
+
+        var balance = residentTown.getAccount().getCachedBalance(true);
+        if (balance < amount)
+        {
+            Messenger.sendMessage(sender, messageProvider.get("messages.tribute.insufficient-funds"), null, messageProvider.get("messages.prefix"));
+            return false;             
         }
 
         if (plugin.getDiplomacyManager().payTribute(new TownyTownWrapper(residentTown), target, amount, player)) {

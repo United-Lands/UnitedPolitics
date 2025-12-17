@@ -10,6 +10,7 @@ import org.unitedlands.politics.integrations.Towny.commands.TownyTownPayTributeC
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationCommand;
 import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
+import org.unitedlands.politics.integrations.UnitedWar.WarEventListeners;
 import org.unitedlands.politics.listeners.DeathListener;
 import org.unitedlands.politics.listeners.ServerEventListener;
 import org.unitedlands.politics.managers.DatabaseManager;
@@ -99,6 +100,12 @@ public class UnitedPolitics extends JavaPlugin {
         if (unitedTrade != null && unitedTrade.isEnabled()) {
             Logger.log("Enabling UnitedTrade integrations.", "UnitedPolitics");
             getServer().getPluginManager().registerEvents(new TradeEventListeners(this, messageProvider), this);
+        }
+
+        Plugin unitedWar = Bukkit.getPluginManager().getPlugin("UnitedWar");
+        if (unitedWar != null && unitedWar.isEnabled()) {
+            Logger.log("Enabling UnitedWar integrations.", "UnitedPolitics");
+            getServer().getPluginManager().registerEvents(new WarEventListeners(this), this);
         }
     }
 

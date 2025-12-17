@@ -5,7 +5,7 @@ api-version: 1.18
 description: A custom United Lands plugin that for politcal relations.
 author: Theriel_
 depend: [ UnitedLib ]
-softdepend: [ Towny, UnitedTrade ]
+softdepend: [ Towny, UnitedTrade, UnitedWar ]
 permissions:
   united.politics.player:
     default: true

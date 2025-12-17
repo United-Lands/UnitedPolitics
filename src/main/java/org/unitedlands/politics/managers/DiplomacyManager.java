@@ -52,7 +52,7 @@ public class DiplomacyManager {
         double repPerUnit = config.getDouble("settings.tribute.reputationPerMoneyUnit", 0.001d);
         double modifier = repPerUnit * amount;
 
-        plugin.getReputationManager().handleReputationChange(receiver, payer, modifier, "paid-tribute", player);
+        plugin.getReputationManager().handleReputationChange(receiver, payer, modifier, "paid-tribute", player, true);
 
         return true;
     }

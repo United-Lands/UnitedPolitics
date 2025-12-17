@@ -52,7 +52,7 @@ public class DeathListener implements Listener {
 
             var amount = plugin.getConfig().getDouble("settings.killed.amount");
             plugin.getReputationManager().handleReputationChange(victimTown, killerTown, amount, "killed-member",
-                    killingPlayer);
+                    killingPlayer, true);
         }
     }
 

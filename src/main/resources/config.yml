@@ -77,6 +77,15 @@ settings:
     # Amount of reputation for failed trades
     amount: -5
 
+  # UnitedWar 
+  # Reputation penalty for warring a town that someone is friends with
+  uw-warred-friend:
+    enabled: true
+    # The reputation needed for a town to be considered a friend
+    threshold: 100
+    # The penalty
+    amount: -100
+
 # +---------------------------------------------+ #
 # |            Record definitions               | #
 # +---------------------------------------------+ #
@@ -97,13 +106,20 @@ record-definitions:
   ut-trade-complete:
     description: "They completed trade orders"
     low-cap: 0
-    hight-cap: 25
+    high-cap: 25
     decay: -2
   ut-trade-failed:
     description: "They failed trade orders"
     low-cap: -25
-    hight-cap: 0
+    high-cap: 0
     decay: 2
+  # UnitedWar integration reputation records
+  uw-warred-friend:
+    description: "They warred a friend"
+    low-cap: -200
+    high-cap: 0
+    decay: -2
+
 
 # +---------------------------------------------+ #
 # |       Special integration mechanics         | #
@@ -167,6 +183,10 @@ messages:
   tribute:
     usage: "<gray>Usage: /t paytribute <receiver> <amount></gray>. Will give you reputation with the receiver in exchange for money (1 point per 10,000, capped at +25)"
     success: "<green>You've paid a tribute of {amount} to {target-name}.</green>"
+    same-entity: "<red>You can't pay tribute to yourself.</red>"
+    is-own-nation: "<red>You can't pay tribute to your own nation.</red>"
+    same-nation: "<red>You can't pay tribute to a town in your own nation.</red>"
+    insufficient-funds: "<red>You don't have enough money.</red>"
     error: "<red>Something went wrong while trying to pay {amount} to {target-name}. Please contact an Admin or open a support ticket.</red>"
 
   reputation-info-header:

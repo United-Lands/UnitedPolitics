@@ -109,7 +109,7 @@ public class TradeEventListeners implements Listener {
 
         var amount = plugin.getConfig().getDouble("settings.ut-trade-complete.amount");
         plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-complete",
-                event.getPlayer());
+                event.getPlayer(), true);
 
     }
 
@@ -138,7 +138,7 @@ public class TradeEventListeners implements Listener {
 
         var amount = plugin.getConfig().getDouble("settings.ut-trade-failed.amount");
         plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-failed",
-                event.getPlayer());
+                event.getPlayer(), true);
 
     }
 
