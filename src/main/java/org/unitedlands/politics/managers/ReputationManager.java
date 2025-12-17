@@ -74,7 +74,8 @@ public class ReputationManager {
             var subjectObj = GeopolUtils.findGeopolObject(entry.getKey());
             if (subjectObj == null)
                 continue;
-            var score = Math.max(-200, Math.min(200, entry.getValue().stream().collect(Collectors.summingDouble(r -> r.getModifier()))));
+            var score = Math.max(-200,
+                    Math.min(200, entry.getValue().stream().collect(Collectors.summingDouble(r -> r.getModifier()))));
             result.put(subjectObj, score);
         }
 
@@ -151,19 +152,20 @@ public class ReputationManager {
                 configKey);
         entry.setModifier(entry.getModifier() + modifier);
 
-        plugin.getReputationManager().addOrUpdateReputationScoreEntry(entry);
-
         var msg = messageProvider.get("messages.reputation-changed");
         var prefix = messageProvider.get("messages.prefix");
 
-        if (player != null && player.isOnline()) {
-            Messenger.sendMessage(player, msg,
-                    Map.of("name", observer.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(observer),
-                            "modifier",
-                            ColorFormatter.getAmountColored(entry.getModifier())),
-                    prefix);
+        if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(entry)) {
+            logChange(observer, subject, configKey, entry.getModifier() + modifier);
+            if (player != null) {
+                Messenger.sendMessage(player, msg,
+                        Map.of("name", observer.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(observer),
+                                "modifier",
+                                ColorFormatter.getAmountColored(entry.getModifier())),
+                        prefix);
+            }
         }
-        
+
         // Passthrough entries
         if (!doPassthrough)
             return;
@@ -176,24 +178,34 @@ public class ReputationManager {
                     var regionEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(region.getUUID(),
                             subject.getUUID(), configKey);
                     regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
-                    plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry);
-                    Messenger.sendMessage(player, msg,
-                            Map.of("name", region.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(region),
-                                    "modifier",
-                                    ColorFormatter.getAmountColored(regionEntry.getModifier())),
-                            prefix);
+                    if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry)) {
+                        logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
+                        if (player != null) {
+                            Messenger.sendMessage(player, msg,
+                                    Map.of("name", region.getName(), "prefix",
+                                            ColorFormatter.getGeopolPrefixColored(region),
+                                            "modifier",
+                                            ColorFormatter.getAmountColored(regionEntry.getModifier())),
+                                    prefix);
+                        }
+                    }
                 }
                 var nation = town.getNation();
                 if (nation != null) {
                     var nationEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(nation.getUUID(),
                             subject.getUUID(), configKey);
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor * factor));
-                    plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry);
-                    Messenger.sendMessage(player, msg,
-                            Map.of("name", nation.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(nation),
-                                    "modifier",
-                                    ColorFormatter.getAmountColored(nationEntry.getModifier())),
-                            prefix);
+                    if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry)) {
+                        logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor * factor));
+                        if (player != null) {
+                            Messenger.sendMessage(player, msg,
+                                    Map.of("name", nation.getName(), "prefix",
+                                            ColorFormatter.getGeopolPrefixColored(nation),
+                                            "modifier",
+                                            ColorFormatter.getAmountColored(nationEntry.getModifier())),
+                                    prefix);
+                        }
+                    }
                 }
             } else if (observer instanceof IRegionWrapper region) {
                 var nation = region.getNation();
@@ -201,12 +213,17 @@ public class ReputationManager {
                     var nationEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(nation.getUUID(),
                             subject.getUUID(), configKey);
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor));
-                    plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry);
-                    Messenger.sendMessage(player, msg,
-                            Map.of("name", nation.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(nation),
-                                    "modifier",
-                                    ColorFormatter.getAmountColored(nationEntry.getModifier())),
-                            prefix);
+                    if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry)) {
+                        logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor));
+                        if (player != null) {
+                            Messenger.sendMessage(player, msg,
+                                    Map.of("name", nation.getName(), "prefix",
+                                            ColorFormatter.getGeopolPrefixColored(nation),
+                                            "modifier",
+                                            ColorFormatter.getAmountColored(nationEntry.getModifier())),
+                                    prefix);
+                        }
+                    }
                 }
             }
         }
@@ -220,12 +237,16 @@ public class ReputationManager {
                                 region.getUUID(),
                                 subject.getUUID(), configKey);
                         regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
-                        plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry);
-                        Messenger.sendMessage(player, msg,
-                                Map.of("name", region.getName(), "prefix",
-                                        ColorFormatter.getGeopolPrefixColored(region), "modifier",
-                                        ColorFormatter.getAmountColored(regionEntry.getModifier())),
-                                prefix);
+                        if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry)) {
+                            logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
+                            if (player != null) {
+                                Messenger.sendMessage(player, msg,
+                                        Map.of("name", region.getName(), "prefix",
+                                                ColorFormatter.getGeopolPrefixColored(region), "modifier",
+                                                ColorFormatter.getAmountColored(regionEntry.getModifier())),
+                                        prefix);
+                            }
+                        }
                     }
                 }
                 var towns = nation.getTowns();
@@ -234,12 +255,18 @@ public class ReputationManager {
                         var townEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(town.getUUID(),
                                 subject.getUUID(), configKey);
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor * factor));
-                        plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry);
-                        Messenger.sendMessage(player, msg,
-                                Map.of("name", town.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(town),
-                                        "modifier", ColorFormatter.getAmountColored(townEntry.getModifier())),
-                                prefix);
-                    } 
+                        if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry)) {
+                            logChange(town, subject, configKey,
+                                    townEntry.getModifier() + (modifier * factor * factor));
+                            if (player != null) {
+                                Messenger.sendMessage(player, msg,
+                                        Map.of("name", town.getName(), "prefix",
+                                                ColorFormatter.getGeopolPrefixColored(town),
+                                                "modifier", ColorFormatter.getAmountColored(townEntry.getModifier())),
+                                        prefix);
+                            }
+                        }
+                    }
                 }
             } else if (observer instanceof IRegionWrapper region) {
                 var towns = region.getTowns();
@@ -248,15 +275,26 @@ public class ReputationManager {
                         var townEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(town.getUUID(),
                                 subject.getUUID(), configKey);
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor));
-                        plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry);
-                        Messenger.sendMessage(player, msg,
-                                Map.of("name", town.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(town),
-                                        "modifier", ColorFormatter.getAmountColored(townEntry.getModifier())),
-                                prefix);
+                        if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry)) {
+                            logChange(town, subject, configKey, townEntry.getModifier() + (modifier * factor));
+                            if (player != null) {
+                                Messenger.sendMessage(player, msg,
+                                        Map.of("name", town.getName(), "prefix",
+                                                ColorFormatter.getGeopolPrefixColored(town),
+                                                "modifier", ColorFormatter.getAmountColored(townEntry.getModifier())),
+                                        prefix);
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    private void logChange(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String key, double amount) {
+        Logger.log(
+                "Added/updated reputation entry {" + key + "} of " + observer.getName() + " with " + subject.getName()
+                        + ": " + amount, "UnitedPolitics");
     }
 
     public void doReputationDecay() {

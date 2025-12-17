@@ -78,6 +78,11 @@ settings:
     amount: -5
 
   # UnitedWar 
+  uw-warred-us:
+    enabled: true
+    # In nation wars, this penalty is applied to the defending nation (and towns if passthrough-down is enabled).
+    # In town wars, this penalty is applied to the defending town.
+    amount: -200
   # Reputation penalty for warring a town that someone is friends with
   uw-warred-friend:
     enabled: true
@@ -85,7 +90,14 @@ settings:
     threshold: 100
     # The penalty
     amount: -100
-
+  # Reputation penalty for warring a town that someone is enemies with
+  uw-warred-enemy:
+    enabled: true
+    # The reputation needed for a town to be considered an enemy
+    threshold: -100
+    # The bonus
+    amount: 100
+    
 # +---------------------------------------------+ #
 # |            Record definitions               | #
 # +---------------------------------------------+ #
@@ -114,11 +126,21 @@ record-definitions:
     high-cap: 0
     decay: 2
   # UnitedWar integration reputation records
+  uw-warred-us:
+    description: "They warred us"
+    low-cap: -200
+    high-cap: 0
+    decay: -2
   uw-warred-friend:
     description: "They warred a friend"
     low-cap: -200
     high-cap: 0
     decay: -2
+  uw-warred-enemy:
+    description: "They warred an enemy"
+    low-cap: 0
+    high-cap: 200
+    decay: 2
 
 
 # +---------------------------------------------+ #
