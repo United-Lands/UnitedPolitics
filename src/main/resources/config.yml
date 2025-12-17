@@ -73,6 +73,22 @@ settings:
   ut-trade-complete:
     # Amount of reputation for completed trades
     amount: 5
+    # Give extra money for high reputation
+    reputation-bonus:
+      enabled: true
+      # The minumum reputation to receive a bonus 
+      minimum: 50
+      # The reputation above which the bonus is not scaled anymore 
+      limit: 100
+      # The multiplier
+      # Example: With minmum 50 and limit 100, at a reputation of 75, the bonus 
+      # will be 0.5 (75 is halfway between 50 and 100) * 0.5 (factor) = 0.25, so 
+      # an additional 25% of of the original payment.  At 100 reputation, the
+      # bonus will be 1 * 0.5 = 0.5, so an additonal 50%. 
+      factor: 0.5
+      # The reason that will be displayed to the player
+      reason: 'High reputation with the trader'
+
   ut-trade-failed:
     # Amount of reputation for failed trades
     amount: -5
@@ -130,17 +146,18 @@ record-definitions:
     description: "They warred us"
     low-cap: -200
     high-cap: 0
-    decay: -2
+    decay: 2
   uw-warred-friend:
     description: "They warred a friend"
     low-cap: -200
     high-cap: 0
-    decay: -2
+    decay: 2
   uw-warred-enemy:
     description: "They warred an enemy"
     low-cap: 0
     high-cap: 200
-    decay: 2
+    decay: -2
+
 
 
 # +---------------------------------------------+ #

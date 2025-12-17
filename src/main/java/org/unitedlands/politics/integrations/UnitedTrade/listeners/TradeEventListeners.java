@@ -29,7 +29,7 @@ public class TradeEventListeners implements Listener {
         var tradePoint = event.getTradePoint();
         if (tradePoint == null)
             return;
-        
+
         var location = tradePoint.getLocation();
         if (location == null)
             return;
@@ -107,7 +107,35 @@ public class TradeEventListeners implements Listener {
         if (tradeTown.getUUID().equals(playerTown.getUUID()))
             return;
 
-        var amount = plugin.getConfig().getDouble("settings.ut-trade-complete.amount");
+        var config = plugin.getConfig();
+
+        // Bonus payment handling
+
+        if (config.getBoolean("settings.ut-trade-complete.reputation-bonus.enabled", false)) {
+
+            var minimum = config.getDouble("settings.ut-trade-complete.reputation-bonus.minimum", 50);
+            var limit = config.getDouble("settings.ut-trade-complete.reputation-bonus.limit", 100);
+            var factor = config.getDouble("settings.ut-trade-complete.reputation-bonus.factor", 0.5);
+            var reason = config.getString("settings.ut-trade-complete.reputation-bonus.reason", "");
+
+            var payment = event.getPayment();
+            var score = plugin.getReputationManager().getTotalReputationScore(tradeTown.getUUID(),
+                    playerTown.getUUID());
+
+            if (score >= minimum) {
+                var percentage = Math.max(0, Math.min(1, (score - minimum) / (limit - minimum)));
+                if (percentage > 0)
+                {
+                    var bonus = payment * factor * percentage;
+                    event.setBonus(bonus);
+                    event.setBonusReason(reason);
+                }
+            }
+        }
+
+        // Reputation handling
+
+        var amount = config.getDouble("settings.ut-trade-complete.amount");
         plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-complete",
                 event.getPlayer(), true);
 

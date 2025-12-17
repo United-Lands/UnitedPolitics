@@ -50,14 +50,8 @@
     </dependency>
     <dependency>
       <groupId>org.unitedlands</groupId>
-      <artifactId>UnitedLib</artifactId> 
+      <artifactId>UnitedLib</artifactId>
       <version>1.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.unitedlands.war</groupId>
-      <artifactId>UnitedWar</artifactId> 
-      <version>1.2.0</version>
       <scope>provided</scope>
     </dependency>
 
@@ -93,9 +87,15 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.unitedlands.trade</groupId> 
+      <groupId>org.unitedlands.trade</groupId>
       <artifactId>UnitedTrade</artifactId>
       <version>1.0-RC</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.unitedlands.war</groupId>
+      <artifactId>UnitedWar</artifactId>
+      <version>1.2.0</version>
       <scope>provided</scope>
     </dependency>
 
