@@ -12,7 +12,9 @@ import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
 import org.unitedlands.politics.integrations.UnitedWar.WarEventListeners;
 import org.unitedlands.politics.listeners.DeathListener;
+import org.unitedlands.politics.listeners.ReputationEventListener;
 import org.unitedlands.politics.listeners.ServerEventListener;
+import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.DatabaseManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.DiplomacyManager;
@@ -33,6 +35,7 @@ public class UnitedPolitics extends JavaPlugin {
     private DatabaseManager databaseManager;
     private ReputationManager reputationManager;
     private DiplomacyManager diplomacyManager;
+    private ActorProfileManager actorProfileManager;
 
     private static MessageProvider messageProvider;
 
@@ -61,6 +64,7 @@ public class UnitedPolitics extends JavaPlugin {
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new ServerEventListener(this), this);
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
+        getServer().getPluginManager().registerEvents(new ReputationEventListener(this), this);
     }
 
     private void registerCommands() {
@@ -77,6 +81,7 @@ public class UnitedPolitics extends JavaPlugin {
         databaseManager = new DatabaseManager(this);
         reputationManager = new ReputationManager(this, messageProvider);
         diplomacyManager = new DiplomacyManager(this);
+        actorProfileManager = new ActorProfileManager(this);
     }
 
     private void loadWrappers() {
@@ -127,6 +132,10 @@ public class UnitedPolitics extends JavaPlugin {
 
     public DiplomacyManager getDiplomacyManager() {
         return diplomacyManager;
+    }
+
+    public ActorProfileManager getActorProfileManager() {
+        return actorProfileManager;
     }
 
 }

@@ -3,8 +3,10 @@ package org.unitedlands.politics.managers;
 import java.sql.SQLException;
 
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.models.ActorProfile;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.models.SchemaVersion;
+import org.unitedlands.politics.services.ActorProfileService;
 import org.unitedlands.politics.services.ReputationScoreEntryService;
 import org.unitedlands.utils.Logger;
 
@@ -24,9 +26,7 @@ public class DatabaseManager {
     private ConnectionSource connectionSource;
 
     private ReputationScoreEntryService reputationScoreEntryService;
-    // private WarEventRecordDbService warEventRecordDbService;
-    // private WarScoreRecordDbService warScoreRecordDbService;
-    // private SiegeChunkDbService siegeChunkDbService;
+    private ActorProfileService actorProfileService;
 
     public DatabaseManager(UnitedPolitics plugin) {
         this.plugin = plugin;
@@ -85,9 +85,7 @@ public class DatabaseManager {
 
     private void registerServices() throws SQLException {
         this.reputationScoreEntryService = new ReputationScoreEntryService(getDao(ReputationScoreEntry.class));
-        // this.warEventRecordDbService = new WarEventRecordDbService(getDao(WarEventRecord.class));
-        // this.warScoreRecordDbService = new WarScoreRecordDbService(getDao(WarScoreRecord.class));
-        // this.siegeChunkDbService = new SiegeChunkDbService(getDao(SiegeChunk.class));
+        this.actorProfileService = new ActorProfileService(getDao(ActorProfile.class));
     }
 
     private void verifySchemaVersion() throws SQLException {
@@ -144,18 +142,10 @@ public class DatabaseManager {
     public ReputationScoreEntryService getReputationScoreEntryService() {
         return reputationScoreEntryService;
     }
-
-    // public WarEventRecordDbService getWarEventRecordDbService() {
-    //     return warEventRecordDbService;
-    // }
-
-    // public WarScoreRecordDbService getWarScoreRecordDbService() {
-    //     return warScoreRecordDbService;
-    // }
-
-    // public SiegeChunkDbService getSiegeChunkDbService() {
-    //     return siegeChunkDbService;
-    // }
+    
+    public ActorProfileService getActorProfileService() {
+        return actorProfileService;
+    }
 
     public ConnectionSource getConnectionSource() {
         return connectionSource;

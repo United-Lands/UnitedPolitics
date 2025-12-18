@@ -166,7 +166,10 @@ public class ReputationManager {
             }
         }
 
+
+        
         // Passthrough entries
+
         if (!doPassthrough)
             return;
 

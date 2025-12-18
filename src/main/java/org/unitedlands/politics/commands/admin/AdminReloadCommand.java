@@ -30,7 +30,10 @@ public class AdminReloadCommand extends BaseCommandHandler<UnitedPolitics>{
         plugin.reloadConfig();
         plugin.getMessageProvider().reload(UnitedPolitics.getInstance().getConfig());
 
+        Logger.log("Loading database entries...", "UnitedPolitics");
+
         plugin.getReputationManager().loadReputationRecords();
+        plugin.getActorProfileManager().loadActorProfiles();
         
         Logger.log("Starting schedulers...", "UnitedPolitics");
         Logger.log("Done.", "UnitedPolitics");

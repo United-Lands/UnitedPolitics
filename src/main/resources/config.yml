@@ -130,6 +130,37 @@ record-definitions:
     low-cap: -100
     high-cap: 0
     decay: 1
+  likes-kills:
+    description: "They killed someone"
+    low-cap: 0
+    high-cap: 25
+    decay: -1
+  dislikes-kills:
+    description: "They killed someone"
+    low-cap: -25
+    high-cap: 0
+    decay: 1
+  # Rivalry
+  helped-rival:
+    description: "They helped a rival"
+    low-cap: -100
+    high-cap: 0
+    decay: 1
+  hurt-rival:
+    description: "They disgruntled a rival"
+    low-cap: 100
+    high-cap: 0
+    decay: -1
+  helped-partner:
+    description: "They helped a rival"
+    low-cap: 100
+    high-cap: 0
+    decay: -1
+  hurt-partner:
+    description: "They disgruntled a partner"
+    low-cap: -100
+    high-cap: 0
+    decay: 1
   # UnitedTrade integration reputation records
   ut-trade-complete:
     description: "They completed trade orders"
@@ -139,6 +170,16 @@ record-definitions:
   ut-trade-failed:
     description: "They failed trade orders"
     low-cap: -25
+    high-cap: 0
+    decay: 2
+  uw-likes-trade:
+    description: "They are traders"
+    low-cap: 0
+    high-cap: 50
+    decay: -2
+  uw-dislikes-trade:
+    description: "They are traders"
+    low-cap: -50
     high-cap: 0
     decay: 2
   # UnitedWar integration reputation records
@@ -157,8 +198,27 @@ record-definitions:
     low-cap: 0
     high-cap: 200
     decay: -2
+  uw-likes-war:
+    description: "They warred someone"
+    low-cap: 0
+    high-cap: 50
+    decay: -2
+  uw-dislikes-war:
+    description: "They warred someone"
+    low-cap: -50
+    high-cap: 0
+    decay: 2
 
+# +---------------------------------------------+ #
+# |            Default event keys               | #
+# +---------------------------------------------+ #
 
+event-keys:
+  - PAID_TRIBUTE
+  - KILLED_PLAYER
+  - TRADE_COMPLETE
+  - TRADE_FAILED
+  - WAR_DECLARED
 
 # +---------------------------------------------+ #
 # |       Special integration mechanics         | #
@@ -188,7 +248,7 @@ messages:
   usages:
     reputation:
       create:
-        - "Usage: /upa create <nation_A | town_A> <nation_B | town_B> <key> <value>"
+        - "Usage: /upa reputation create <nation_A | town_A> <nation_B | town_B> <key> <value>"
         - "<gray>Creates a reputation score for B with A with key <em>key</em> and value <em>value</em>.</gray>"
       set:
         - "Usage: /upa reputation set <nation_A | town_A> <nation_B | town_B> <key> <value>"
@@ -199,7 +259,35 @@ messages:
       remove:
         - "Usage: /upa reputation remove <nation_A | town_A> <nation_B | town_B> <key>"
         - "<gray>Removes a reputation score <em>key</em> for B with A.</gray>"
-
+    actorprofile:
+       create:
+        - "Usage: /upa actorprofile create <actor>"
+        - "<gray>Creates a new actor profile for the provided entity.</gray>"     
+       edit:
+        - "Usage: /upa actorprofile edit <actor>"
+        - "<gray>Edit the actor profile for the provided entity.</gray>"   
+    reaction:
+       create:
+        - "Usage: /upa actorprofile reaction create <actor> <event_key> <reputation_record_key> <amount>"
+        - "<gray>Creates a new reaction for the actor profile, meaning they will react towards the triggering entity with <em>amount</em> of reputation change in the specified <em>reputation_record_key</em> when an event with <em>event_key</em> happens.</gray>"     
+       remove:
+        - "Usage: /upa actorprofile reaction remove <actor> <event_key>"
+        - "<gray>Removes a reaction from the actor profile.</gray>"     
+    rival:
+       add:
+        - "Usage: /upa actorprofile rival add <actor> <rival_name>"
+        - "<gray>Adds the entity to the actor's list of rivals.</gray>"     
+       remove:
+        - "Usage: /upa actorprofile rival remove <actor>  <rival_name>"
+        - "<gray>Removes a rival from the actor profile.</gray>"     
+    partner:
+       add:
+        - "Usage: /upa actorprofile partner add <actor> <rival_name>"
+        - "<gray>Adds the entity to the actor's list of partners.</gray>"     
+       remove:
+        - "Usage: /upa actorprofile partner remove <actor>  <rival_name>"
+        - "<gray>Removes a partner from the actor profile.</gray>"     
+             
   errors:
     general:
       geopol-obj-not-found: "<red>'{obj-name}' not found.</red>"
@@ -212,12 +300,33 @@ messages:
       no-record: "<red>Reputation record not found, use create first.</red>"
       existing-record: "<red>A record with that key already exists, use set, add or remove instead."
 
+    actorprofile:
+      no-profile: "<red>This actor doesn't have a profile yet, use <em>create</em> to create one."
+      existing-record: "<red>A profile for that actor already exists."
+      reaction-exists: "<red>There aready is a record with this event key and reaction."
+      reaction-missing: "<red>No record with the given event key found."
+      rival-exists: "<red>There aready is a record with this rival."
+      rival-missing: "<red>No record with the given rival found."
+      partner-exists: "<red>There aready is a record with this partner."
+      partner-missing: "<red>No record with the given partner found."
+
   success:
     reputation:
       create: "<dark_green>Created reputation entry of {modifier} for {subject-name} with {observer-name} for key {key}."
       add: "<dark_green>Added {modifier} to reputation of {subject-name} with {observer-name} for key {key}."
       set: "<dark_green>Set reputation of {subject-name} with {observer-name} to {modifier} for key {key}."
       remove: "<dark_green>Removed reputation of {subject-name} with {observer-name} for key {key}."
+    actorprofile:
+      create: "<dark_green>Created actor profile for {actor-name}."
+      
+  actorprofile:
+    header: "<bold><gold>{name}'s Actor Profile</gold></bold>"
+    reactions-header: "<gray>[ Reactions ]<st>                                       </st></gray>"
+    reactions-line: "<gray>{event-key} -> <aqua>{record-key}</aqua>: {amount}</gray>"
+    rivals-header: "<red>[ Rivals ]<st>                                         </st></red>"
+    rivals-line: "<red>{rival}</red>"
+    partners-header: "<green>[ Partners ]<st>                                       </st></green>"
+    partners-line: "<green>{partner}</green>"
 
   tribute:
     usage: "<gray>Usage: /t paytribute <receiver> <amount></gray>. Will give you reputation with the receiver in exchange for money (1 point per 10,000, capped at +25)"

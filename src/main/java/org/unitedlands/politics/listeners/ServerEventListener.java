@@ -16,5 +16,6 @@ public class ServerEventListener implements Listener {
     @EventHandler
     public void onServerLoad(ServerLoadEvent event) {
         plugin.getReputationManager().loadReputationRecords();
+        plugin.getActorProfileManager().loadActorProfiles();
     }
 }
