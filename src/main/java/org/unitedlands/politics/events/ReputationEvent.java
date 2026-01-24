@@ -12,6 +12,7 @@ public class ReputationEvent extends Event implements Cancellable {
 
     private String eventKey;
     private UUID subjectId;
+    private UUID targetId;
 
     private boolean cancelled;
 
@@ -26,6 +27,10 @@ public class ReputationEvent extends Event implements Cancellable {
 
     public UUID getSubjectId() {
         return subjectId;
+    }
+
+    public UUID getTargetId() {
+        return targetId;
     }
 
     @Override

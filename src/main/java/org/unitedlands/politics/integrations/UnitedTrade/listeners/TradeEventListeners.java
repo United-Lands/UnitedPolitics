@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.MessageProvider;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
+import org.unitedlands.trade.classes.events.ShopOpenEvent;
 import org.unitedlands.trade.classes.events.TradeOrderBookPreTakeEvent;
 import org.unitedlands.trade.classes.events.TradeOrderCompletedEvent;
 import org.unitedlands.trade.classes.events.TradeOrderFailedEvent;
@@ -21,6 +22,36 @@ public class TradeEventListeners implements Listener {
     public TradeEventListeners(UnitedPolitics plugin, MessageProvider messageProvider) {
         this.plugin = plugin;
         this.messageProvider = messageProvider;
+    }
+
+    @EventHandler
+    public void onShopOpen(ShopOpenEvent event) {
+
+        var player = event.getPlayer();
+        var shopPoint = event.getShopPoint();
+
+        var playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
+        if (player == null)
+            return;
+
+        var location = shopPoint.getLocation();
+        if (location == null)
+            return;
+
+        ITownWrapper tradeTown = plugin.getGeopolWrapper().getTownAtLocation(location);
+        if (tradeTown == null)
+            return;
+
+        var score = plugin.getReputationManager().getTotalReputationScore(tradeTown.getUUID(), playerTown.getUUID());
+        var minimum = shopPoint.getMinReputation();
+
+        if (score < minimum) {
+            event.setCancelled(true);
+            Messenger.sendMessage(player,
+                    messageProvider.get("integration-mechanics.UnitedTrade.minimum-fail-message"),
+                    Map.of("name", tradeTown.getName(), "minimum", minimum + ""),
+                    messageProvider.get("messages.prefix"));
+        }
     }
 
     @EventHandler
@@ -45,8 +76,7 @@ public class TradeEventListeners implements Listener {
 
         if (plugin.getConfig().getBoolean("integration-mechanics.UnitedTrade.use-minimum-town-reputation")) {
 
-            double minimum = plugin.getConfig().getDouble("integration-mechanics.UnitedTrade.minimum-town-reputation",
-                    0);
+            double minimum = tradePoint.getMinReputation();
             var score = plugin.getReputationManager().getTotalReputationScore(tradeTown.getUUID(),
                     playerTown.getUUID());
 
@@ -66,8 +96,7 @@ public class TradeEventListeners implements Listener {
             if (nation == null)
                 return;
 
-            double minimum = plugin.getConfig().getDouble("integration-mechanics.UnitedTrade.minimum-nation-reputation",
-                    0);
+            double minimum = tradePoint.getMinReputation();
             var score = plugin.getReputationManager().getTotalReputationScore(nation.getUUID(),
                     playerTown.getUUID());
 
@@ -124,8 +153,7 @@ public class TradeEventListeners implements Listener {
 
             if (score >= minimum) {
                 var percentage = Math.max(0, Math.min(1, (score - minimum) / (limit - minimum)));
-                if (percentage > 0)
-                {
+                if (percentage > 0) {
                     var bonus = payment * factor * percentage;
                     event.setBonus(bonus);
                     event.setBonusReason(reason);
@@ -135,7 +163,10 @@ public class TradeEventListeners implements Listener {
 
         // Reputation handling
 
-        var amount = config.getDouble("settings.ut-trade-complete.amount");
+        var amount = tradePoint.getReputationOnComplete();
+        if (amount == 0)
+            return;
+
         plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-complete",
                 event.getPlayer(), true);
 
@@ -164,7 +195,10 @@ public class TradeEventListeners implements Listener {
         if (tradeTown.getUUID().equals(playerTown.getUUID()))
             return;
 
-        var amount = plugin.getConfig().getDouble("settings.ut-trade-failed.amount");
+        var amount = tradePoint.getReputationOnFail();
+        if (amount == 0)
+            return;
+
         plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-failed",
                 event.getPlayer(), true);
 

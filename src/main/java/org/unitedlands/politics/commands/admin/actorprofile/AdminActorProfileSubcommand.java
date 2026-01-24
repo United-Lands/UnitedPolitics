@@ -8,6 +8,8 @@ import org.unitedlands.politics.commands.admin.actorprofile.handlers.AdminEditAc
 import org.unitedlands.politics.commands.admin.actorprofile.handlers.AdminPartnersSubcommand;
 import org.unitedlands.politics.commands.admin.actorprofile.handlers.AdminReactionSubcommand;
 import org.unitedlands.politics.commands.admin.actorprofile.handlers.AdminRivalsSubcommand;
+import org.unitedlands.politics.integrations.UnitedDungeons.commands.AdminFriendlyDungeonsSubcommand;
+import org.unitedlands.politics.integrations.UnitedDungeons.commands.AdminHostileDungeonsSubcommand;
 
 public class AdminActorProfileSubcommand extends BaseSubcommandHandler<UnitedPolitics> {
 
@@ -23,6 +25,12 @@ public class AdminActorProfileSubcommand extends BaseSubcommandHandler<UnitedPol
         subHandlers.put("partners", new AdminPartnersSubcommand(plugin, messageProvider));
         subHandlers.put("create", new AdminCreateActorProfileCommand(plugin, messageProvider));
         subHandlers.put("edit", new AdminEditActorProfileCommand(plugin, messageProvider));
+
+        if (plugin.isUnitedDungeonsEnabled())
+        {
+            subHandlers.put("hostiledungeon", new AdminHostileDungeonsSubcommand(plugin, messageProvider));
+            subHandlers.put("friendlydungeon", new AdminFriendlyDungeonsSubcommand(plugin, messageProvider));
+        }
     }
 
 }

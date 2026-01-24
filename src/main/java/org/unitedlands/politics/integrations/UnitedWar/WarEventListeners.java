@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.events.ReputationEvent;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.war.events.WarDeclaredEvent;
@@ -168,5 +169,8 @@ public class WarEventListeners implements Listener {
                 }
             }
         }
+
+        ReputationEvent reputationEvent = new ReputationEvent("WAR_DECLARED", attacker.getUUID());
+        reputationEvent.callEvent();
     }
 }

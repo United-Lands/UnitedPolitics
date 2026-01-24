@@ -32,7 +32,6 @@ rep-passthrough-down:
 # +---------------------------------------------+ #
 
 settings:
-
   # Paying tribute to a town, region or nation
   tribute:
     # How much reputation will be given per unit of currency (default: 1 for 10,000)
@@ -44,9 +43,9 @@ settings:
   # Killing an player of a different town
   killed:
     # Should deaths change reputation
-    enabled: true 
+    enabled: true
     # Ignore deaths in these worlds
-    blacklisted-worlds: 
+    blacklisted-worlds:
       - sample_world
     # Amount of reputation loss for the kill
     amount: -5
@@ -69,31 +68,25 @@ settings:
     content-subject: "<dark_green>Our opinion of them: {score}"
     details: "<dark_green>Click for more information</dark_green>"
 
-  # UnitedTrade 
+  # UnitedTrade
   ut-trade-complete:
-    # Amount of reputation for completed trades
-    amount: 5
     # Give extra money for high reputation
     reputation-bonus:
       enabled: true
-      # The minumum reputation to receive a bonus 
+      # The minumum reputation to receive a bonus
       minimum: 50
-      # The reputation above which the bonus is not scaled anymore 
+      # The reputation above which the bonus is not scaled anymore
       limit: 100
       # The multiplier
-      # Example: With minmum 50 and limit 100, at a reputation of 75, the bonus 
-      # will be 0.5 (75 is halfway between 50 and 100) * 0.5 (factor) = 0.25, so 
+      # Example: With minmum 50 and limit 100, at a reputation of 75, the bonus
+      # will be 0.5 (75 is halfway between 50 and 100) * 0.5 (factor) = 0.25, so
       # an additional 25% of of the original payment.  At 100 reputation, the
-      # bonus will be 1 * 0.5 = 0.5, so an additonal 50%. 
+      # bonus will be 1 * 0.5 = 0.5, so an additonal 50%.
       factor: 0.5
       # The reason that will be displayed to the player
-      reason: 'High reputation with the trader'
+      reason: "High reputation with the trader"
 
-  ut-trade-failed:
-    # Amount of reputation for failed trades
-    amount: -5
-
-  # UnitedWar 
+  # UnitedWar
   uw-warred-us:
     enabled: true
     # In nation wars, this penalty is applied to the defending nation (and towns if passthrough-down is enabled).
@@ -113,7 +106,15 @@ settings:
     threshold: -100
     # The bonus
     amount: 100
-    
+
+  # UnitedDungeons
+  ud-looted-hostile-dungeon:
+    # The penalty
+    amount: 5
+  ud-looted-friendly-dungeon:
+    # The penalty
+    amount: -5
+
 # +---------------------------------------------+ #
 # |            Record definitions               | #
 # +---------------------------------------------+ #
@@ -208,6 +209,17 @@ record-definitions:
     low-cap: -50
     high-cap: 0
     decay: 2
+  # UnitedDungeons integration reputation records
+  ud-looted-hostile-dungeon:
+    description: "They looted a hostile place"
+    low-cap: 0
+    high-cap: 50
+    decay: -1
+  ud-looted-friendly-dungeon:
+    description: "They looted a friendly place"
+    low-cap: -50
+    high-cap: 0
+    decay: 1
 
 # +---------------------------------------------+ #
 # |            Default event keys               | #
@@ -226,13 +238,11 @@ event-keys:
 
 integration-mechanics:
   UnitedTrade:
-    # Disallow picking up trade orders if reputation with NPC town is below minimum
+    # Disallow picking up trade orders if reputation with NPC town is below minimum defined by the trade point
     use-minimum-town-reputation: true
-    minimum-town-reputation: -5
-    # Disallow picking up trade orders if reputation with NPC nation is below minimum
+    # Disallow picking up trade orders if reputation with NPC nation is below minimum defined by the trade point
     use-minimum-nation-reputation: true
-    minimum-nation-reputation: -5
-    minimum-fail-message: "<red>You can't take trade orders from this client, your reputation with {name} is too low (needs to be at least {minimum}).</red>"
+    minimum-fail-message: "<red>You can't use this, your reputation with {name} is too low (needs to be at least {minimum}).</red>"
 
 # +---------------------------------------------+ #
 # |                 Messages                    | #
@@ -260,34 +270,48 @@ messages:
         - "Usage: /upa reputation remove <nation_A | town_A> <nation_B | town_B> <key>"
         - "<gray>Removes a reputation score <em>key</em> for B with A.</gray>"
     actorprofile:
-       create:
+      create:
         - "Usage: /upa actorprofile create <actor>"
-        - "<gray>Creates a new actor profile for the provided entity.</gray>"     
-       edit:
+        - "<gray>Creates a new actor profile for the provided entity.</gray>"
+      edit:
         - "Usage: /upa actorprofile edit <actor>"
-        - "<gray>Edit the actor profile for the provided entity.</gray>"   
+        - "<gray>Edit the actor profile for the provided entity.</gray>"
     reaction:
-       create:
+      create:
         - "Usage: /upa actorprofile reaction create <actor> <event_key> <reputation_record_key> <amount>"
-        - "<gray>Creates a new reaction for the actor profile, meaning they will react towards the triggering entity with <em>amount</em> of reputation change in the specified <em>reputation_record_key</em> when an event with <em>event_key</em> happens.</gray>"     
-       remove:
+        - "<gray>Creates a new reaction for the actor profile, meaning they will react towards the triggering entity with <em>amount</em> of reputation change in the specified <em>reputation_record_key</em> when an event with <em>event_key</em> happens.</gray>"
+      remove:
         - "Usage: /upa actorprofile reaction remove <actor> <event_key>"
-        - "<gray>Removes a reaction from the actor profile.</gray>"     
+        - "<gray>Removes a reaction from the actor profile.</gray>"
     rival:
-       add:
+      add:
         - "Usage: /upa actorprofile rival add <actor> <rival_name>"
-        - "<gray>Adds the entity to the actor's list of rivals.</gray>"     
-       remove:
+        - "<gray>Adds the entity to the actor's list of rivals.</gray>"
+      remove:
         - "Usage: /upa actorprofile rival remove <actor>  <rival_name>"
-        - "<gray>Removes a rival from the actor profile.</gray>"     
+        - "<gray>Removes a rival from the actor profile.</gray>"
     partner:
-       add:
+      add:
         - "Usage: /upa actorprofile partner add <actor> <rival_name>"
-        - "<gray>Adds the entity to the actor's list of partners.</gray>"     
-       remove:
+        - "<gray>Adds the entity to the actor's list of partners.</gray>"
+      remove:
         - "Usage: /upa actorprofile partner remove <actor>  <rival_name>"
-        - "<gray>Removes a partner from the actor profile.</gray>"     
-             
+        - "<gray>Removes a partner from the actor profile.</gray>"
+    hostiledungeon:
+      add:
+        - "Usage: /upa actorprofile hostiledungeon add <actor> <dungeon_name>"
+        - "<gray>Adds the dungeon to the actor's list of hostile dungeons.</gray>"
+      remove:
+        - "Usage: /upa actorprofile hostiledungeon remove <actor> <dungeon_name>"
+        - "<gray>Removes a hostile dungeon from the actor profile.</gray>"
+    friendlydungeon:
+      add:
+        - "Usage: /upa actorprofile friendlydungeon add <actor> <dungeon_name>"
+        - "<gray>Adds the dungeon to the actor's list of friendly dungeons.</gray>"
+      remove:
+        - "Usage: /upa actorprofile friendlydungeon remove <actor> <dungeon_name>"
+        - "<gray>Removes a friendly dungeon from the actor profile.</gray>"
+
   errors:
     general:
       geopol-obj-not-found: "<red>'{obj-name}' not found.</red>"
@@ -309,6 +333,9 @@ messages:
       rival-missing: "<red>No record with the given rival found."
       partner-exists: "<red>There aready is a record with this partner."
       partner-missing: "<red>No record with the given partner found."
+      dungeon-not-found: "<red>No dungeon with that name found."
+      dungeon-exists: "<red>There aready is a record with this dungeon."
+      dungeon-missing: "<red>No record with the given dungeon found."
 
   success:
     reputation:
@@ -318,7 +345,8 @@ messages:
       remove: "<dark_green>Removed reputation of {subject-name} with {observer-name} for key {key}."
     actorprofile:
       create: "<dark_green>Created actor profile for {actor-name}."
-      
+      saved: "<dark_green>Saved changes for {actor-name}."
+
   actorprofile:
     header: "<bold><gold>{name}'s Actor Profile</gold></bold>"
     reactions-header: "<gray>[ Reactions ]<st>                                       </st></gray>"
@@ -327,6 +355,10 @@ messages:
     rivals-line: "<red>{rival}</red>"
     partners-header: "<green>[ Partners ]<st>                                       </st></green>"
     partners-line: "<green>{partner}</green>"
+    hostiledungeons-header: "<dark_red>[ Hostile Dungeons ]<st>                                </st></dark_red>"
+    hostiledungeons-line: "<dark_red>{dungeon}</dark_red>"
+    friendlydungeons-header: "<dark_green>[ Friendly Dungeons ]<st>                                </st></dark_green>"
+    friendlydungeons-line: "<dark_green>{dungeon}</dark_green>"
 
   tribute:
     usage: "<gray>Usage: /t paytribute <receiver> <amount></gray>. Will give you reputation with the receiver in exchange for money (1 point per 10,000, capped at +25)"

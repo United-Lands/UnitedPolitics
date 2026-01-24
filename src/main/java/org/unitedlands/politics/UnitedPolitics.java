@@ -9,6 +9,7 @@ import org.unitedlands.politics.commands.OpinionCommand;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownPayTributeCommand;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationCommand;
 import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
+import org.unitedlands.politics.integrations.UnitedDungeons.listeners.DungeonEventListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
 import org.unitedlands.politics.integrations.UnitedWar.WarEventListeners;
 import org.unitedlands.politics.listeners.DeathListener;
@@ -37,6 +38,13 @@ public class UnitedPolitics extends JavaPlugin {
     private DiplomacyManager diplomacyManager;
     private ActorProfileManager actorProfileManager;
 
+    private boolean townyEnabled;
+    private boolean unitedTradeEnabled;
+    private boolean unitedWarEnabled;
+    private boolean unitedDungeonsEnabled;
+
+
+
     private static MessageProvider messageProvider;
 
     @Override
@@ -51,10 +59,10 @@ public class UnitedPolitics extends JavaPlugin {
         loadManagers();
         loadWrappers();
 
+        loadIntegrations();
+
         registerEvents();
         registerCommands();
-
-        loadIntegrations();
 
         databaseManager.initialize();
 
@@ -99,18 +107,28 @@ public class UnitedPolitics extends JavaPlugin {
             new TownyTownReputationCommand(this, messageProvider);
             new TownyTownPayTributeCommand(this, messageProvider);
             getServer().getPluginManager().registerEvents(new TownScreenListener(this), this);
+            this.townyEnabled = true;
         }
 
         Plugin unitedTrade = Bukkit.getPluginManager().getPlugin("UnitedTrade");
         if (unitedTrade != null && unitedTrade.isEnabled()) {
             Logger.log("Enabling UnitedTrade integrations.", "UnitedPolitics");
             getServer().getPluginManager().registerEvents(new TradeEventListeners(this, messageProvider), this);
+            this.unitedTradeEnabled = true;
         }
 
         Plugin unitedWar = Bukkit.getPluginManager().getPlugin("UnitedWar");
         if (unitedWar != null && unitedWar.isEnabled()) {
             Logger.log("Enabling UnitedWar integrations.", "UnitedPolitics");
             getServer().getPluginManager().registerEvents(new WarEventListeners(this), this);
+            this.unitedWarEnabled = true;
+        }
+
+        Plugin unitedDungeons = Bukkit.getPluginManager().getPlugin("UnitedDungeons");
+        if (unitedDungeons != null && unitedDungeons.isEnabled()) {
+            Logger.log("Enabling UnitedDungeons integrations.", "UnitedPolitics");
+            getServer().getPluginManager().registerEvents(new DungeonEventListener(this), this);
+            this.unitedDungeonsEnabled = true;
         }
     }
 
@@ -136,6 +154,25 @@ public class UnitedPolitics extends JavaPlugin {
 
     public ActorProfileManager getActorProfileManager() {
         return actorProfileManager;
+    }
+
+
+    // Integrations
+
+    public boolean isTownyEnabled() {
+        return townyEnabled;
+    }
+
+    public boolean isUnitedTradeEnabled() {
+        return unitedTradeEnabled;
+    }
+
+    public boolean isUnitedWarEnabled() {
+        return unitedWarEnabled;
+    }
+
+    public boolean isUnitedDungeonsEnabled() {
+        return unitedDungeonsEnabled;
     }
 
 }

@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.unitedlands.classes.BaseCommandHandler;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.integrations.UnitedDungeons.utils.DungeonsActorComponentUtils;
 import org.unitedlands.politics.utils.ColorFormatter;
 import org.unitedlands.politics.utils.GeopolUtils;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
@@ -160,6 +161,16 @@ public class AdminEditActorProfileCommand extends BaseCommandHandler<UnitedPolit
         Component partnerAddComponent = MiniMessage.miniMessage().deserialize("<dark_gray>[<green>+</green>]</dark_gray>")
                 .clickEvent(ClickEvent.suggestCommand("/upa actorprofile partners add " + actor.getName() + " "));
         Messenger.send(sender, partnerAddComponent);
+
+        // --------------
+        // Optional UnitedDungeons integration
+        // --------------
+
+        if (plugin.isUnitedDungeonsEnabled()) {
+            var utils = new DungeonsActorComponentUtils();
+            utils.sendHostileDungeonsComponent(sender, messageProvider, profile, actor);
+            utils.sendFriendlyDungeonsComponent(sender, messageProvider, profile, actor);
+        }
     }
 
 }

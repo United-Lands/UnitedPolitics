@@ -56,6 +56,18 @@ public class ActorProfile implements Identifiable {
     private transient Set<UUID> rivals;
     private transient Set<UUID> partners;
 
+    // -----------------------------------------------------------
+    // Optional UnitedDungeons integrations
+    // -----------------------------------------------------------
+
+    @DatabaseField(canBeNull = true, dataType = DataType.LONG_STRING)
+    private String hostileDungeonsSerialized;
+    @DatabaseField(canBeNull = true, dataType = DataType.LONG_STRING)
+    private String friendlyDungeonsSerialized;
+
+    private transient Set<UUID> hostileDungeons;
+    private transient Set<UUID> friendlyDungeons;
+
     public ActorProfile() {
     }
 
@@ -170,6 +182,62 @@ public class ActorProfile implements Identifiable {
             this.partnersSerialized = null;
         else
             this.partnersSerialized = partners.stream()
+                    .map(UUID::toString)
+                    .collect(Collectors.joining("#"));
+    }
+
+    public String getHostileDungeonsSerialized() {
+        return hostileDungeonsSerialized;
+    }
+
+    public void setHostileDungeonsSerialized(String hostileDungeonsSerialized) {
+        this.hostileDungeonsSerialized = hostileDungeonsSerialized;
+        this.hostileDungeons = null;
+    }
+
+    public String getFriendlyDungeonsSerialized() {
+        return friendlyDungeonsSerialized;
+    }
+
+    public void setFriendlyDungeonsSerialized(String friendlyDungeonsSerialized) {
+        this.friendlyDungeonsSerialized = friendlyDungeonsSerialized;
+        this.friendlyDungeons = null;
+    }
+
+    public Set<UUID> getHostileDungeons() {
+        if (hostileDungeons == null && hostileDungeonsSerialized != null && hostileDungeonsSerialized != "") {
+            hostileDungeons = Arrays.stream(hostileDungeonsSerialized.split("#"))
+                    .map(UUID::fromString)
+                    .collect(Collectors.toSet());
+        }
+        return hostileDungeons;
+    }
+
+    public void setHostileDungeons(Set<UUID> hostileDungeons) {
+        this.hostileDungeons = hostileDungeons;
+        if (hostileDungeons.isEmpty())
+            this.hostileDungeonsSerialized = null;
+        else
+            this.hostileDungeonsSerialized = hostileDungeons.stream()
+                    .map(UUID::toString)
+                    .collect(Collectors.joining("#"));
+    }
+
+    public Set<UUID> getFriendlyDungeons() {
+        if (friendlyDungeons == null && friendlyDungeonsSerialized != null && friendlyDungeonsSerialized != "") {
+            friendlyDungeons = Arrays.stream(friendlyDungeonsSerialized.split("#"))
+                    .map(UUID::fromString)
+                    .collect(Collectors.toSet());
+        }
+        return friendlyDungeons;
+    }
+
+    public void setFriendlyDungeons(Set<UUID> friendlyDungeons) {
+        this.friendlyDungeons = friendlyDungeons;
+        if (friendlyDungeons.isEmpty())
+            this.friendlyDungeonsSerialized = null;
+        else
+            this.friendlyDungeonsSerialized = friendlyDungeons.stream()
                     .map(UUID::toString)
                     .collect(Collectors.joining("#"));
     }

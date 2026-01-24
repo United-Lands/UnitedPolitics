@@ -1,7 +1,9 @@
 package org.unitedlands.politics.managers;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.unitedlands.politics.UnitedPolitics;
@@ -29,6 +31,9 @@ public class ActorProfileManager {
             Logger.log("Loaded " + entries.size() + " actor profiles to memory.", "UnitedPolitics");
         });
 
+    }
+    public Collection<ActorProfile> getActorProfiles() {
+        return actorProfiles.values();
     }
 
     public ActorProfile getActorProfile(UUID id) {
