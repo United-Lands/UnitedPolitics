@@ -25,6 +25,7 @@ public class AdminReloadCommand extends BaseCommandHandler<UnitedPolitics>{
     public void handleCommand(CommandSender sender, String[] args) {
 
         Logger.log("Stopping schedulers...", "UnitedPolitics");
+        plugin.getTimeManager().cancelScheduledNewDay();
         Logger.log("Reloading configs...", "UnitedPolitics");
 
         plugin.reloadConfig();
@@ -36,6 +37,7 @@ public class AdminReloadCommand extends BaseCommandHandler<UnitedPolitics>{
         plugin.getActorProfileManager().loadActorProfiles();
         
         Logger.log("Starting schedulers...", "UnitedPolitics");
+        plugin.getTimeManager().scheduleNewDay();
         Logger.log("Done.", "UnitedPolitics");
 
         Messenger.sendMessage(sender, messageProvider.get("messages.reload"), null, messageProvider.get("messages.prefix"));

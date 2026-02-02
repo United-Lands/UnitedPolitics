@@ -3,7 +3,6 @@ package org.unitedlands.politics.managers;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.unitedlands.politics.UnitedPolitics;

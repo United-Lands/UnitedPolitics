@@ -31,6 +31,11 @@ public class TownyNationWrapper implements INationWrapper {
         return nation.getName();
     }
 
+    @Override 
+    public ITownWrapper getCapital() {
+        return new TownyTownWrapper(nation.getCapital());
+    }
+
     @Override
     public IEconomyAccountWrapper getBankAccount() {
         try {
@@ -51,4 +56,30 @@ public class TownyNationWrapper implements INationWrapper {
         return nation.getTowns().stream().map(town -> new TownyTownWrapper(town)).collect(Collectors.toList());
     }
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((nation == null) ? 0 : nation.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        TownyNationWrapper other = (TownyNationWrapper) obj;
+        if (nation == null) {
+            if (other.nation != null)
+                return false;
+        } else if (!nation.getUUID().equals(other.nation.getUUID()))
+            return false;
+        return true;
+    }
+
+    
 }

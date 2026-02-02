@@ -63,36 +63,36 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
         if (residentTown == null)
             return false;
 
-        if (args.length == 0) {
+        // if (args.length == 0) {
 
-            Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-info-header"));
+        //     Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-info-header"));
 
-            var records = plugin.getReputationManager().getReputationScoreEntriesForSubject(residentTown.getUUID());
-            if (records == null || records.isEmpty()) {
-                Messenger.sendMessage(sender, messageProvider.get("messages.reputation-info-empty"));
-                Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-entry-footer"));
-                return false;
-            }
+        //     var records = plugin.getReputationManager().getReputationScoreEntriesForSubject(residentTown.getUUID());
+        //     if (records == null || records.isEmpty()) {
+        //         Messenger.sendMessage(sender, messageProvider.get("messages.reputation-info-empty"));
+        //         Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-entry-footer"));
+        //         return false;
+        //     }
 
-            var grouped = records.stream().collect(Collectors.groupingBy(ReputationScoreEntry::getObserver));
+        //     var grouped = records.stream().collect(Collectors.groupingBy(ReputationScoreEntry::getObserver));
 
-            for (var item : grouped.entrySet()) {
-                var geopolObject = GeopolUtils.findGeopolObject(item.getKey());
-                if (geopolObject == null)
-                    continue;
+        //     for (var item : grouped.entrySet()) {
+        //         var geopolObject = GeopolUtils.findGeopolObject(item.getKey());
+        //         if (geopolObject == null)
+        //             continue;
 
-                Double score = item.getValue().stream()
-                        .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
+        //         Double score = item.getValue().stream()
+        //                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
 
-                String scoreStr = ColorFormatter.getAmountColored(score);
-                String prefixStr = ColorFormatter.getGeopolPrefixColored(geopolObject);
+        //         String scoreStr = ColorFormatter.getAmountColored(score);
+        //         String prefixStr = ColorFormatter.getGeopolPrefixColored(geopolObject);
 
-                Messenger.sendMessage(sender, messageProvider.get("messages.reputation-info-entry"),
-                        Map.of("prefix", prefixStr, "subject-name", geopolObject.getName(), "score", scoreStr));
-            }
+        //         Messenger.sendMessage(sender, messageProvider.get("messages.reputation-info-entry"),
+        //                 Map.of("prefix", prefixStr, "subject-name", geopolObject.getName(), "score", scoreStr));
+        //     }
 
-            Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-entry-footer"));
-        }
+        //     Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-entry-footer"));
+        // }
 
         if (args.length == 1) {
 
@@ -105,17 +105,24 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
                         Map.of("subject-name", args[0]));
             }
 
-            var entries = plugin.getReputationManager().getReputationScoreEntries(geopolObj.getUUID(),
+            List<ReputationScoreEntry> allEntries = new ArrayList<>();
+            var dynamicEntries = plugin.getReputationManager().getReputationScoreEntries(geopolObj.getUUID(),
                     residentTown.getUUID());
-            if (entries == null || entries.isEmpty()) {
+            allEntries.addAll(dynamicEntries);
+
+            var staticEntries = plugin.getReputationManager().calculateStaticReputationScoreEntries(geopolObj.getUUID(),
+                    residentTown.getUUID());
+            allEntries.addAll(staticEntries);
+
+            if (allEntries == null || allEntries.isEmpty()) {
                 Messenger.sendMessage(sender, messageProvider.get("messages.reputation-details-empty"),
                         Map.of("subject-name", args[0]));
             }
 
-            entries = entries.stream().sorted(Comparator.comparing(ReputationScoreEntry::getModifier))
+            allEntries = allEntries.stream().sorted(Comparator.comparing(ReputationScoreEntry::getModifier))
                     .collect(Collectors.toList());
 
-            for (var item : entries) {
+            for (var item : allEntries) {
 
                 String scoreStr = ColorFormatter.getAmountColored(item.getModifier());
                 String decayStr = ColorFormatter.getAmountColored(item.getDecayRate());

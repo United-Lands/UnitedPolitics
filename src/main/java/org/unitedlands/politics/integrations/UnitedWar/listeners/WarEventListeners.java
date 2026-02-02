@@ -1,4 +1,4 @@
-package org.unitedlands.politics.integrations.UnitedWar;
+package org.unitedlands.politics.integrations.UnitedWar.listeners;
 
 import java.util.ArrayList;
 import java.util.List;

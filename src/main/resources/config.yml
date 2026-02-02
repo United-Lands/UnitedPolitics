@@ -15,6 +15,28 @@ mysql:
   password: unitedpolitics
   database: unitedpolitics
 
+###################################################
+# +---------------------------------------------+ #
+# |              New Day Scheduling             | #
+# +---------------------------------------------+ #
+###################################################
+
+# How long a day lasts (in real time) until reputation decay is applies. Can't be more than 
+# 24 real-life hours or less than 1 real-life minute. Use d, h, m and s as units.
+new-day-interval: 1d
+# If the new day interval is 1d, this is the hour of the day (UTC) at which the new day is started.
+# If the interval is less than 1d, this option is ignored and the interval is started from the last
+# reboot of the server.
+# Must be a number between 0 and 23.
+new-day-start-hour: 12
+
+
+###################################################
+# +---------------------------------------------+ #
+# |   Settings for reputation actions & events  | #
+# +---------------------------------------------+ #
+###################################################
+
 # Whether reputation changes on one level will also change reputation on higher or lower levels.
 # Each consecutive level will be multiplied by the factor. Example: with upward passthrough of 0.5,
 # a town reputation change of +10 will propagate to +5 for the region and +2.5 for the nation.
@@ -26,10 +48,6 @@ rep-passthrough-up:
 rep-passthrough-down:
   enabled: true
   factor: 0.5
-
-# +---------------------------------------------+ #
-# |   Settings for reputation actions & events  | #
-# +---------------------------------------------+ #
 
 settings:
   # Paying tribute to a town, region or nation
@@ -120,7 +138,7 @@ settings:
 # +---------------------------------------------+ #
 
 record-definitions:
-  # UnitedPolitics default reputation records
+  # UnitedPolitics default dynamic reputation records
   paid-tribute:
     description: "They paid tribute to us"
     low-cap: -25
@@ -141,7 +159,81 @@ record-definitions:
     low-cap: -25
     high-cap: 0
     decay: 1
+
+  # UnitedPolitics default static reputation records
+  our-town:
+    description: "Our town"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  same-region:
+    description: "Same region"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  our-region:
+    same-region:
+    description: "Our region"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  same-nation:
+    same-region:
+    description: "Same nation"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  our-nation:
+    same-region:
+    description: "Our nation"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+
   # Rivalry
+  # Static
+  our-rival: 
+    description: "They are our rival"
+    low-cap: -100
+    high-cap: 0
+    decay: 0
+    default: -100
+  our-rivals-rival: 
+    description: "They are our rival's rival"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  our-rivals-partner: 
+    description: "They are our rival's partner"
+    low-cap: -50
+    high-cap: 0
+    decay: 0
+    default: -50
+  our-partner: 
+    description: "They are our rival"
+    low-cap: 0
+    high-cap: 100
+    decay: 0
+    default: 100
+  our-partners-rival: 
+    description: "They are our partner's rival"
+    low-cap: -50
+    high-cap: 0
+    decay: 0
+    default: -50
+  our-partners-partner: 
+    description: "They are our partner's partner"
+    low-cap: 0
+    high-cap: 0
+    decay: 0
+    default: 50
+  # Dynamic
   helped-rival:
     description: "They helped a rival"
     low-cap: -100
@@ -184,6 +276,20 @@ record-definitions:
     high-cap: 0
     decay: 2
   # UnitedWar integration reputation records
+  # Static
+  uw-enemy-in-war:
+    description: "Enemy in ongoing war"
+    low-cap: -200
+    high-cap: 0
+    decay: 0
+    default: -200
+  uw-ally-in-war:
+    description: "Ally in ongoing war"
+    low-cap: 0
+    high-cap: 200
+    decay: 0
+    default: 200
+  # Dynamic
   uw-warred-us:
     description: "They warred us"
     low-cap: -200
@@ -311,6 +417,9 @@ messages:
       remove:
         - "Usage: /upa actorprofile friendlydungeon remove <actor> <dungeon_name>"
         - "<gray>Removes a friendly dungeon from the actor profile.</gray>"
+    opinion:
+        - "Usage: /opinion <town/nation> <target_town/target_nation>"
+        - "<gray>Shows the opinion details of a town / nation about a target town / nation.</gray>"
 
   errors:
     general:
@@ -336,6 +445,10 @@ messages:
       dungeon-not-found: "<red>No dungeon with that name found."
       dungeon-exists: "<red>There aready is a record with this dungeon."
       dungeon-missing: "<red>No record with the given dungeon found."
+
+    opinion:
+      no-town: "<red>You must be in a town to use this command without a target. Use \"/opinion <town/nation> <target_town/target_nation>\"</red>"
+      target-not-found: "<red>Target {target} not found.</red>"
 
   success:
     reputation:
@@ -384,4 +497,12 @@ messages:
   reputation-details-empty: "<gray><em>You don't have any reputation with {subject-name}.</em></gray>"
   reputation-details-entry: "<gray><bold>{description}</bold>: {score} ({decay} per day)</gray>"
   reputation-details-footer:
+    - "<red><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></red>"
+
+  opinion-details-header:
+    - "<red><strikethrough>+|✦                           </strikethrough><bold>[<white> Opinion </white>]</bold><strikethrough>                            |✦+</strikethrough></red>"
+    - "<gold>{observer-name}'s opinion of {subject-name}:</gold>"
+  opinion-details-empty: "<gray><em>They don't have any opinion of {subject-name}.</em></gray>"
+  opinion-details-entry: "<gray><bold>{description}</bold>: {score} ({decay} per day)</gray>"
+  opinion-details-footer:
     - "<red><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></red>"

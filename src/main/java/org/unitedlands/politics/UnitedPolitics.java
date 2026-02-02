@@ -11,7 +11,7 @@ import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationC
 import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
 import org.unitedlands.politics.integrations.UnitedDungeons.listeners.DungeonEventListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
-import org.unitedlands.politics.integrations.UnitedWar.WarEventListeners;
+import org.unitedlands.politics.integrations.UnitedWar.listeners.WarEventListeners;
 import org.unitedlands.politics.listeners.DeathListener;
 import org.unitedlands.politics.listeners.ReputationEventListener;
 import org.unitedlands.politics.listeners.ServerEventListener;
@@ -19,6 +19,7 @@ import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.DatabaseManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.DiplomacyManager;
+import org.unitedlands.politics.managers.TimeManager;
 import org.unitedlands.politics.wrappers.Towny.TownyGeopolWrapper;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolWrapper;
 import org.unitedlands.utils.Logger;
@@ -37,13 +38,12 @@ public class UnitedPolitics extends JavaPlugin {
     private ReputationManager reputationManager;
     private DiplomacyManager diplomacyManager;
     private ActorProfileManager actorProfileManager;
+    private TimeManager timeManager;
 
     private boolean townyEnabled;
     private boolean unitedTradeEnabled;
     private boolean unitedWarEnabled;
     private boolean unitedDungeonsEnabled;
-
-
 
     private static MessageProvider messageProvider;
 
@@ -90,6 +90,7 @@ public class UnitedPolitics extends JavaPlugin {
         reputationManager = new ReputationManager(this, messageProvider);
         diplomacyManager = new DiplomacyManager(this);
         actorProfileManager = new ActorProfileManager(this);
+        timeManager = new TimeManager(this);
     }
 
     private void loadWrappers() {
@@ -156,6 +157,9 @@ public class UnitedPolitics extends JavaPlugin {
         return actorProfileManager;
     }
 
+    public TimeManager getTimeManager() {
+        return timeManager;
+    }
 
     // Integrations
 

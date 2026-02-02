@@ -17,5 +17,6 @@ public class ServerEventListener implements Listener {
     public void onServerLoad(ServerLoadEvent event) {
         plugin.getReputationManager().loadReputationRecords();
         plugin.getActorProfileManager().loadActorProfiles();
+        plugin.getTimeManager().scheduleNewDay();
     }
 }
