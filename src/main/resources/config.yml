@@ -348,6 +348,8 @@ integration-mechanics:
     use-minimum-town-reputation: true
     # Disallow picking up trade orders if reputation with NPC nation is below minimum defined by the trade point
     use-minimum-nation-reputation: true
+    # The default reputation that a player has if their reputation can't be calculated (e.g. when they're townless)
+    default-reputation: 0
     minimum-fail-message: "<red>You can't use this, your reputation with {name} is too low (needs to be at least {minimum}).</red>"
 
 # +---------------------------------------------+ #
@@ -418,8 +420,8 @@ messages:
         - "Usage: /upa actorprofile friendlydungeon remove <actor> <dungeon_name>"
         - "<gray>Removes a friendly dungeon from the actor profile.</gray>"
     opinion:
-        - "Usage: /opinion <town/nation> <target_town/target_nation>"
-        - "<gray>Shows the opinion details of a town / nation about a target town / nation.</gray>"
+        - "Usage: /opinion <town/nation> [target_town/target_nation]"
+        - "<gray>Shows the opinion details of a town / nation about a target town / nation. If you leave out the target, the target will be your own town.</gray>"
 
   errors:
     general:

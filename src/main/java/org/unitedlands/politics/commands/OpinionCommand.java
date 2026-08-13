@@ -24,8 +24,6 @@ import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Messenger;
 
-import net.kyori.adventure.text.minimessage.MiniMessage;
-
 public class OpinionCommand implements CommandExecutor, TabCompleter {
 
     private final UnitedPolitics plugin;
@@ -60,6 +58,12 @@ public class OpinionCommand implements CommandExecutor, TabCompleter {
             @NotNull String alias, @NotNull String @NotNull [] args) {
 
         var player = (Player) sender;
+
+        if (args.length == 0) {
+            Messenger.sendMessage(sender, messageProvider.getList("messages.usages.opinion"), null,
+                    messageProvider.get("messages.prefix"));
+            return false;
+        }
 
         IGeopolObjectWrapper observerObj = GeopolUtils.findGeopolObject(args[0]);
         if (observerObj == null) {
@@ -114,47 +118,13 @@ public class OpinionCommand implements CommandExecutor, TabCompleter {
 
         }
 
-        var total = Math.max(-200, Math.min(200, allEntries.stream().collect(Collectors.summingDouble(ReputationScoreEntry::getModifier))));
+        var total = Math.max(-200, Math.min(200,
+                allEntries.stream().collect(Collectors.summingDouble(ReputationScoreEntry::getModifier))));
 
-        Messenger.sendMessage(sender, "<white><bold>Total: " + ColorFormatter.getAmountColored(total) + "</bold></white>");
+        Messenger.sendMessage(sender,
+                "<white><bold>Total: " + ColorFormatter.getAmountColored(total) + "</bold></white>");
 
         Messenger.sendMessage(sender, messageProvider.getList("messages.opinion-details-footer"));
-
-        // if (args.length == 1) {
-        // var scores =
-        // plugin.getReputationManager().getTotalReputationScores(observerObj.getUUID());
-        // List<String> scoreList = new ArrayList<>();
-        // for (var entry : scores.entrySet()) {
-        // String prefString = ColorFormatter.getGeopolPrefixColored(entry.getKey());
-        // String nameStr = entry.getKey().getName();
-        // String score = ColorFormatter.getAmountColored(entry.getValue());
-        // scoreList.add(prefString + " " + nameStr + ": " + score);
-        // }
-
-        // String msg = "<gold><bold>" + observerObj.getName() + ":</bold></gold> " +
-        // String.join(", ", scoreList);
-        // Messenger.sendMessage(sender, msg, null,
-        // messageProvider.get("messages.prefix"));
-        // }
-
-        // if (args.length == 2) {
-
-        // IGeopolObjectWrapper subjectObj = GeopolUtils.findGeopolObject(args[1]);
-        // if (subjectObj == null) {
-        // return false;
-        // }
-
-        // var score =
-        // plugin.getReputationManager().getTotalReputationScore(observerObj.getUUID(),
-        // subjectObj.getUUID());
-        // String scoreStr = ColorFormatter.getAmountColored(score);
-
-        // String msg = "<gold><bold>" + observerObj.getName() + " → " +
-        // subjectObj.getName() + ":</bold></gold> "
-        // + scoreStr;
-        // Messenger.sendMessage(sender, msg, null,
-        // messageProvider.get("messages.prefix"));
-        // }
 
         return false;
     }

@@ -322,6 +322,9 @@ public class ReputationManager {
     public void handleReputationChange(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, double modifier,
             String configKey, Player player, boolean doPassthrough) {
 
+        if (observer == null || subject == null)
+            return;
+
         // Main entry
         var entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(),
                 configKey);
@@ -468,6 +471,8 @@ public class ReputationManager {
     }
 
     private void logChange(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String key, double amount) {
+        if (observer == null || subject == null)
+            return;
         Logger.log(
                 "Added/updated reputation entry {" + key + "} of " + observer.getName() + " with " + subject.getName()
                         + ": " + amount,
