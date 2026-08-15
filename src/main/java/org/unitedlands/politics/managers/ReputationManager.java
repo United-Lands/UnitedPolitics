@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
-
 import org.bukkit.entity.Player;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.MessageProvider;
@@ -264,7 +262,7 @@ public class ReputationManager {
         return result;
     }
 
-    public @Nonnull ReputationScoreEntry getOrCreateReputationScoreEntry(UUID observerId, UUID subjectId,
+    public ReputationScoreEntry getOrCreateReputationScoreEntry(UUID observerId, UUID subjectId,
             String configSectionKey) {
 
         ReputationScoreEntry entry = getReputationScoreEntryWithKey(observerId, subjectId, configSectionKey);

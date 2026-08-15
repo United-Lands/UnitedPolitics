@@ -40,8 +40,6 @@ public class TownScreenListener implements Listener {
         if (sender instanceof Player) {
             var player = (Player) sender;
 
-            Logger.log(player.getName());
-
             var playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
             if (playerTown == null)
                 return;

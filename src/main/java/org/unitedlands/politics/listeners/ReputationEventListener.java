@@ -17,6 +17,6 @@ public class ReputationEventListener implements Listener {
     @EventHandler
     public void onReputationEvent(ReputationEvent event)
     {
-        Logger.log("Reputation event!");
+
     }
 }
