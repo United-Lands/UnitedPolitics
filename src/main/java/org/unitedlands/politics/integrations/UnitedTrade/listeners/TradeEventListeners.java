@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -13,10 +12,9 @@ import org.unitedlands.politics.classes.MessageProvider;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.trade.classes.TradePoint;
 import org.unitedlands.trade.classes.events.ShopOpenEvent;
-import org.unitedlands.trade.classes.events.TradeOrderBookPreTakeEvent;
 import org.unitedlands.trade.classes.events.TradeOrderCompletedEvent;
 import org.unitedlands.trade.classes.events.TradeOrderFailedEvent;
-import org.unitedlands.trade.classes.events.TradePointOpenEvent;
+import org.unitedlands.trade.classes.events.TradePointValidationEvent;
 import org.unitedlands.utils.Logger;
 import org.unitedlands.utils.Messenger;
 
@@ -61,7 +59,7 @@ public class TradeEventListeners implements Listener {
     }
 
     @EventHandler
-    public void onTradePointOpen(TradePointOpenEvent event) {
+    public void onTradePointValidation(TradePointValidationEvent event) {
 
         var tradePoint = event.getTradePoint();
         if (tradePoint == null)
@@ -72,24 +70,11 @@ public class TradeEventListeners implements Listener {
             return;
 
         validateReputation(event, event.getPlayer(), tradePoint, location);
-        
+
     }
 
-    @EventHandler
-    public void onBookPrePickup(TradeOrderBookPreTakeEvent event) {
-
-        var tradePoint = event.getTradePoint();
-        if (tradePoint == null)
-            return;
-
-        var location = tradePoint.getLocation();
-        if (location == null)
-            return;
-
-        validateReputation(event, event.getPlayer(), tradePoint, location);
-    }
-
-    private void validateReputation(Cancellable event, Player player, TradePoint tradePoint, Location location) {
+    private void validateReputation(TradePointValidationEvent event, Player player, TradePoint tradePoint,
+            Location location) {
 
         ITownWrapper tradeTown = plugin.getGeopolWrapper().getTownAtLocation(location);
         if (tradeTown == null)
@@ -116,12 +101,11 @@ public class TradeEventListeners implements Listener {
             }
 
             if (score < minimum) {
-                Messenger.sendMessage(player,
-                        messageProvider.get("integration-mechanics.UnitedTrade.minimum-fail-message"),
-                        Map.of("name", tradeTown.getName(), "minimum", minimum + ""),
-                        messageProvider.get("messages.prefix"));
-                event.setCancelled(true);
-                return;
+                event.setValid(false);
+                event.getMessages().add(
+                        Messenger.getMessage(
+                                messageProvider.get("integration-mechanics.UnitedTrade.minimum-fail-message"),
+                                Map.of("name", tradeTown.getName(), "minimum", minimum + "")));
             }
 
         }
@@ -146,11 +130,11 @@ public class TradeEventListeners implements Listener {
             }
 
             if (score < minimum) {
-                Messenger.sendMessage(player,
-                        messageProvider.get("integration-mechanics.UnitedTrade.minimum-fail-message"),
-                        Map.of("name", nation.getName(), "minimum", minimum + ""),
-                        messageProvider.get("messages.prefix"));
-                event.setCancelled(true);
+                event.setValid(false);
+                event.getMessages().add(
+                        Messenger.getMessage(
+                                messageProvider.get("integration-mechanics.UnitedTrade.minimum-fail-message"),
+                                Map.of("name", nation.getName(), "minimum", minimum + "")));
                 return;
             }
 

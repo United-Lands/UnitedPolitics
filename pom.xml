@@ -6,7 +6,7 @@
 
   <groupId>org.unitedlands.politics</groupId>
   <artifactId>UnitedPolitics</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
 
   <name>UnitedPolitics</name>
   <!-- FIXME change it to the project's website -->
@@ -97,7 +97,7 @@
     <dependency>
       <groupId>org.unitedlands.trade</groupId>
       <artifactId>UnitedTrade</artifactId>
-      <version>1.0.6</version>
+      <version>1.0.9</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
