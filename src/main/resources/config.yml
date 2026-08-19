@@ -48,6 +48,9 @@ rep-passthrough-up:
 rep-passthrough-down:
   enabled: true
   factor: 0.5
+# The time period after the last change in a reputation sore in which the score will not be
+# subject to daily decay (in seconds). Should be be more than a day to be effective.
+rep-decay-grace-period: 259200
 
 settings:
   # Paying tribute to a town, region or nation
@@ -497,7 +500,7 @@ messages:
     - "<red><strikethrough>+|✦                         </strikethrough><bold>[<white> Reputation </white>]</bold><strikethrough>                          |✦+</strikethrough></red>"
     - "<gold>Your town's reputation with {subject-name}:</gold>"
   reputation-details-empty: "<gray><em>You don't have any reputation with {subject-name}.</em></gray>"
-  reputation-details-entry: "<gray><bold>{description}</bold>: {score} ({decay} per day)</gray>"
+  reputation-details-entry: "<gray><bold>{description}</bold>: {score} ({decay})</gray>"
   reputation-details-footer:
     - "<red><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></red>"
 

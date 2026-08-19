@@ -47,6 +47,17 @@ public class NewDayRunnable implements Runnable {
             String subjectStr = subject != null ? subject.getName() : entry.getObserver().toString();
             String targetStr = target != null ? target.getName() : entry.getSubject().toString();
 
+            var timeStamp = entry.getTimestamp();
+            if (timeStamp == null)
+                timeStamp = 0L;
+
+            var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
+            var decayThreshold = plugin.getConfig().getLong("rep-decay-grace-period") * 1000;
+
+            if (millisecondsSinceTimestamp < decayThreshold) {
+                continue;
+            }
+
             var decay = entry.getDecayRate();
             var currentModifier = entry.getModifier();
             var newModifier = currentModifier + decay;
@@ -65,9 +76,7 @@ public class NewDayRunnable implements Runnable {
                 }
 
             } else {
-                entry.setTimestamp(System.currentTimeMillis());
                 entry.setModifier(newModifier);
-
                 if (service.createOrUpdate(entry)) {
                     Logger.log("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
                             + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");

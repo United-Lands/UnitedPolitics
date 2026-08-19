@@ -11,8 +11,6 @@ import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.utils.ColorFormatter;
 import org.unitedlands.politics.wrappers.Towny.TownyNationWrapper;
 import org.unitedlands.politics.wrappers.Towny.TownyTownWrapper;
-import org.unitedlands.utils.Logger;
-
 import com.palmergames.bukkit.towny.event.statusscreen.NationStatusScreenEvent;
 import com.palmergames.bukkit.towny.event.statusscreen.TownStatusScreenEvent;
 

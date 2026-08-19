@@ -22,6 +22,7 @@ import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.utils.Formatter;
+import org.unitedlands.utils.Logger;
 import org.unitedlands.utils.Messenger;
 
 public class OpinionCommand implements CommandExecutor, TabCompleter {
@@ -111,7 +112,19 @@ public class OpinionCommand implements CommandExecutor, TabCompleter {
         for (var item : allEntries) {
 
             String scoreStr = ColorFormatter.getAmountColored(item.getModifier());
-            String decayStr = ColorFormatter.getAmountColored(item.getDecayRate());
+            String decayStr = "<gray>" + ColorFormatter.getAmountColored(item.getDecayRate()) + "/d</gray>";
+
+            var timeStamp = item.getTimestamp();
+            if (timeStamp == null)
+                timeStamp = 0L;
+
+            var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
+            var decayThreshold = plugin.getConfig().getLong("rep-decay-grace-period") * 1000;
+
+            if (millisecondsSinceTimestamp < decayThreshold) {
+                decayStr = "<gray>Will start decaying in "
+                        + Formatter.formatDuration(decayThreshold - millisecondsSinceTimestamp) + "</gray>";
+            }
 
             Messenger.sendMessage(sender, messageProvider.get("messages.opinion-details-entry"),
                     Map.of("description", item.getDescription(), "score", scoreStr, "decay", decayStr));

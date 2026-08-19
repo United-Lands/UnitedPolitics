@@ -327,6 +327,7 @@ public class ReputationManager {
         var entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(),
                 configKey);
         entry.setModifier(entry.getModifier() + modifier);
+        entry.setTimestamp(System.currentTimeMillis());
 
         var msg = messageProvider.get("messages.reputation-changed");
         var prefix = messageProvider.get("messages.prefix");
@@ -355,6 +356,7 @@ public class ReputationManager {
                     var regionEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(region.getUUID(),
                             subject.getUUID(), configKey);
                     regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
+                    regionEntry.setTimestamp(System.currentTimeMillis());
                     if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry)) {
                         logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
                         if (player != null) {
@@ -372,6 +374,7 @@ public class ReputationManager {
                     var nationEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(nation.getUUID(),
                             subject.getUUID(), configKey);
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor * factor));
+                    nationEntry.setTimestamp(System.currentTimeMillis());
                     if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry)) {
                         logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor * factor));
                         if (player != null) {
@@ -390,6 +393,7 @@ public class ReputationManager {
                     var nationEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(nation.getUUID(),
                             subject.getUUID(), configKey);
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor));
+                    nationEntry.setTimestamp(System.currentTimeMillis());
                     if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry)) {
                         logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor));
                         if (player != null) {
@@ -414,6 +418,7 @@ public class ReputationManager {
                                 region.getUUID(),
                                 subject.getUUID(), configKey);
                         regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
+                        regionEntry.setTimestamp(System.currentTimeMillis());
                         if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry)) {
                             logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
                             if (player != null) {
@@ -432,6 +437,7 @@ public class ReputationManager {
                         var townEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(town.getUUID(),
                                 subject.getUUID(), configKey);
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor * factor));
+                        townEntry.setTimestamp(System.currentTimeMillis());
                         if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry)) {
                             logChange(town, subject, configKey,
                                     townEntry.getModifier() + (modifier * factor * factor));
@@ -452,6 +458,7 @@ public class ReputationManager {
                         var townEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(town.getUUID(),
                                 subject.getUUID(), configKey);
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor));
+                        townEntry.setTimestamp(System.currentTimeMillis());
                         if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry)) {
                             logChange(town, subject, configKey, townEntry.getModifier() + (modifier * factor));
                             if (player != null) {
@@ -503,6 +510,17 @@ public class ReputationManager {
                 String subjectStr = subject != null ? subject.getName() : entry.getObserver().toString();
                 String targetStr = target != null ? target.getName() : entry.getSubject().toString();
 
+                var timeStamp = entry.getTimestamp();
+                if (timeStamp == null)
+                    timeStamp = 0L;
+
+                var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
+                var decayThreshold = plugin.getConfig().getLong("rep-decay-grace-period") * 1000;
+
+                if (millisecondsSinceTimestamp < decayThreshold) {
+                    continue;
+                }
+
                 var decay = entry.getDecayRate();
                 var currentModifier = entry.getModifier();
                 var newModifier = currentModifier + decay;
@@ -521,7 +539,6 @@ public class ReputationManager {
                     }
 
                 } else {
-                    entry.setTimestamp(System.currentTimeMillis());
                     entry.setModifier(newModifier);
 
                     if (service.createOrUpdate(entry)) {

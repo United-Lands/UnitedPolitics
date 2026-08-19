@@ -21,6 +21,7 @@ import org.unitedlands.politics.utils.GeopolUtils;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
+import org.unitedlands.utils.Formatter;
 import org.unitedlands.utils.Messenger;
 
 import com.palmergames.bukkit.towny.TownyAPI;
@@ -29,7 +30,7 @@ import com.palmergames.bukkit.towny.TownyCommandAddonAPI.CommandType;
 import com.palmergames.bukkit.towny.object.AddonCommand;
 
 public class TownyTownReputationCommand implements CommandExecutor, TabCompleter {
-    
+
     private final UnitedPolitics plugin;
     private final IMessageProvider messageProvider;
 
@@ -65,33 +66,41 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
 
         // if (args.length == 0) {
 
-        //     Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-info-header"));
+        // Messenger.sendMessage(sender,
+        // messageProvider.getList("messages.reputation-info-header"));
 
-        //     var records = plugin.getReputationManager().getReputationScoreEntriesForSubject(residentTown.getUUID());
-        //     if (records == null || records.isEmpty()) {
-        //         Messenger.sendMessage(sender, messageProvider.get("messages.reputation-info-empty"));
-        //         Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-entry-footer"));
-        //         return false;
-        //     }
+        // var records =
+        // plugin.getReputationManager().getReputationScoreEntriesForSubject(residentTown.getUUID());
+        // if (records == null || records.isEmpty()) {
+        // Messenger.sendMessage(sender,
+        // messageProvider.get("messages.reputation-info-empty"));
+        // Messenger.sendMessage(sender,
+        // messageProvider.getList("messages.reputation-entry-footer"));
+        // return false;
+        // }
 
-        //     var grouped = records.stream().collect(Collectors.groupingBy(ReputationScoreEntry::getObserver));
+        // var grouped =
+        // records.stream().collect(Collectors.groupingBy(ReputationScoreEntry::getObserver));
 
-        //     for (var item : grouped.entrySet()) {
-        //         var geopolObject = GeopolUtils.findGeopolObject(item.getKey());
-        //         if (geopolObject == null)
-        //             continue;
+        // for (var item : grouped.entrySet()) {
+        // var geopolObject = GeopolUtils.findGeopolObject(item.getKey());
+        // if (geopolObject == null)
+        // continue;
 
-        //         Double score = item.getValue().stream()
-        //                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
+        // Double score = item.getValue().stream()
+        // .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
 
-        //         String scoreStr = ColorFormatter.getAmountColored(score);
-        //         String prefixStr = ColorFormatter.getGeopolPrefixColored(geopolObject);
+        // String scoreStr = ColorFormatter.getAmountColored(score);
+        // String prefixStr = ColorFormatter.getGeopolPrefixColored(geopolObject);
 
-        //         Messenger.sendMessage(sender, messageProvider.get("messages.reputation-info-entry"),
-        //                 Map.of("prefix", prefixStr, "subject-name", geopolObject.getName(), "score", scoreStr));
-        //     }
+        // Messenger.sendMessage(sender,
+        // messageProvider.get("messages.reputation-info-entry"),
+        // Map.of("prefix", prefixStr, "subject-name", geopolObject.getName(), "score",
+        // scoreStr));
+        // }
 
-        //     Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-entry-footer"));
+        // Messenger.sendMessage(sender,
+        // messageProvider.getList("messages.reputation-entry-footer"));
         // }
 
         if (args.length == 1) {
@@ -126,7 +135,19 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
 
                 String scoreStr = ColorFormatter.getAmountColored(item.getModifier());
                 String decayStr = ColorFormatter.getAmountColored(item.getDecayRate());
+
+                var timeStamp = item.getTimestamp();
+                if (timeStamp == null)
+                    timeStamp = 0L;
+
+                var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
+                var decayThreshold = plugin.getConfig().getLong("rep-decay-grace-period") * 1000;
                 
+                if (millisecondsSinceTimestamp < decayThreshold) {
+                    decayStr = "<gray>Will start decaying in "
+                            + Formatter.formatDuration(decayThreshold - millisecondsSinceTimestamp) + "</gray>";
+                }
+
                 Messenger.sendMessage(sender, messageProvider.get("messages.reputation-details-entry"),
                         Map.of("description", item.getDescription(), "score", scoreStr, "decay", decayStr));
 
