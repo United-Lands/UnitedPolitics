@@ -5,6 +5,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.unitedlands.dungeons.events.DungeonCompleteEvent;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.ActorProfileManager;
+import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.utils.GeopolUtils;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 
@@ -21,7 +23,7 @@ public class DungeonEventListener implements Listener {
 
         var dungeonId = event.getDungeon().getUuid();
 
-        var actorProfiles = plugin.getActorProfileManager().getActorProfiles();
+        var actorProfiles = ActorProfileManager.instance().getActorProfiles();
         for (var profile : actorProfiles) {
 
             String type = null;
@@ -44,11 +46,11 @@ public class DungeonEventListener implements Listener {
 
             for (Player player : event.getPlayers()) {
 
-                IGeopolObjectWrapper playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
+                IGeopolObjectWrapper playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
                 if (player == null)
                     continue;
 
-                plugin.getReputationManager().handleReputationChange(observer, playerTown, amount, sectionName, player, false);
+                ReputationManager.instance().handleReputationChange(observer, playerTown, amount, sectionName, player, false);
             }
 
         }

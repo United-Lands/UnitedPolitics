@@ -11,11 +11,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.NewDayRunnable;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.United;
 
 public class TimeManager {
 
-    private final UnitedPolitics plugin;
+    private static  TimeManager instance;
+
+    public static TimeManager instance() {
+        return instance;
+    }
 
     private final Pattern TIME_PATTERN = Pattern.compile("(\\d+)([dhms])");
 
@@ -23,7 +27,7 @@ public class TimeManager {
     private long newDayExecutionTime; 
 
     public TimeManager(UnitedPolitics plugin) {
-        this.plugin = plugin;
+        instance = this;
     }
 
     public void cancelScheduledNewDay() {
@@ -35,8 +39,8 @@ public class TimeManager {
 
     public void scheduleNewDay() {
 
-        String interval = plugin.getConfig().getString("new-day-interval", "1d");
-        int newDayHour = plugin.getConfig().getInt("new-day-start-hour", 12);
+        String interval = UnitedPolitics.instance().getConfig().getString("new-day-interval", "1d");
+        int newDayHour = UnitedPolitics.instance().getConfig().getInt("new-day-start-hour", 12);
 
         long secondsToNewDay = 0;
         if (interval.equals("1d")) {
@@ -45,13 +49,13 @@ public class TimeManager {
             secondsToNewDay = parseTimeToSeconds(interval);
         }
 
-        Logger.log("Scheduling new day in " + secondsToNewDay + " seconds...", "UnitedPolitics");
+        United.logger().info("Scheduling new day in " + secondsToNewDay + " seconds...", "UnitedPolitics");
 
-        var newDayRunnable = new NewDayRunnable(plugin);
+        var newDayRunnable = new NewDayRunnable(UnitedPolitics.instance());
         var tickDelay = secondsToNewDay * 20;
         newDayExecutionTime = System.currentTimeMillis() + (secondsToNewDay * 1000);
 
-        newDayTask = Bukkit.getScheduler().runTaskLater(plugin, newDayRunnable, tickDelay);
+        newDayTask = Bukkit.getScheduler().runTaskLater(UnitedPolitics.instance(), newDayRunnable, tickDelay);
 
     }
 

@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.events.ReputationEvent;
+import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.war.events.WarDeclaredEvent;
@@ -22,7 +23,7 @@ public class WarEventListeners implements Listener {
     @EventHandler
     public void onWarDeclared(WarDeclaredEvent event) {
         var config = plugin.getConfig();
-        var geopolWrapper = plugin.getGeopolWrapper();
+        var geopolWrapper = UnitedPolitics.instance().getGeopolWrapper();
 
         ITownWrapper attacker = geopolWrapper.getTown(event.getDeclaringTownId());
         INationWrapper attackerNation = attacker.getNation();
@@ -49,31 +50,31 @@ public class WarEventListeners implements Listener {
                 if (defenderNation != null) {
                     if (!attackerNationTowns.isEmpty()) {
                         for (var attackerTown : attackerNationTowns) {
-                            plugin.getReputationManager().handleReputationChange(defenderNation, attackerTown, penalty,
+                            ReputationManager.instance().handleReputationChange(defenderNation, attackerTown, penalty,
                                     "uw-warred-us", null, true);
                         }
-                        plugin.getReputationManager().handleReputationChange(defenderNation, attackerNation, penalty,
+                        ReputationManager.instance().handleReputationChange(defenderNation, attackerNation, penalty,
                                 "uw-warred-us", null, true);
                     } else {
-                        plugin.getReputationManager().handleReputationChange(defenderNation, attacker, penalty,
+                        ReputationManager.instance().handleReputationChange(defenderNation, attacker, penalty,
                                 "uw-warred-us", null, true);
                     }
                 } else {
                     if (!attackerNationTowns.isEmpty()) {
                         for (var attackerTown : attackerNationTowns) {
-                            plugin.getReputationManager().handleReputationChange(defender, attackerTown, penalty,
+                            ReputationManager.instance().handleReputationChange(defender, attackerTown, penalty,
                                     "uw-warred-us", null, true);
                         }
-                        plugin.getReputationManager().handleReputationChange(defender, attackerNation, penalty,
+                        ReputationManager.instance().handleReputationChange(defender, attackerNation, penalty,
                                 "uw-warred-us", null, true);
                     } else {
-                        plugin.getReputationManager().handleReputationChange(defender, attacker, penalty,
+                        ReputationManager.instance().handleReputationChange(defender, attacker, penalty,
                                 "uw-warred-us", null,
                                 true);
                     }
                 }
             } else {
-                plugin.getReputationManager().handleReputationChange(defender, attacker, penalty, "uw-warred-us", null,
+                ReputationManager.instance().handleReputationChange(defender, attacker, penalty, "uw-warred-us", null,
                         true);
             }
 
@@ -88,17 +89,17 @@ public class WarEventListeners implements Listener {
             var friendsThreshold = config.getDouble("settings.uw-warred-friend.threshold", 100);
             var penalty = config.getDouble("settings.uw-warred-friend.amount", -100);
 
-            var towns = plugin.getGeopolWrapper().getTowns();
+            var towns = UnitedPolitics.instance().getGeopolWrapper().getTowns();
             for (var town : towns) {
-                var score = plugin.getReputationManager().getTotalReputationScore(town.getUUID(), defender.getUUID());
+                var score = ReputationManager.instance().getTotalReputationScore(town.getUUID(), defender.getUUID());
                 if (score >= friendsThreshold) {
                     if (attackerNationTowns.isEmpty()) {
-                        plugin.getReputationManager().handleReputationChange(town, attacker, penalty,
+                        ReputationManager.instance().handleReputationChange(town, attacker, penalty,
                                 "uw-warred-friend",
                                 null, false);
                     } else {
                         for (var attackerTown : attackerNationTowns) {
-                            plugin.getReputationManager().handleReputationChange(town, attackerTown, penalty,
+                            ReputationManager.instance().handleReputationChange(town, attackerTown, penalty,
                                     "uw-warred-friend", null, false);
 
                         }
@@ -106,17 +107,17 @@ public class WarEventListeners implements Listener {
                 }
             }
 
-            var nations = plugin.getGeopolWrapper().getNations();
+            var nations = UnitedPolitics.instance().getGeopolWrapper().getNations();
             for (var nation : nations) {
-                var score = plugin.getReputationManager().getTotalReputationScore(nation.getUUID(), defender.getUUID());
+                var score = ReputationManager.instance().getTotalReputationScore(nation.getUUID(), defender.getUUID());
                 if (score >= friendsThreshold) {
                     if (attackerNationTowns.isEmpty()) {
-                        plugin.getReputationManager().handleReputationChange(nation, attacker, penalty,
+                        ReputationManager.instance().handleReputationChange(nation, attacker, penalty,
                                 "uw-warred-friend",
                                 null, false);
                     } else {
                         for (var attackerTown : attackerNationTowns) {
-                            plugin.getReputationManager().handleReputationChange(nation, attackerTown, penalty,
+                            ReputationManager.instance().handleReputationChange(nation, attackerTown, penalty,
                                     "uw-warred-friend", null, false);
 
                         }
@@ -134,17 +135,17 @@ public class WarEventListeners implements Listener {
             var enemyThreshold = config.getDouble("settings.uw-warred-enemy.threshold", -100);
             var bonus = config.getDouble("settings.uw-warred-enemy.amount", 100);
 
-            var towns = plugin.getGeopolWrapper().getTowns();
+            var towns = UnitedPolitics.instance().getGeopolWrapper().getTowns();
             for (var town : towns) {
-                var score = plugin.getReputationManager().getTotalReputationScore(town.getUUID(), defender.getUUID());
+                var score = ReputationManager.instance().getTotalReputationScore(town.getUUID(), defender.getUUID());
                 if (score <= enemyThreshold) {
                     if (attackerNationTowns.isEmpty()) {
-                        plugin.getReputationManager().handleReputationChange(town, attacker, bonus,
+                        ReputationManager.instance().handleReputationChange(town, attacker, bonus,
                                 "uw-enemy-friend",
                                 null, false);
                     } else {
                         for (var attackerTown : attackerNationTowns) {
-                            plugin.getReputationManager().handleReputationChange(town, attackerTown, bonus,
+                            ReputationManager.instance().handleReputationChange(town, attackerTown, bonus,
                                     "uw-warred-enemy", null, false);
 
                         }
@@ -152,17 +153,17 @@ public class WarEventListeners implements Listener {
                 }
             }
 
-            var nations = plugin.getGeopolWrapper().getNations();
+            var nations = UnitedPolitics.instance().getGeopolWrapper().getNations();
             for (var nation : nations) {
-                var score = plugin.getReputationManager().getTotalReputationScore(nation.getUUID(), defender.getUUID());
+                var score = ReputationManager.instance().getTotalReputationScore(nation.getUUID(), defender.getUUID());
                 if (score <= enemyThreshold) {
                     if (attackerNationTowns.isEmpty()) {
-                        plugin.getReputationManager().handleReputationChange(nation, attacker, bonus,
+                        ReputationManager.instance().handleReputationChange(nation, attacker, bonus,
                                 "uw-warred-enemy",
                                 null, false);
                     } else {
                         for (var attackerTown : attackerNationTowns) {
-                            plugin.getReputationManager().handleReputationChange(nation, attackerTown, bonus,
+                            ReputationManager.instance().handleReputationChange(nation, attackerTown, bonus,
                                     "uw-warred-enemy", null, false);
                         }
                     }

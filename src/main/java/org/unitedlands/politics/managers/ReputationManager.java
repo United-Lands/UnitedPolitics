@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 import org.unitedlands.politics.UnitedPolitics;
-import org.unitedlands.politics.classes.MessageProvider;
+import org.unitedlands.politics.classes.configs.RecordDefinitionConfig;
 import org.unitedlands.politics.integrations.UnitedWar.utils.UnitedWarUtils;
 import org.unitedlands.politics.models.ActorProfile;
 import org.unitedlands.politics.models.ReputationScoreEntry;
@@ -21,31 +21,34 @@ import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.IRegionWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
-import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 public class ReputationManager {
 
-    private final UnitedPolitics plugin;
-    private final MessageProvider messageProvider;
+    private static ReputationManager instance;
 
+    public static ReputationManager instance() {
+        return instance;
+    }
+
+    private final DatabaseManager databaseManager;
     private static final Object LOCK = new Object();
 
     private Collection<ReputationScoreEntry> reputationScoreEntries;
 
-    public ReputationManager(UnitedPolitics plugin, MessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
+    public ReputationManager(DatabaseManager databaseManager) {
+        instance = this;
+        this.databaseManager = databaseManager;
     }
 
     public void loadReputationRecords() {
 
         reputationScoreEntries = new ArrayList<>();
 
-        var service = plugin.getDatabaseManager().getReputationScoreEntryService();
+        var service = databaseManager.getReputationScoreEntryService();
         service.getAllAsync().thenAccept(entries -> {
             reputationScoreEntries = entries;
-            Logger.log("Loaded " + entries.size() + " reputation entries to memory.", "UnitedPolitics");
+            United.logger().info("Loaded " + entries.size() + " reputation entries to memory.", "UnitedPolitics");
         });
 
     }
@@ -193,8 +196,9 @@ public class ReputationManager {
                         result.add(createReputationScoreEntry(observerId, subjectId, "our-region"));
                     }
 
-                } else if (subjectObj instanceof INationWrapper subjectNation) {
+                } else if (subjectObj instanceof @SuppressWarnings("unused") INationWrapper subjectNation) {
                     // Nation observing nation
+                    // TODO: Rivalry, allies etc.
                 }
             }
 
@@ -202,7 +206,7 @@ public class ReputationManager {
 
         // Rivals and partners
 
-        ActorProfile observerProfile = plugin.getActorProfileManager().getActorProfile(observerId);
+        ActorProfile observerProfile = ActorProfileManager.instance().getActorProfile(observerId);
 
         if (observerProfile != null) {
             // Direct relations
@@ -217,7 +221,7 @@ public class ReputationManager {
                 // Indirect relations
                 if (observerPartners != null) {
                     for (var partnerId : observerPartners) {
-                        var partnerProfile = plugin.getActorProfileManager().getActorProfile(partnerId);
+                        var partnerProfile = ActorProfileManager.instance().getActorProfile(partnerId);
                         if (partnerProfile == null)
                             continue;
                         if (partnerProfile.getPartners().contains(subjectId)) {
@@ -230,7 +234,7 @@ public class ReputationManager {
 
                 if (observerRivals != null) {
                     for (var rivalId : observerRivals) {
-                        var rivalprofile = plugin.getActorProfileManager().getActorProfile(rivalId);
+                        var rivalprofile = ActorProfileManager.instance().getActorProfile(rivalId);
                         if (rivalprofile == null)
                             continue;
                         if (rivalprofile.getPartners() != null && rivalprofile.getPartners().contains(subjectId)) {
@@ -245,7 +249,7 @@ public class ReputationManager {
 
         // Wars
 
-        if (plugin.isUnitedWarEnabled()) {
+        if (UnitedPolitics.instance().isUnitedWarEnabled()) {
             UnitedWarUtils warUtils = new UnitedWarUtils();
             if (warUtils.isActorInWar(observerObj)) {
                 var opponents = warUtils.getOpponents(observerObj);
@@ -275,15 +279,15 @@ public class ReputationManager {
 
     private ReputationScoreEntry createReputationScoreEntry(UUID observerId, UUID subjectId, String configSectionKey) {
 
-        var config = plugin.getConfig();
-
         ReputationScoreEntry entry;
-        String description = config.getString("record-definitions." + configSectionKey + ".description",
-                "Unknown Reason");
-        double lowCap = config.getDouble("record-definitions." + configSectionKey + ".low-cap", -200d);
-        double highCap = config.getDouble("record-definitions." + configSectionKey + ".high-cap", 200d);
-        double decay = config.getDouble("record-definitions." + configSectionKey + ".decay", 0d);
-        double defaultamount = config.getDouble("record-definitions." + configSectionKey + ".default", 0d);
+
+        var recordDefinition = RecordDefinitionConfig.get().recordDefinitions().get(configSectionKey);
+        String description = recordDefinition.description();
+        double lowCap = recordDefinition.lowCap();
+        double highCap = recordDefinition.highCap();
+        double decay = recordDefinition.decay();
+        double defaultamount = recordDefinition.defaultValue();
+
         entry = new ReputationScoreEntry();
         entry.setTimestamp(System.currentTimeMillis());
         entry.setObserver(observerId);
@@ -303,7 +307,7 @@ public class ReputationManager {
         if (!reputationScoreEntries.contains(entry))
             reputationScoreEntries.add(entry);
 
-        var service = plugin.getDatabaseManager().getReputationScoreEntryService();
+        var service = databaseManager.getReputationScoreEntryService();
         return service.createOrUpdate(entry);
     }
 
@@ -313,7 +317,7 @@ public class ReputationManager {
 
         reputationScoreEntries.remove(entry);
 
-        var service = plugin.getDatabaseManager().getReputationScoreEntryService();
+        var service = databaseManager.getReputationScoreEntryService();
         return service.delete(entry.getId());
     }
 
@@ -323,23 +327,20 @@ public class ReputationManager {
         if (observer == null || subject == null)
             return;
 
+        var msg = "reputation-changed";
+
         // Main entry
-        var entry = plugin.getReputationManager().getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(),
-                configKey);
+        var entry = getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(), configKey);
         entry.setModifier(entry.getModifier() + modifier);
         entry.setTimestamp(System.currentTimeMillis());
 
-        var msg = messageProvider.get("messages.reputation-changed");
-        var prefix = messageProvider.get("messages.prefix");
-
-        if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(entry)) {
+        if (addOrUpdateReputationScoreEntry(entry)) {
             logChange(observer, subject, configKey, entry.getModifier() + modifier);
             if (player != null) {
-                Messenger.sendMessage(player, msg,
-                        Map.of("name", observer.getName(), "prefix", ColorFormatter.getGeopolPrefixColored(observer),
-                                "modifier",
-                                ColorFormatter.getAmountColored(entry.getModifier())),
-                        prefix);
+                United.messenger().send(player, msg,
+                        observer.getName(),
+                        ColorFormatter.getGeopolPrefixColored(observer),
+                        ColorFormatter.getAmountColored(entry.getModifier()));
             }
         }
 
@@ -348,85 +349,77 @@ public class ReputationManager {
         if (!doPassthrough)
             return;
 
-        if (plugin.getConfig().getBoolean("rep-passthrough-up.enabled", false)) {
-            double factor = plugin.getConfig().getDouble("rep-passthrough-up.factor");
+        if (UnitedPolitics.instance().getConfig().getBoolean("rep-passthrough-up.enabled", false)) {
+            double factor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-up.factor");
             if (observer instanceof ITownWrapper town) {
                 var region = town.getRegion();
                 if (region != null) {
-                    var regionEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(region.getUUID(),
-                            subject.getUUID(), configKey);
+                    var regionEntry = getOrCreateReputationScoreEntry(region.getUUID(), subject.getUUID(), configKey);
                     regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
                     regionEntry.setTimestamp(System.currentTimeMillis());
-                    if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry)) {
+                    if (addOrUpdateReputationScoreEntry(regionEntry)) {
                         logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
                         if (player != null) {
-                            Messenger.sendMessage(player, msg,
-                                    Map.of("name", region.getName(), "prefix",
-                                            ColorFormatter.getGeopolPrefixColored(region),
-                                            "modifier",
-                                            ColorFormatter.getAmountColored(regionEntry.getModifier())),
-                                    prefix);
+                            United.messenger().send(player, msg,
+                                    region.getName(),
+                                    ColorFormatter.getGeopolPrefixColored(region),
+                                    ColorFormatter.getAmountColored(regionEntry.getModifier()));
                         }
                     }
                 }
                 var nation = town.getNation();
                 if (nation != null) {
-                    var nationEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(nation.getUUID(),
+                    var nationEntry = getOrCreateReputationScoreEntry(nation.getUUID(),
                             subject.getUUID(), configKey);
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor * factor));
                     nationEntry.setTimestamp(System.currentTimeMillis());
-                    if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry)) {
+                    if (addOrUpdateReputationScoreEntry(nationEntry)) {
                         logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor * factor));
                         if (player != null) {
-                            Messenger.sendMessage(player, msg,
-                                    Map.of("name", nation.getName(), "prefix",
-                                            ColorFormatter.getGeopolPrefixColored(nation),
-                                            "modifier",
-                                            ColorFormatter.getAmountColored(nationEntry.getModifier())),
-                                    prefix);
+                            United.messenger().send(player, msg,
+                                    nation.getName(),
+                                    ColorFormatter.getGeopolPrefixColored(nation),
+                                    ColorFormatter.getAmountColored(nationEntry.getModifier()));
                         }
                     }
                 }
             } else if (observer instanceof IRegionWrapper region) {
                 var nation = region.getNation();
                 if (nation != null) {
-                    var nationEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(nation.getUUID(),
+                    var nationEntry = getOrCreateReputationScoreEntry(nation.getUUID(),
                             subject.getUUID(), configKey);
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor));
                     nationEntry.setTimestamp(System.currentTimeMillis());
-                    if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(nationEntry)) {
+                    if (addOrUpdateReputationScoreEntry(nationEntry)) {
                         logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor));
                         if (player != null) {
-                            Messenger.sendMessage(player, msg,
-                                    Map.of("name", nation.getName(), "prefix",
-                                            ColorFormatter.getGeopolPrefixColored(nation),
-                                            "modifier",
-                                            ColorFormatter.getAmountColored(nationEntry.getModifier())),
-                                    prefix);
+                            United.messenger().send(player, msg,
+                                    nation.getName(),
+                                    ColorFormatter.getGeopolPrefixColored(nation),
+                                    ColorFormatter.getAmountColored(nationEntry.getModifier()));
                         }
                     }
                 }
             }
         }
-        if (plugin.getConfig().getBoolean("rep-passthrough-down.enabled", false)) {
-            double factor = plugin.getConfig().getDouble("rep-passthrough-down.factor");
+        if (UnitedPolitics.instance().getConfig().getBoolean("rep-passthrough-down.enabled", false)) {
+            double factor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-down.factor");
             if (observer instanceof INationWrapper nation) {
                 var regions = nation.getRegions();
                 if (regions != null && !regions.isEmpty()) {
                     for (IRegionWrapper region : regions) {
-                        var regionEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(
+                        var regionEntry = getOrCreateReputationScoreEntry(
                                 region.getUUID(),
                                 subject.getUUID(), configKey);
                         regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
                         regionEntry.setTimestamp(System.currentTimeMillis());
-                        if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(regionEntry)) {
+                        if (addOrUpdateReputationScoreEntry(regionEntry)) {
                             logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
                             if (player != null) {
-                                Messenger.sendMessage(player, msg,
-                                        Map.of("name", region.getName(), "prefix",
-                                                ColorFormatter.getGeopolPrefixColored(region), "modifier",
-                                                ColorFormatter.getAmountColored(regionEntry.getModifier())),
-                                        prefix);
+                                United.messenger().send(player, msg,
+                                        region.getName(),
+                                        ColorFormatter.getGeopolPrefixColored(region),
+                                        ColorFormatter.getAmountColored(regionEntry.getModifier()));
                             }
                         }
                     }
@@ -434,19 +427,18 @@ public class ReputationManager {
                 var towns = nation.getTowns();
                 if (towns != null && !towns.isEmpty()) {
                     for (ITownWrapper town : towns) {
-                        var townEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(town.getUUID(),
+                        var townEntry = getOrCreateReputationScoreEntry(town.getUUID(),
                                 subject.getUUID(), configKey);
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor * factor));
                         townEntry.setTimestamp(System.currentTimeMillis());
-                        if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry)) {
+                        if (addOrUpdateReputationScoreEntry(townEntry)) {
                             logChange(town, subject, configKey,
                                     townEntry.getModifier() + (modifier * factor * factor));
                             if (player != null) {
-                                Messenger.sendMessage(player, msg,
-                                        Map.of("name", town.getName(), "prefix",
-                                                ColorFormatter.getGeopolPrefixColored(town),
-                                                "modifier", ColorFormatter.getAmountColored(townEntry.getModifier())),
-                                        prefix);
+                                United.messenger().send(player, msg,
+                                        town.getName(),
+                                        ColorFormatter.getGeopolPrefixColored(town),
+                                        ColorFormatter.getAmountColored(townEntry.getModifier()));
                             }
                         }
                     }
@@ -455,18 +447,17 @@ public class ReputationManager {
                 var towns = region.getTowns();
                 if (towns != null && !towns.isEmpty()) {
                     for (ITownWrapper town : towns) {
-                        var townEntry = plugin.getReputationManager().getOrCreateReputationScoreEntry(town.getUUID(),
+                        var townEntry = getOrCreateReputationScoreEntry(town.getUUID(),
                                 subject.getUUID(), configKey);
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor));
                         townEntry.setTimestamp(System.currentTimeMillis());
-                        if (plugin.getReputationManager().addOrUpdateReputationScoreEntry(townEntry)) {
+                        if (addOrUpdateReputationScoreEntry(townEntry)) {
                             logChange(town, subject, configKey, townEntry.getModifier() + (modifier * factor));
                             if (player != null) {
-                                Messenger.sendMessage(player, msg,
-                                        Map.of("name", town.getName(), "prefix",
-                                                ColorFormatter.getGeopolPrefixColored(town),
-                                                "modifier", ColorFormatter.getAmountColored(townEntry.getModifier())),
-                                        prefix);
+                                United.messenger().send(player, msg,
+                                        town.getName(),
+                                        ColorFormatter.getGeopolPrefixColored(town),
+                                        ColorFormatter.getAmountColored(townEntry.getModifier()));
                             }
                         }
                     }
@@ -478,7 +469,7 @@ public class ReputationManager {
     private void logChange(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String key, double amount) {
         if (observer == null || subject == null)
             return;
-        Logger.log(
+        United.logger().info(
                 "Added/updated reputation entry {" + key + "} of " + observer.getName() + " with " + subject.getName()
                         + ": " + amount,
                 "UnitedPolitics");
@@ -496,7 +487,7 @@ public class ReputationManager {
 
         synchronized (LOCK) {
 
-            var service = plugin.getDatabaseManager().getReputationScoreEntryService();
+            var service = databaseManager.getReputationScoreEntryService();
 
             List<ReputationScoreEntry> entriesToRemove = new ArrayList<>();
 
@@ -515,7 +506,7 @@ public class ReputationManager {
                     timeStamp = 0L;
 
                 var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
-                var decayThreshold = plugin.getConfig().getLong("rep-decay-grace-period") * 1000;
+                var decayThreshold = UnitedPolitics.instance().getConfig().getLong("rep-decay-grace-period") * 1000;
 
                 if (millisecondsSinceTimestamp < decayThreshold) {
                     continue;
@@ -534,18 +525,22 @@ public class ReputationManager {
                 if (newModifier == 0) {
                     entriesToRemove.add(entry);
                     if (service.delete(entry.getId())) {
-                        Logger.log("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
-                                + " reached 0, removed", "UnitedPolitics");
+                        United.logger()
+                                .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
+                                        + subjectStr
+                                        + " reached 0, removed", "UnitedPolitics");
                     }
 
                 } else {
                     entry.setModifier(newModifier);
 
                     if (service.createOrUpdate(entry)) {
-                        Logger.log("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
-                                + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
+                        United.logger()
+                                .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
+                                        + subjectStr
+                                        + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
                     } else {
-                        Logger.logError("Error saving entry " + entry.getId(), "UnitedPolitics");
+                        United.logger().error("Error saving entry " + entry.getId(), "UnitedPolitics");
                     }
                 }
             }

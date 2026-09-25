@@ -1,0 +1,87 @@
+prefix: "<bold><red>U</red><white>L</white> Politics <dark_gray>» </dark_gray></bold>"
+reload: "<green>Plugin reloaded.</green>"
+forced-new-day: "<green>Forced exeution of new day.</green>"
+
+reputation-changed: "<gray>Reputation - {1} <gold><bold>{1}</bold>: {1}</gray>"
+
+errors:
+  general:
+    geopol-obj-not-found: "<red>'{1}' not found.</red>"
+    number-format-error: "<red>'{1}' is not a valid number.</red>"
+    db-save-error: "<red>Error while saving.</red>"
+    no-town-resident: "<red>You're not a resident in any town.</red>"
+    no-rank: "<red>You don't have the necessary rank to use this.</red>"
+
+  reputation:
+    no-record: "<red>Reputation record not found, use create first.</red>"
+    existing-record: "<red>A record with that key already exists, use set, add or remove instead."
+
+  actorprofile:
+    no-profile: "<red>This actor doesn't have a profile yet, use <em>create</em> to create one."
+    existing-record: "<red>A profile for that actor already exists."
+    reaction-exists: "<red>There aready is a record with this event key and reaction."
+    reaction-missing: "<red>No record with the given event key found."
+    rival-exists: "<red>There aready is a record with this rival."
+    rival-missing: "<red>No record with the given rival found."
+    partner-exists: "<red>There aready is a record with this partner."
+    partner-missing: "<red>No record with the given partner found."
+    dungeon-not-found: "<red>No dungeon with that name found."
+    dungeon-exists: "<red>There aready is a record with this dungeon."
+    dungeon-missing: "<red>No record with the given dungeon found."
+
+  opinion:
+    no-town: '<red>You must be in a town to use this command without a target. Use "/opinion <town/nation> <target_town/target_nation>"</red>'
+    target-not-found: "<red>Target {1} not found.</red>"
+
+success:
+  reputation:
+    create: "<dark_green>Created reputation entry of {1} for {2} with {3} for key {key}."
+    add: "<dark_green>Added {1} to reputation of {2} with {3} for key {key}."
+    set: "<dark_green>Set reputation of {1} with {2} to {3} for key {4}."
+    remove: "<dark_green>Removed reputation of {1} with {2} for key {3}."
+  actorprofile:
+    create: "<dark_green>Created actor profile for {1}."
+    saved: "<dark_green>Saved changes for {1}."
+
+actorprofile:
+  header: "<bold><gold>{1}'s Actor Profile</gold></bold>"
+  reactions-header: "<gray>[ Reactions ]<st>                                       </st></gray>"
+  reactions-line: "<gray>{1} -> <aqua>{2}</aqua>: {3}</gray>"
+  rivals-header: "<red>[ Rivals ]<st>                                         </st></red>"
+  rivals-line: "<red>{1}</red>"
+  partners-header: "<green>[ Partners ]<st>                                       </st></green>"
+  partners-line: "<green>{1}</green>"
+  hostiledungeons-header: "<dark_red>[ Hostile Dungeons ]<st>                                </st></dark_red>"
+  hostiledungeons-line: "<dark_red>{1}</dark_red>"
+  friendlydungeons-header: "<dark_green>[ Friendly Dungeons ]<st>                                </st></dark_green>"
+  friendlydungeons-line: "<dark_green>{1}</dark_green>"
+
+tribute:
+  success: "<green>You've paid a tribute of {1} to {2}.</green>"
+  same-entity: "<red>You can't pay tribute to yourself.</red>"
+  is-own-nation: "<red>You can't pay tribute to your own nation.</red>"
+  same-nation: "<red>You can't pay tribute to a town in your own nation.</red>"
+  insufficient-funds: "<red>You don't have enough money.</red>"
+  error: "<red>Something went wrong while trying to pay {1} to {2}. Please contact an Admin or open a support ticket.</red>"
+
+reputation-info-header:
+  - "<red><strikethrough>+|✦                         </strikethrough><bold>[<white> Reputation </white>]</bold><strikethrough>                          |✦+</strikethrough></red>"
+  - "<gold>Your town's reputation scores:</gold>"
+reputation-info-empty: "<gray><em>Your town doesn't have any reputation with anyone</em></gray>"
+reputation-info-entry: "<gray><gold><bold>{1} {2}</bold></gold>: {3}</gray>"
+reputation-entry-footer:
+  - '<gray>Type "/t reputation <name>" to see details.</gray>'
+  - "<red><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></red>"
+
+reputation-details-header:
+  - "<red><strikethrough>+|✦                         </strikethrough><bold>[<white> Reputation </white>]</bold><strikethrough>                          |✦+</strikethrough></red>"
+  - "<gold>Your town's reputation with {1}:</gold>"
+reputation-details-empty: "<gray><em>You don't have any reputation with {1}.</em></gray>"
+reputation-details-entry: "<gray><bold>{1}</bold>: {2} ({3})</gray>"
+reputation-details-footer:
+  - "<red><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></red>"
+
+opinion-details-header: "<red><strikethrough>+|✦                           </strikethrough><bold>[<white> Opinion </white>]</bold><strikethrough>                            |✦+</strikethrough></red><br><gold>{1}'s opinion of {2}:</gold>"
+opinion-details-empty: "<gray><em>They don't have any opinion of {1}.</em></gray>"
+opinion-details-entry: "<gray><bold>{1}</bold>: {2} ({3})</gray>"
+opinion-details-footer: "<red><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></red>"

@@ -30,6 +30,11 @@ public class TownyTownWrapper implements ITownWrapper {
     }
 
     @Override
+    public String getCleanName() {
+        return town.getFormattedName();
+    }
+
+    @Override
     public IRegionWrapper getRegion() {
         // Towny does not support regions
         return null;
@@ -76,6 +81,5 @@ public class TownyTownWrapper implements ITownWrapper {
             return false;
         return true;
     }
-    
 
 }

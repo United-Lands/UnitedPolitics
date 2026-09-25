@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.utils.ColorFormatter;
 import org.unitedlands.politics.wrappers.Towny.TownyNationWrapper;
@@ -19,17 +20,11 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class TownScreenListener implements Listener {
 
-    private final UnitedPolitics plugin;
-
-    public TownScreenListener(UnitedPolitics plugin) {
-        this.plugin = plugin;
-    }
-
     @EventHandler
     public void onTownStatusScreen(TownStatusScreenEvent event) {
 
         var screen = event.getStatusScreen();
-        var config = plugin.getConfig();
+        var config = UnitedPolitics.instance().getConfig();
 
         if (!config.getBoolean("settings.townscreen.enabled", false))
             return;
@@ -38,7 +33,7 @@ public class TownScreenListener implements Listener {
         if (sender instanceof Player) {
             var player = (Player) sender;
 
-            var playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
+            var playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
             if (playerTown == null)
                 return;
 
@@ -47,9 +42,9 @@ public class TownScreenListener implements Listener {
             if (playerTown.getUUID().equals(town.getUUID()))
                 return;
 
-            var townOpinion = plugin.getReputationManager().getTotalReputationScore(town.getUUID(),
+            var townOpinion = ReputationManager.instance().getTotalReputationScore(town.getUUID(),
                     playerTown.getUUID());
-            var playerTownOpinion = plugin.getReputationManager().getTotalReputationScore(playerTown.getUUID(),
+            var playerTownOpinion = ReputationManager.instance().getTotalReputationScore(playerTown.getUUID(),
                     town.getUUID());
 
             var afterComponentName = config.getString("settings.townscreen.after-component");
@@ -63,8 +58,8 @@ public class TownScreenListener implements Listener {
 
             List<ReputationScoreEntry> allRecords = new ArrayList<>();
             allRecords.addAll(
-                    plugin.getReputationManager().getReputationScoreEntries(town.getUUID(), playerTown.getUUID()));
-            allRecords.addAll(plugin.getReputationManager().calculateStaticReputationScoreEntries(town.getUUID(),
+                    ReputationManager.instance().getReputationScoreEntries(town.getUUID(), playerTown.getUUID()));
+            allRecords.addAll(ReputationManager.instance().calculateStaticReputationScoreEntries(town.getUUID(),
                     playerTown.getUUID()));
             for (var record : allRecords) {
                 observerHoverString.add("<gray>" + record.getDescription() + ":</gray> "
@@ -80,8 +75,8 @@ public class TownScreenListener implements Listener {
             List<String> subjectHoverString = new ArrayList<>();
             List<ReputationScoreEntry> subjectRecords = new ArrayList<>();
             subjectRecords.addAll(
-                    plugin.getReputationManager().getReputationScoreEntries(playerTown.getUUID(), town.getUUID()));
-            subjectRecords.addAll(plugin.getReputationManager()
+                    ReputationManager.instance().getReputationScoreEntries(playerTown.getUUID(), town.getUUID()));
+            subjectRecords.addAll(ReputationManager.instance()
                     .calculateStaticReputationScoreEntries(playerTown.getUUID(), town.getUUID()));
             for (var record : subjectRecords) {
                 subjectHoverString.add("<gray>" + record.getDescription() + ":</gray> "
@@ -103,7 +98,7 @@ public class TownScreenListener implements Listener {
     public void onNationStatusScreen(NationStatusScreenEvent event) {
 
         var screen = event.getStatusScreen();
-        var config = plugin.getConfig();
+        var config = UnitedPolitics.instance().getConfig();
 
         if (!config.getBoolean("settings.nationscreen.enabled", false))
             return;
@@ -112,15 +107,15 @@ public class TownScreenListener implements Listener {
         if (sender instanceof Player) {
             var player = (Player) sender;
 
-            var playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
+            var playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
             if (playerTown == null)
                 return;
 
             var nation = new TownyNationWrapper(event.getNation());
 
-            var nationOpinion = plugin.getReputationManager().getTotalReputationScore(nation.getUUID(),
+            var nationOpinion = ReputationManager.instance().getTotalReputationScore(nation.getUUID(),
                     playerTown.getUUID());
-            var playerTownOpinion = plugin.getReputationManager().getTotalReputationScore(playerTown.getUUID(),
+            var playerTownOpinion = ReputationManager.instance().getTotalReputationScore(playerTown.getUUID(),
                     nation.getUUID());
 
             var afterComponentName = config.getString("settings.nationscreen.after-component");
@@ -134,8 +129,8 @@ public class TownScreenListener implements Listener {
 
             List<ReputationScoreEntry> observerRecords = new ArrayList<>();
             observerRecords.addAll(
-                    plugin.getReputationManager().getReputationScoreEntries(nation.getUUID(), playerTown.getUUID()));
-            observerRecords.addAll(plugin.getReputationManager().calculateStaticReputationScoreEntries(nation.getUUID(),
+                    ReputationManager.instance().getReputationScoreEntries(nation.getUUID(), playerTown.getUUID()));
+            observerRecords.addAll(ReputationManager.instance().calculateStaticReputationScoreEntries(nation.getUUID(),
                     playerTown.getUUID()));
 
             for (var record : observerRecords) {
@@ -152,8 +147,8 @@ public class TownScreenListener implements Listener {
             List<String> subjectHoverString = new ArrayList<>();
             List<ReputationScoreEntry> subjectRecords = new ArrayList<>();
             subjectRecords.addAll(
-                    plugin.getReputationManager().getReputationScoreEntries(playerTown.getUUID(), nation.getUUID()));
-            subjectRecords.addAll(plugin.getReputationManager()
+                    ReputationManager.instance().getReputationScoreEntries(playerTown.getUUID(), nation.getUUID()));
+            subjectRecords.addAll(ReputationManager.instance()
                     .calculateStaticReputationScoreEntries(playerTown.getUUID(), nation.getUUID()));
             for (var record : subjectRecords) {
                 subjectHoverString.add("<gray>" + record.getDescription() + ":</gray> "

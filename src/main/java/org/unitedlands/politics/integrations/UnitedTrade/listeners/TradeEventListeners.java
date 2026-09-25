@@ -1,32 +1,23 @@
 package org.unitedlands.politics.integrations.UnitedTrade.listeners;
 
-import java.util.Map;
-
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import org.unitedlands.politics.UnitedPolitics;
-import org.unitedlands.politics.classes.MessageProvider;
+import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.trade.classes.TradePoint;
 import org.unitedlands.trade.classes.events.ShopOpenEvent;
 import org.unitedlands.trade.classes.events.TradeOrderCompletedEvent;
 import org.unitedlands.trade.classes.events.TradeOrderFailedEvent;
 import org.unitedlands.trade.classes.events.TradePointValidationEvent;
-import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
+
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class TradeEventListeners implements Listener {
-
-    private final UnitedPolitics plugin;
-    private final MessageProvider messageProvider;
-
-    public TradeEventListeners(UnitedPolitics plugin, MessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
-    }
 
     @EventHandler
     public void onShopOpen(ShopOpenEvent event) {
@@ -34,7 +25,7 @@ public class TradeEventListeners implements Listener {
         var player = event.getPlayer();
         var shopPoint = event.getShopPoint();
 
-        var playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
+        var playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
         if (player == null)
             return;
 
@@ -42,19 +33,17 @@ public class TradeEventListeners implements Listener {
         if (location == null)
             return;
 
-        ITownWrapper tradeTown = plugin.getGeopolWrapper().getTownAtLocation(location);
+        ITownWrapper tradeTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(location);
         if (tradeTown == null)
             return;
 
-        var score = plugin.getReputationManager().getTotalReputationScore(tradeTown.getUUID(), playerTown.getUUID());
+        var score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUUID(), playerTown.getUUID());
         var minimum = shopPoint.getMinReputation();
 
         if (score < minimum) {
             event.setCancelled(true);
-            Messenger.sendMessage(player,
-                    messageProvider.get("integration-mechanics.UnitedTrade.minimum-fail-message"),
-                    Map.of("name", tradeTown.getName(), "minimum", minimum + ""),
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(player, "integration-mechanics.UnitedTrade.minimum-fail-message",
+                    tradeTown.getName(), String.valueOf(minimum));
         }
     }
 
@@ -76,26 +65,27 @@ public class TradeEventListeners implements Listener {
     private void validateReputation(TradePointValidationEvent event, Player player, TradePoint tradePoint,
             Location location) {
 
-        ITownWrapper tradeTown = plugin.getGeopolWrapper().getTownAtLocation(location);
+        ITownWrapper tradeTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(location);
         if (tradeTown == null)
             return;
 
-        ITownWrapper playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
+        ITownWrapper playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
         if (player == null)
             return;
 
-        if (plugin.getConfig().getBoolean("integration-mechanics.UnitedTrade.use-minimum-town-reputation")) {
+        if (UnitedPolitics.instance().getConfig()
+                .getBoolean("integration-mechanics.UnitedTrade.use-minimum-town-reputation")) {
 
             double minimum = tradePoint.getMinReputation();
-            double defaultReputation = plugin.getConfig()
+            double defaultReputation = UnitedPolitics.instance().getConfig()
                     .getDouble("integration-mechanics.UnitedTrade.default-reputation", 0.0);
 
             double score = defaultReputation;
             try {
-                score = plugin.getReputationManager().getTotalReputationScore(tradeTown.getUUID(),
+                score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUUID(),
                         playerTown.getUUID());
             } catch (Exception ignore) {
-                Logger.logWarning("Could not get town reputation for player " + player.getName()
+                United.logger().warning("Could not get town reputation for player " + player.getName()
                         + ", using default reputation " + score);
                 // Use fallback default score
             }
@@ -103,28 +93,29 @@ public class TradeEventListeners implements Listener {
             if (score < minimum) {
                 event.setValid(false);
                 event.getMessages().add(
-                        Messenger.getMessage(
-                                messageProvider.get("integration-mechanics.UnitedTrade.minimum-fail-message"),
-                                Map.of("name", tradeTown.getName(), "minimum", minimum + "")));
+                        MiniMessage.miniMessage().deserialize(
+                                United.messenger().get("integration-mechanics.UnitedTrade.minimum-fail-message",
+                                        tradeTown.getName(), String.valueOf(minimum))));
             }
 
         }
-        if (plugin.getConfig().getBoolean("integration-mechanics.UnitedTrade.use-minimum-nation-reputation")) {
+        if (UnitedPolitics.instance().getConfig()
+                .getBoolean("integration-mechanics.UnitedTrade.use-minimum-nation-reputation")) {
 
             var nation = tradeTown.getNation();
             if (nation == null)
                 return;
 
             double minimum = tradePoint.getMinReputation();
-            double defaultReputation = plugin.getConfig()
+            double defaultReputation = UnitedPolitics.instance().getConfig()
                     .getDouble("integration-mechanics.UnitedTrade.default-reputation", 0.0);
 
             double score = defaultReputation;
             try {
-                score = plugin.getReputationManager().getTotalReputationScore(nation.getUUID(),
+                score = ReputationManager.instance().getTotalReputationScore(nation.getUUID(),
                         playerTown.getUUID());
             } catch (Exception ignore) {
-                Logger.logWarning("Could not get town reputation for player " + player.getName()
+                United.logger().warning("Could not get town reputation for player " + player.getName()
                         + ", using default reputation " + score);
                 // Use fallback default score
             }
@@ -132,9 +123,9 @@ public class TradeEventListeners implements Listener {
             if (score < minimum) {
                 event.setValid(false);
                 event.getMessages().add(
-                        Messenger.getMessage(
-                                messageProvider.get("integration-mechanics.UnitedTrade.minimum-fail-message"),
-                                Map.of("name", nation.getName(), "minimum", minimum + "")));
+                        MiniMessage.miniMessage().deserialize(
+                                United.messenger().get("integration-mechanics.UnitedTrade.minimum-fail-message",
+                                        nation.getName(), String.valueOf(minimum))));
                 return;
             }
 
@@ -151,20 +142,20 @@ public class TradeEventListeners implements Listener {
         if (location == null)
             return;
 
-        ITownWrapper tradeTown = plugin.getGeopolWrapper().getTownAtLocation(location);
+        ITownWrapper tradeTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(location);
         if (tradeTown == null)
             return;
 
         var player = event.getPlayer();
 
-        ITownWrapper playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
+        ITownWrapper playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
         if (player == null)
             return;
 
         if (tradeTown.getUUID().equals(playerTown.getUUID()))
             return;
 
-        var config = plugin.getConfig();
+        var config = UnitedPolitics.instance().getConfig();
 
         // Bonus payment handling
 
@@ -174,18 +165,18 @@ public class TradeEventListeners implements Listener {
             var limit = config.getDouble("settings.ut-trade-complete.reputation-bonus.limit", 100);
             var factor = config.getDouble("settings.ut-trade-complete.reputation-bonus.factor", 0.5);
             var reason = config.getString("settings.ut-trade-complete.reputation-bonus.reason", "");
-            double defaultReputation = plugin.getConfig()
+            double defaultReputation = UnitedPolitics.instance().getConfig()
                     .getDouble("integration-mechanics.UnitedTrade.default-reputation", 0.0);
 
             var payment = event.getPayment();
 
             double score = defaultReputation;
             try {
-                score = plugin.getReputationManager().getTotalReputationScore(tradeTown.getUUID(),
+                score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUUID(),
                         playerTown.getUUID());
 
             } catch (Exception ignore) {
-                Logger.logWarning("Could not get town reputation for player " + player.getName()
+                United.logger().warning("Could not get town reputation for player " + player.getName()
                         + ", using default reputation " + score);
                 // Use fallback default score
             }
@@ -206,7 +197,7 @@ public class TradeEventListeners implements Listener {
         if (amount == 0)
             return;
 
-        plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-complete",
+        ReputationManager.instance().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-complete",
                 event.getPlayer(), true);
 
     }
@@ -221,13 +212,13 @@ public class TradeEventListeners implements Listener {
         if (location == null)
             return;
 
-        ITownWrapper tradeTown = plugin.getGeopolWrapper().getTownAtLocation(location);
+        ITownWrapper tradeTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(location);
         if (tradeTown == null)
             return;
 
         var player = event.getPlayer();
 
-        ITownWrapper playerTown = plugin.getGeopolWrapper().getTownByPlayer(player);
+        ITownWrapper playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
         if (player == null)
             return;
 
@@ -238,7 +229,7 @@ public class TradeEventListeners implements Listener {
         if (amount == 0)
             return;
 
-        plugin.getReputationManager().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-failed",
+        ReputationManager.instance().handleReputationChange(tradeTown, playerTown, amount, "ut-trade-failed",
                 event.getPlayer(), true);
 
     }

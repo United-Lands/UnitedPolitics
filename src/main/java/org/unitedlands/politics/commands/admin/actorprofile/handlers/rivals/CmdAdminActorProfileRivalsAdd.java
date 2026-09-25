@@ -3,32 +3,34 @@ package org.unitedlands.politics.commands.admin.actorprofile.handlers.rivals;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.unitedlands.classes.BaseCommandHandler;
-import org.unitedlands.interfaces.IMessageProvider;
+import org.unitedlands.annotations.UnitedSubCommand;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.utils.GeopolUtils;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.utils.United;
 
-public class AdminAddRivalCommand extends BaseCommandHandler<UnitedPolitics> {
-
-    public AdminAddRivalCommand(UnitedPolitics plugin, IMessageProvider messageProvider) {
-        super(plugin, messageProvider);
-    }
+@UnitedSubCommand(
+    parent = CmdAdminActorProfileRivals.class,
+    name = "add",
+    usage = "/upa actorprofile rivals add <actor> <rival>",
+    catchAll = true
+)
+public class CmdAdminActorProfileRivalsAdd implements UnitedCommandExecutor {
 
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
         if (args.length == 2) {
-            var names1 = plugin.getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
+            var names1 = UnitedPolitics.instance().getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
                     .collect(Collectors.toList());
-            var names2 = plugin.getGeopolWrapper().getTowns().stream().map(ITownWrapper::getName)
+            var names2 = UnitedPolitics.instance().getGeopolWrapper().getTowns().stream().map(ITownWrapper::getName)
                     .collect(Collectors.toList());
             names1.addAll(names2);
             return names1;
@@ -39,36 +41,32 @@ public class AdminAddRivalCommand extends BaseCommandHandler<UnitedPolitics> {
     @Override
     public void handleCommand(CommandSender sender, String[] args) {
         if (args.length != 2) {
-            Messenger.sendMessage(sender, messageProvider.getList("messages.usages.rival.add"), null,
-                    messageProvider.get("messages.prefix"));
+            sendUsage(sender);
             return;
         }
 
         IGeopolObjectWrapper actor = GeopolUtils.findGeopolObject(args[0]);
         if (actor == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
-                    Map.of("obj-name", args[0]), messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[0]);
             return;
         }
 
-        var profile = plugin.getActorProfileManager().getActorProfile(actor.getUUID());
+        var profile = ActorProfileManager.instance().getActorProfile(actor.getUUID());
         if (profile == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.actorprofile.no-profile"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.actorprofile.no-profile");
             return;
         }
 
         IGeopolObjectWrapper rival = GeopolUtils.findGeopolObject(args[1]);
         if (rival == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
-                    Map.of("obj-name", args[1]), messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[1]);
             return;
         }
 
         var actorRivals = profile.getRivals();
         if (actorRivals != null) {
             if (actorRivals.stream().filter(r -> r.equals(rival.getUUID())).findAny().orElse(null) != null) {
-                Messenger.sendMessage(sender, messageProvider.get("messages.errors.actorprofile.rival-exists"), null, messageProvider.get("messages.prefix"));
+                United.messenger().send(sender, "errors.actorprofile.rival-exists");
             }
         } else {
             actorRivals = new HashSet<>();
@@ -77,12 +75,11 @@ public class AdminAddRivalCommand extends BaseCommandHandler<UnitedPolitics> {
         actorRivals.add(rival.getUUID());
         profile.setRivals(actorRivals);
 
-        if (plugin.getActorProfileManager().addOrUpdateActorProfile(profile)) {
+        if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
             var cmd = "upa actorprofile edit " + actor.getName();
             Bukkit.dispatchCommand(sender, cmd);
         } else {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.db-save-error"),
-                    null, messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.general.db-save-error");
         }
     }
 

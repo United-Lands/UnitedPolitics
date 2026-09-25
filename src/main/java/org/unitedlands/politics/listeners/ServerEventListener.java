@@ -3,20 +3,16 @@ package org.unitedlands.politics.listeners;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerLoadEvent;
-import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.ActorProfileManager;
+import org.unitedlands.politics.managers.ReputationManager;
+import org.unitedlands.politics.managers.TimeManager;
 
 public class ServerEventListener implements Listener {
 
-    private final UnitedPolitics plugin;
-
-    public ServerEventListener(UnitedPolitics plugin) {
-        this.plugin = plugin;
-    }
-
     @EventHandler
     public void onServerLoad(ServerLoadEvent event) {
-        plugin.getReputationManager().loadReputationRecords();
-        plugin.getActorProfileManager().loadActorProfiles();
-        plugin.getTimeManager().scheduleNewDay();
+        ReputationManager.instance().loadReputationRecords();
+        ActorProfileManager.instance().loadActorProfiles();
+        TimeManager.instance().scheduleNewDay();
     }
 }

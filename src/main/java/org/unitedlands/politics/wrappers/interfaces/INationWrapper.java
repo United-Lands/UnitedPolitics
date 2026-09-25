@@ -7,5 +7,7 @@ public interface INationWrapper extends IGeopolObjectWrapper {
     Collection<IRegionWrapper> getRegions();
     Collection<ITownWrapper> getTowns();
 
+    double getDiplomacyScore();
+
     boolean equals(Object obj);
 }

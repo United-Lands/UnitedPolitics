@@ -2,38 +2,40 @@ package org.unitedlands.politics.commands.admin.actorprofile.handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.command.CommandSender;
-import org.unitedlands.classes.BaseCommandHandler;
-import org.unitedlands.interfaces.IMessageProvider;
+import org.unitedlands.annotations.UnitedSubCommand;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.commands.admin.actorprofile.CmdAdminActorProfile;
 import org.unitedlands.politics.integrations.UnitedDungeons.utils.DungeonsActorComponentUtils;
+import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.utils.ColorFormatter;
 import org.unitedlands.politics.utils.GeopolUtils;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.utils.United;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-public class AdminEditActorProfileCommand extends BaseCommandHandler<UnitedPolitics> {
-
-    public AdminEditActorProfileCommand(UnitedPolitics plugin, IMessageProvider messageProvider) {
-        super(plugin, messageProvider);
-    }
+@UnitedSubCommand(
+    parent = CmdAdminActorProfile.class, 
+    name = "edit", 
+    usage = "/upa actorprofile edit <actor>"
+)
+public class CmdAdminActorProfileEdit implements UnitedCommandExecutor {
 
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            var names1 = plugin.getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
+            var names1 = UnitedPolitics.instance().getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
                     .collect(Collectors.toList());
-            var names2 = plugin.getGeopolWrapper().getTowns().stream().map(ITownWrapper::getName)
+            var names2 = UnitedPolitics.instance().getGeopolWrapper().getTowns().stream().map(ITownWrapper::getName)
                     .collect(Collectors.toList());
             names1.addAll(names2);
             return names1;
@@ -44,8 +46,7 @@ public class AdminEditActorProfileCommand extends BaseCommandHandler<UnitedPolit
     @Override
     public void handleCommand(CommandSender sender, String[] args) {
         if (args.length != 1) {
-            Messenger.sendMessage(sender, messageProvider.getList("messages.usages.actorprofile.edit"), null,
-                    messageProvider.get("messages.prefix"));
+            sendUsage(sender);
             return;
         }
 
@@ -58,55 +59,51 @@ public class AdminEditActorProfileCommand extends BaseCommandHandler<UnitedPolit
             actor = GeopolUtils.findGeopolObject(args[0]);
         }
         if (actor == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
-                    Map.of("obj-name", args[0]), messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[0]);
             return;
         }
 
-        var profile = plugin.getActorProfileManager().getActorProfile(actor.getUUID());
+        var profile = ActorProfileManager.instance().getActorProfile(actor.getUUID());
         if (profile == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.actorprofile.no-profile"), null,
-                    messageProvider.get("messages.prefix"));
+            United.messenger().send(sender, "errors.actorprofile.no-profile");
             return;
         }
 
-        Messenger.sendMessage(sender, messageProvider.get("messages.actorprofile.header"),
-                Map.of("name", actor.getName()));
+        United.messenger().send(sender, "actorprofile.header", actor.getName());
 
         // --------------
         // Reactions
         // --------------
 
-        Messenger.sendMessage(sender, messageProvider.get("messages.actorprofile.reactions-header"),
-                Map.of("name", actor.getName()));
+        United.messenger().send(sender, "actorprofile.reactions-header", actor.getName());
 
         if (profile.getEventReactions() != null) {
             for (var reaction : profile.getEventReactions()) {
-                Component reactionComponent = Messenger.getMessage(
-                        messageProvider.get("messages.actorprofile.reactions-line"),
-                        Map.of("event-key", reaction.getEventKey(), "record-key", reaction.getReactionReputationKey(),
-                                "amount", ColorFormatter.getAmountColored(reaction.getAmount())),
-                        null);
+                Component reactionComponent = MiniMessage.miniMessage().deserialize(
+                        United.messenger().get("actorprofile.reactions-line",
+                                reaction.getEventKey(),
+                                reaction.getReactionReputationKey(),
+                                ColorFormatter.getAmountColored(reaction.getAmount())));
 
                 var reactionRemoveComponent = MiniMessage.miniMessage()
                         .deserialize(" <dark_gray>[<red>-</red>]</dark_gray>")
                         .clickEvent(ClickEvent.runCommand(
                                 "/upa actorprofile reaction remove " + actor.getName() + " " + reaction.getEventKey()));
 
-                Messenger.send(sender, reactionComponent.append(reactionRemoveComponent));
+                United.messenger().send(sender, reactionComponent.append(reactionRemoveComponent));
             }
         }
 
         Component reactionAddComponent = MiniMessage.miniMessage()
                 .deserialize("<dark_gray>[<green>+</green>]</dark_gray>")
                 .clickEvent(ClickEvent.suggestCommand("/upa actorprofile reaction create " + actor.getName() + " "));
-        Messenger.send(sender, reactionAddComponent);
+        United.messenger().send(sender, reactionAddComponent);
 
         // --------------
         // Rivals
         // --------------
 
-        Messenger.sendMessage(sender, messageProvider.get("messages.actorprofile.rivals-header"));
+        United.messenger().send(sender, "actorprofile.rivals-header");
 
         if (profile.getRivals() != null) {
             for (var rivalId : profile.getRivals()) {
@@ -114,9 +111,9 @@ public class AdminEditActorProfileCommand extends BaseCommandHandler<UnitedPolit
                 if (rival == null)
                     continue;
 
-                Component rivalComponent = Messenger.getMessage(
-                        messageProvider.get("messages.actorprofile.rivals-line"),
-                        Map.of("rival", rival.getName()), null);
+                Component rivalComponent = MiniMessage.miniMessage().deserialize(
+                        United.messenger().get("actorprofile.rivals-line",
+                                rival.getName()));
 
                 var rivalRemoveComponent = MiniMessage.miniMessage()
                         .deserialize(" <dark_gray>[<red>-</red>]</dark_gray>")
@@ -124,19 +121,19 @@ public class AdminEditActorProfileCommand extends BaseCommandHandler<UnitedPolit
                                 .runCommand(
                                         "/upa actorprofile rivals remove " + actor.getName() + " " + rival.getName()));
 
-                Messenger.send(sender, rivalComponent.append(rivalRemoveComponent));
+                United.messenger().send(sender, rivalComponent.append(rivalRemoveComponent));
             }
         }
 
         Component rivalAddComponent = MiniMessage.miniMessage().deserialize("<dark_gray>[<green>+</green>]</dark_gray>")
                 .clickEvent(ClickEvent.suggestCommand("/upa actorprofile rivals add " + actor.getName() + " "));
-        Messenger.send(sender, rivalAddComponent);
+        United.messenger().send(sender, rivalAddComponent);
 
         // --------------
         // Partners
         // --------------
 
-        Messenger.sendMessage(sender, messageProvider.get("messages.actorprofile.partners-header"));
+        United.messenger().send(sender, "actorprofile.partners-header");
 
         if (profile.getPartners() != null) {
             for (var partnerId : profile.getPartners()) {
@@ -144,32 +141,34 @@ public class AdminEditActorProfileCommand extends BaseCommandHandler<UnitedPolit
                 if (partner == null)
                     continue;
 
-                Component partnerComponent = Messenger.getMessage(
-                        messageProvider.get("messages.actorprofile.partners-line"),
-                        Map.of("partner", partner.getName()), null);
+                Component partnerComponent = MiniMessage.miniMessage().deserialize(
+                        United.messenger().get("actorprofile.partners-line",
+                                partner.getName()));
 
                 var removePartnerComponent = MiniMessage.miniMessage()
                         .deserialize(" <dark_gray>[<red>-</red>]</dark_gray>")
                         .clickEvent(ClickEvent
                                 .runCommand(
-                                        "/upa actorprofile partners remove " + actor.getName() + " " + partner.getName()));
+                                        "/upa actorprofile partners remove " + actor.getName() + " "
+                                                + partner.getName()));
 
-                Messenger.send(sender, partnerComponent.append(removePartnerComponent));
+                United.messenger().send(sender, partnerComponent.append(removePartnerComponent));
             }
         }
 
-        Component partnerAddComponent = MiniMessage.miniMessage().deserialize("<dark_gray>[<green>+</green>]</dark_gray>")
+        Component partnerAddComponent = MiniMessage.miniMessage()
+                .deserialize("<dark_gray>[<green>+</green>]</dark_gray>")
                 .clickEvent(ClickEvent.suggestCommand("/upa actorprofile partners add " + actor.getName() + " "));
-        Messenger.send(sender, partnerAddComponent);
+        United.messenger().send(sender, partnerAddComponent);
 
         // --------------
         // Optional UnitedDungeons integration
         // --------------
 
-        if (plugin.isUnitedDungeonsEnabled()) {
+        if (UnitedPolitics.instance().isUnitedDungeonsEnabled()) {
             var utils = new DungeonsActorComponentUtils();
-            utils.sendHostileDungeonsComponent(sender, messageProvider, profile, actor);
-            utils.sendFriendlyDungeonsComponent(sender, messageProvider, profile, actor);
+            utils.sendHostileDungeonsComponent(sender, profile, actor);
+            utils.sendFriendlyDungeonsComponent(sender, profile, actor);
         }
     }
 

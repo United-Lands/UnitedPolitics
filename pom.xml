@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -13,7 +13,7 @@
 
     <groupId>org.unitedlands.politics</groupId>
     <artifactId>UnitedPolitics</artifactId>
-    <version>1.0.6</version>
+    <version>2.0.0</version>
 
     <dependencies>
         <dependency>
@@ -37,11 +37,22 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
+
+        <!-- Geopol plugins -->
+
+        <dependency>
+            <groupId>org.unitedlands.unitedlands</groupId>
+            <artifactId>UnitedLands</artifactId>
+            <version>0.0.1</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.palmergames.bukkit.towny</groupId>
             <artifactId>towny</artifactId>
             <scope>provided</scope>
         </dependency>
+
+
         <dependency>
             <groupId>org.unitedlands.trade</groupId>
             <artifactId>UnitedTrade</artifactId>

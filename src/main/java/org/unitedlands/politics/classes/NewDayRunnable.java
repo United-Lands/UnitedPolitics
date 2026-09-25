@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.utils.GeopolUtils;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.United;
 
 public class NewDayRunnable implements Runnable {
 
@@ -35,7 +36,7 @@ public class NewDayRunnable implements Runnable {
 
         List<ReputationScoreEntry> entriesToRemove = new ArrayList<>();
 
-        var reputationScoreEntries = new ArrayList<>(plugin.getReputationManager().getReputationScoreEntries());
+        var reputationScoreEntries = new ArrayList<>(ReputationManager.instance().getReputationScoreEntries());
         var sortedEntries = reputationScoreEntries.stream()
                 .sorted(Comparator.comparing(ReputationScoreEntry::getId)).collect(Collectors.toList());
 
@@ -71,23 +72,23 @@ public class NewDayRunnable implements Runnable {
             if (newModifier == 0) {
                 entriesToRemove.add(entry);
                 if (service.delete(entry.getId())) {
-                    Logger.log("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
+                    United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
                             + " reached 0, removed", "UnitedPolitics");
                 }
 
             } else {
                 entry.setModifier(newModifier);
                 if (service.createOrUpdate(entry)) {
-                    Logger.log("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
+                    United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
                             + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
                 } else {
-                    Logger.logError("Error saving entry " + entry.getId(), "UnitedPolitics");
+                    United.logger().error("Error saving entry " + entry.getId(), "UnitedPolitics");
                 }
             }
         }
 
         reputationScoreEntries.removeAll(entriesToRemove);
-        plugin.getReputationManager().setReputationScoreEntries(reputationScoreEntries);
+        ReputationManager.instance().setReputationScoreEntries(reputationScoreEntries);
 
     }
 

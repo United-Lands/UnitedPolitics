@@ -5,15 +5,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 
 public class DeathListener implements Listener {
-
-    private final UnitedPolitics plugin;
-
-    public DeathListener(UnitedPolitics plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
@@ -22,10 +17,10 @@ public class DeathListener implements Listener {
             return;
 
         if (killer instanceof Player killingPlayer) {
-            if (!plugin.getConfig().getBoolean("settings.killed.enabled", false))
+            if (UnitedPolitics.instance().getConfig().getBoolean("settings.killed.enabled", false))
                 return;
 
-            var blacklist = plugin.getConfig().getStringList("settings.killed.blacklisted-worlds");
+            var blacklist = UnitedPolitics.instance().getConfig().getStringList("settings.killed.blacklisted-worlds");
             if (blacklist != null && !blacklist.isEmpty()) {
                 var deathWorld = killer.getLocation().getWorld().getName();
                 if (blacklist.contains(deathWorld))
@@ -34,11 +29,11 @@ public class DeathListener implements Listener {
 
             var victim = (Player) event.getPlayer();
 
-            ITownWrapper victimTown = plugin.getGeopolWrapper().getTownByPlayer(victim);
+            ITownWrapper victimTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(victim);
             if (victimTown == null)
                 return;
 
-            ITownWrapper killerTown = plugin.getGeopolWrapper().getTownByPlayer(killingPlayer);
+            ITownWrapper killerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(killingPlayer);
             if (killerTown == null)
                 return;
 
@@ -50,8 +45,8 @@ public class DeathListener implements Listener {
                     return;
             }
 
-            var amount = plugin.getConfig().getDouble("settings.killed.amount");
-            plugin.getReputationManager().handleReputationChange(victimTown, killerTown, amount, "killed-member",
+            var amount = UnitedPolitics.instance().getConfig().getDouble("settings.killed.amount");
+            ReputationManager.instance().handleReputationChange(victimTown, killerTown, amount, "killed-member",
                     killingPlayer, true);
         }
     }

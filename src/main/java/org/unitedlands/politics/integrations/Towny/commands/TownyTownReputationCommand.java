@@ -3,7 +3,6 @@ package org.unitedlands.politics.integrations.Towny.commands;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.bukkit.command.Command;
@@ -13,16 +12,15 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.utils.ColorFormatter;
 import org.unitedlands.politics.utils.GeopolUtils;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
-import org.unitedlands.utils.Formatter;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyCommandAddonAPI;
@@ -31,12 +29,7 @@ import com.palmergames.bukkit.towny.object.AddonCommand;
 
 public class TownyTownReputationCommand implements CommandExecutor, TabCompleter {
 
-    private final UnitedPolitics plugin;
-    private final IMessageProvider messageProvider;
-
-    public TownyTownReputationCommand(UnitedPolitics plugin, IMessageProvider messageProvider) {
-        this.plugin = plugin;
-        this.messageProvider = messageProvider;
+    public TownyTownReputationCommand() {
         TownyCommandAddonAPI.addSubCommand(new AddonCommand(CommandType.TOWN, "reputation", this));
     }
 
@@ -44,9 +37,9 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd,
             @NotNull String alias, @NotNull String @NotNull [] args) {
         if (args.length == 1) {
-            var names1 = plugin.getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
+            var names1 = UnitedPolitics.instance().getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
                     .collect(Collectors.toList());
-            var names2 = plugin.getGeopolWrapper().getTowns().stream().map(ITownWrapper::getName)
+            var names2 = UnitedPolitics.instance().getGeopolWrapper().getTowns().stream().map(ITownWrapper::getName)
                     .collect(Collectors.toList());
             names1.addAll(names2);
             return names1;
@@ -64,68 +57,26 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
         if (residentTown == null)
             return false;
 
-        // if (args.length == 0) {
-
-        // Messenger.sendMessage(sender,
-        // messageProvider.getList("messages.reputation-info-header"));
-
-        // var records =
-        // plugin.getReputationManager().getReputationScoreEntriesForSubject(residentTown.getUUID());
-        // if (records == null || records.isEmpty()) {
-        // Messenger.sendMessage(sender,
-        // messageProvider.get("messages.reputation-info-empty"));
-        // Messenger.sendMessage(sender,
-        // messageProvider.getList("messages.reputation-entry-footer"));
-        // return false;
-        // }
-
-        // var grouped =
-        // records.stream().collect(Collectors.groupingBy(ReputationScoreEntry::getObserver));
-
-        // for (var item : grouped.entrySet()) {
-        // var geopolObject = GeopolUtils.findGeopolObject(item.getKey());
-        // if (geopolObject == null)
-        // continue;
-
-        // Double score = item.getValue().stream()
-        // .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
-
-        // String scoreStr = ColorFormatter.getAmountColored(score);
-        // String prefixStr = ColorFormatter.getGeopolPrefixColored(geopolObject);
-
-        // Messenger.sendMessage(sender,
-        // messageProvider.get("messages.reputation-info-entry"),
-        // Map.of("prefix", prefixStr, "subject-name", geopolObject.getName(), "score",
-        // scoreStr));
-        // }
-
-        // Messenger.sendMessage(sender,
-        // messageProvider.getList("messages.reputation-entry-footer"));
-        // }
-
         if (args.length == 1) {
 
-            Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-details-header"),
-                    Map.of("subject-name", args[0]));
+            United.messenger().send(sender, "reputation-details-header", args[0]);
 
             IGeopolObjectWrapper geopolObj = GeopolUtils.findGeopolObject(args[0]);
             if (geopolObj == null) {
-                Messenger.sendMessage(sender, messageProvider.get("messages.reputation-details-empty"),
-                        Map.of("subject-name", args[0]));
+                United.messenger().send(sender, "reputation-details-empty", args[0]);
             }
 
             List<ReputationScoreEntry> allEntries = new ArrayList<>();
-            var dynamicEntries = plugin.getReputationManager().getReputationScoreEntries(geopolObj.getUUID(),
+            var dynamicEntries = ReputationManager.instance().getReputationScoreEntries(geopolObj.getUUID(),
                     residentTown.getUUID());
             allEntries.addAll(dynamicEntries);
 
-            var staticEntries = plugin.getReputationManager().calculateStaticReputationScoreEntries(geopolObj.getUUID(),
+            var staticEntries = ReputationManager.instance().calculateStaticReputationScoreEntries(geopolObj.getUUID(),
                     residentTown.getUUID());
             allEntries.addAll(staticEntries);
 
             if (allEntries == null || allEntries.isEmpty()) {
-                Messenger.sendMessage(sender, messageProvider.get("messages.reputation-details-empty"),
-                        Map.of("subject-name", args[0]));
+                United.messenger().send(sender, "reputation-details-empty", args[0]);
             }
 
             allEntries = allEntries.stream().sorted(Comparator.comparing(ReputationScoreEntry::getModifier))
@@ -141,19 +92,19 @@ public class TownyTownReputationCommand implements CommandExecutor, TabCompleter
                     timeStamp = 0L;
 
                 var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
-                var decayThreshold = plugin.getConfig().getLong("rep-decay-grace-period") * 1000;
-                
+                var decayThreshold = UnitedPolitics.instance().getConfig().getLong("rep-decay-grace-period") * 1000;
+
                 if (millisecondsSinceTimestamp < decayThreshold) {
                     decayStr = "<gray>Will start decaying in "
-                            + Formatter.formatDuration(decayThreshold - millisecondsSinceTimestamp) + "</gray>";
+                            + United.formatter().formatDuration(decayThreshold - millisecondsSinceTimestamp) + "</gray>";
                 }
 
-                Messenger.sendMessage(sender, messageProvider.get("messages.reputation-details-entry"),
-                        Map.of("description", item.getDescription(), "score", scoreStr, "decay", decayStr));
+                United.messenger().send(sender, "reputation-details-entry",
+                        item.getDescription(), scoreStr, decayStr);
 
             }
 
-            Messenger.sendMessage(sender, messageProvider.getList("messages.reputation-details-footer"));
+            United.messenger().send(sender, "reputation-details-footer");
 
         }
 

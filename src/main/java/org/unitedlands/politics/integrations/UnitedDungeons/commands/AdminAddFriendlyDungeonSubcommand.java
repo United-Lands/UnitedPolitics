@@ -12,6 +12,7 @@ import org.unitedlands.dungeons.UnitedDungeons;
 import org.unitedlands.dungeons.classes.Dungeon;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.utils.GeopolUtils;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.utils.Logger;
@@ -35,36 +36,36 @@ public class AdminAddFriendlyDungeonSubcommand extends BaseCommandHandler<United
     @Override
     public void handleCommand(CommandSender sender, String[] args) {
         if (args.length != 2) {
-            Messenger.sendMessage(sender, messageProvider.getList("messages.usages.friendlydungeon.add"), null,
-                    messageProvider.get("messages.prefix"));
+            Messenger.sendMessage(sender, messageProvider.getList("usages.friendlydungeon.add"), null,
+                    messageProvider.get("prefix"));
             return;
         }
 
         IGeopolObjectWrapper actor = GeopolUtils.findGeopolObject(args[0]);
         if (actor == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.geopol-obj-not-found"),
-                    Map.of("obj-name", args[0]), messageProvider.get("messages.prefix"));
+            Messenger.sendMessage(sender, messageProvider.get("errors.general.geopol-obj-not-found"),
+                    Map.of("obj-name", args[0]));
             return;
         }
 
-        var profile = plugin.getActorProfileManager().getActorProfile(actor.getUUID());
+        var profile = ActorProfileManager.instance().getActorProfile(actor.getUUID());
         if (profile == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.actorprofile.no-profile"), null,
-                    messageProvider.get("messages.prefix"));
+            Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.no-profile"), null,
+                    messageProvider.get("prefix"));
             return;
         }
 
         Dungeon dungeon = UnitedDungeons.getInstance().getDungeonManager().getDungeon(args[1]);
         if (dungeon == null) {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.actorprofile.dungeon-not-found"),
-                    Map.of("obj-name", args[1]), messageProvider.get("messages.prefix"));
+            Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.dungeon-not-found"),
+                    Map.of("obj-name", args[1]));
             return;
         }
 
         var actorFriendlyDungeons = profile.getFriendlyDungeons();
         if (actorFriendlyDungeons != null) {
             if (actorFriendlyDungeons.stream().filter(r -> r.equals(dungeon.getUuid())).findAny().orElse(null) != null) {
-                Messenger.sendMessage(sender, messageProvider.get("messages.errors.actorprofile.dungeon-exists"), null, messageProvider.get("messages.prefix"));
+                Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.dungeon-exists"), null);
             }
         } else {
             actorFriendlyDungeons = new HashSet<>();
@@ -73,12 +74,12 @@ public class AdminAddFriendlyDungeonSubcommand extends BaseCommandHandler<United
         actorFriendlyDungeons.add(dungeon.getUuid());
         profile.setFriendlyDungeons(actorFriendlyDungeons);
 
-        if (plugin.getActorProfileManager().addOrUpdateActorProfile(profile)) {
+        if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
             var cmd = "upa actorprofile edit " + actor.getName();
             Bukkit.dispatchCommand(sender, cmd);
         } else {
-            Messenger.sendMessage(sender, messageProvider.get("messages.errors.general.db-save-error"),
-                    null, messageProvider.get("messages.prefix"));
+            Messenger.sendMessage(sender, messageProvider.get("errors.general.db-save-error"),
+                    null);
         }
     }
 

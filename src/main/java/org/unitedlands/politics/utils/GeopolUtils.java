@@ -4,11 +4,12 @@ import java.util.UUID;
 
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
+import org.unitedlands.utils.United;
 
 public class GeopolUtils {
 
     public static IGeopolObjectWrapper findGeopolObject(UUID id) {
-        var geopolWrapper = UnitedPolitics.getInstance().getGeopolWrapper();
+        var geopolWrapper = UnitedPolitics.instance().getGeopolWrapper();
         var nation = geopolWrapper.getNation(id);
         if (nation != null)
             return (IGeopolObjectWrapper) nation;
@@ -22,7 +23,10 @@ public class GeopolUtils {
     }
 
     public static IGeopolObjectWrapper findGeopolObject(String name) {
-        var geopolWrapper = UnitedPolitics.getInstance().getGeopolWrapper();
+
+        United.logger().debug("Searching " + name);
+        
+        var geopolWrapper = UnitedPolitics.instance().getGeopolWrapper();
         var nation = geopolWrapper.getNation(name);
         if (nation != null)
             return (IGeopolObjectWrapper) nation;

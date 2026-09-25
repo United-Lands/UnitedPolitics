@@ -5,29 +5,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.models.ActorProfile;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.United;
 
 public class ActorProfileManager {
 
-    private final UnitedPolitics plugin;
+    private static ActorProfileManager instance;
+    
+    public static ActorProfileManager instance() {
+        return instance;
+    }
+
+    private final DatabaseManager databaseManager;
     private Map<UUID, ActorProfile> actorProfiles;
 
-    public ActorProfileManager(UnitedPolitics plugin) {
-        this.plugin = plugin;
+    public ActorProfileManager(DatabaseManager databaseManager) {
+        instance = this;
+        this.databaseManager = databaseManager;
     }
 
     public void loadActorProfiles() {
 
         actorProfiles = new HashMap<>();
 
-        var service = plugin.getDatabaseManager().getActorProfileService();
+        var service = databaseManager.getActorProfileService();
         service.getAllAsync().thenAccept(entries -> {
             for (var entry : entries) {
                 actorProfiles.put(entry.getId(), entry);
             }
-            Logger.log("Loaded " + entries.size() + " actor profiles to memory.", "UnitedPolitics");
+            United.logger().info("Loaded " + entries.size() + " actor profiles to memory.", "UnitedPolitics");
         });
 
     }
@@ -44,7 +50,7 @@ public class ActorProfileManager {
         if (!actorProfiles.containsKey(profile.getId()))
             actorProfiles.put(profile.getId(), profile);
 
-        var service = plugin.getDatabaseManager().getActorProfileService();
+        var service = databaseManager.getActorProfileService();
         return service.createOrUpdate(profile);
     }
 

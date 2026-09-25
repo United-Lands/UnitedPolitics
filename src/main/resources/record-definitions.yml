@@ -1,0 +1,199 @@
+# +---------------------------------------------+ #
+# |            Record definitions               | #
+# +---------------------------------------------+ #
+
+record-definitions:
+
+  # UnitedPolitics default dynamic reputation records
+  paid-tribute:
+    description: "They paid tribute to us"
+    low-cap: -25
+    high-cap: 25
+    decay: 1
+  killed-member:
+    description: "They killed one of us"
+    low-cap: -100
+    high-cap: 0
+    decay: 1
+  likes-kills:
+    description: "They killed someone"
+    low-cap: 0
+    high-cap: 25
+    decay: -1
+  dislikes-kills:
+    description: "They killed someone"
+    low-cap: -25
+    high-cap: 0
+    decay: 1
+
+  # UnitedPolitics default static reputation records
+  our-town:
+    description: "Our town"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  same-region:
+    description: "Same region"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  our-region:
+    same-region:
+    description: "Our region"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  same-nation:
+    same-region:
+    description: "Same nation"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  our-nation:
+    same-region:
+    description: "Our nation"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+
+  # Rivalry
+  # Static
+  our-rival: 
+    description: "They are our rival"
+    low-cap: -100
+    high-cap: 0
+    decay: 0
+    default: -100
+  our-rivals-rival: 
+    description: "They are our rival's rival"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  our-rivals-partner: 
+    description: "They are our rival's partner"
+    low-cap: -50
+    high-cap: 0
+    decay: 0
+    default: -50
+  our-partner: 
+    description: "They are our partner"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  our-partners-rival: 
+    description: "They are our partner's rival"
+    low-cap: -50
+    high-cap: 0
+    decay: 0
+    default: -50
+  our-partners-partner: 
+    description: "They are our partner's partner"
+    low-cap: 0
+    high-cap: 50
+    decay: 0
+    default: 50
+  # Dynamic
+  helped-rival:
+    description: "They helped a rival"
+    low-cap: -100
+    high-cap: 0
+    decay: 1
+  hurt-rival:
+    description: "They disgruntled a rival"
+    low-cap: 100
+    high-cap: 0
+    decay: -1
+  helped-partner:
+    description: "They helped a partner"
+    low-cap: 0
+    high-cap: 25
+    decay: -1
+  hurt-partner:
+    description: "They disgruntled a partner"
+    low-cap: -100
+    high-cap: 0
+    decay: 1
+
+  # UnitedTrade integration reputation records
+  # Dynamic
+  ut-trade-complete:
+    description: "They completed trade orders"
+    low-cap: 0
+    high-cap: 25
+    decay: -2
+  ut-trade-failed:
+    description: "They failed trade orders"
+    low-cap: -25
+    high-cap: 0
+    decay: 2
+  uw-likes-trade:
+    description: "They are traders"
+    low-cap: 0
+    high-cap: 50
+    decay: -2
+  uw-dislikes-trade:
+    description: "They are traders"
+    low-cap: -50
+    high-cap: 0
+    decay: 2
+
+  # UnitedWar integration reputation records
+
+  # Static
+  uw-enemy-in-war:
+    description: "Enemy in ongoing war"
+    low-cap: -200
+    high-cap: 0
+    decay: 0
+    default: -200
+  uw-ally-in-war:
+    description: "Ally in ongoing war"
+    low-cap: 0
+    high-cap: 200
+    decay: 0
+    default: 200
+  # Dynamic
+  uw-warred-us:
+    description: "They warred us"
+    low-cap: -200
+    high-cap: 0
+    decay: 2
+  uw-warred-friend:
+    description: "They warred a friend"
+    low-cap: -200
+    high-cap: 0
+    decay: 2
+  uw-warred-enemy:
+    description: "They warred an enemy"
+    low-cap: 0
+    high-cap: 200
+    decay: -2
+  uw-likes-war:
+    description: "They warred someone"
+    low-cap: 0
+    high-cap: 50
+    decay: -2
+  uw-dislikes-war:
+    description: "They warred someone"
+    low-cap: -50
+    high-cap: 0
+    decay: 2
+
+  # UnitedDungeons integration reputation records
+  ud-looted-hostile-dungeon:
+    description: "They looted a hostile place"
+    low-cap: 0
+    high-cap: 50
+    decay: -1
+  ud-looted-friendly-dungeon:
+    description: "They looted a friendly place"
+    low-cap: -50
+    high-cap: 0
+    decay: 1

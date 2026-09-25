@@ -31,6 +31,11 @@ public class TownyNationWrapper implements INationWrapper {
         return nation.getName();
     }
 
+    @Override
+    public String getCleanName() {
+        return nation.getFormattedName();
+    }
+
     @Override 
     public ITownWrapper getCapital() {
         return new TownyTownWrapper(nation.getCapital());
@@ -54,6 +59,12 @@ public class TownyNationWrapper implements INationWrapper {
     @Override
     public Collection<ITownWrapper> getTowns() {
         return nation.getTowns().stream().map(town -> new TownyTownWrapper(town)).collect(Collectors.toList());
+    }
+
+    @Override
+    public double getDiplomacyScore() {
+        // Not implemented for Towny
+        return 0;
     }
 
     @Override

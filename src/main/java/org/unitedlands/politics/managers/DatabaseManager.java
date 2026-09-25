@@ -8,7 +8,7 @@ import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.models.SchemaVersion;
 import org.unitedlands.politics.services.ActorProfileService;
 import org.unitedlands.politics.services.ReputationScoreEntryService;
-import org.unitedlands.utils.Logger;
+import org.unitedlands.utils.United;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
@@ -20,21 +20,15 @@ import com.zaxxer.hikari.HikariDataSource;
 
 public class DatabaseManager {
 
-    private final UnitedPolitics plugin;
-
     private HikariDataSource hikariDataSource;
     private ConnectionSource connectionSource;
 
     private ReputationScoreEntryService reputationScoreEntryService;
     private ActorProfileService actorProfileService;
 
-    public DatabaseManager(UnitedPolitics plugin) {
-        this.plugin = plugin;
-    }
-
     public void initialize() {
 
-        var fileConfig = plugin.getConfig();
+        var fileConfig = UnitedPolitics.instance().getConfig();
 
         String host = fileConfig.getString("mysql.host");
         int port = fileConfig.getInt("mysql.port");
@@ -47,7 +41,7 @@ public class DatabaseManager {
                 host,
                 port,
                 database,
-                plugin.getConfig().getBoolean("developer-mode") ? "false" : "true");
+                fileConfig.getBoolean("developer-mode") ? "false" : "true");
 
         try {
 
@@ -71,12 +65,12 @@ public class DatabaseManager {
             hikariDataSource = new HikariDataSource(config);
             connectionSource = new DataSourceConnectionSource(hikariDataSource, jdbcUrl);
 
-            Logger.log("Connected to MySQL database with HikariCP.", "UnitedPolitics");
+            United.logger().info("Connected to MySQL database with HikariCP.", "UnitedPolitics");
 
             verifySchemaVersion();
             registerServices();
 
-            Logger.log("DatabaseManager initialized successfully.", "UnitedPolitics");
+            United.logger().info("DatabaseManager initialized successfully.", "UnitedPolitics");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -117,7 +111,7 @@ public class DatabaseManager {
     public <T, ID> Dao<T, ID> getDao(Class<T> clazz) throws SQLException {
 
         // In developer mode, drop the table if it exists
-        if (plugin.getConfig().getBoolean("developer-mode"))
+        if (UnitedPolitics.instance().getConfig().getBoolean("developer-mode"))
             TableUtils.dropTable(connectionSource, clazz, true);
 
         TableUtils.createTableIfNotExists(connectionSource, clazz);
@@ -128,11 +122,11 @@ public class DatabaseManager {
         try {
             if (connectionSource != null) {
                 connectionSource.close();
-                Logger.log("Disconnected from MySQL database.", "UnitedPolitics");
+                United.logger().info("Disconnected from MySQL database.", "UnitedPolitics");
             }
             if (hikariDataSource != null) {
                 hikariDataSource.close();
-                Logger.log("HikariCP connection closed.", "UnitedPolitics");
+                United.logger().info("HikariCP connection closed.", "UnitedPolitics");
             }
         } catch (Exception e) {
             e.printStackTrace();
