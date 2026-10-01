@@ -6,6 +6,7 @@ import org.bukkit.event.server.ServerLoadEvent;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TimeManager;
+import org.unitedlands.politics.managers.TreatyManager;
 
 public class ServerEventListener implements Listener {
 
@@ -13,6 +14,7 @@ public class ServerEventListener implements Listener {
     public void onServerLoad(ServerLoadEvent event) {
         ReputationManager.instance().loadReputationRecords();
         ActorProfileManager.instance().loadActorProfiles();
+        TreatyManager.instance().loadTreaties();
         TimeManager.instance().scheduleNewDay();
     }
 }

@@ -3,9 +3,12 @@ package org.unitedlands.politics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.unitedlands.libs.ormlite.logger.LoggerFactory;
+import org.unitedlands.libs.ormlite.logger.NullLogBackend;
 import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationCommand;
 import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
 import org.unitedlands.politics.integrations.UnitedDungeons.listeners.DungeonEventListener;
+import org.unitedlands.politics.integrations.UnitedLands.listeners.CountryListener;
 import org.unitedlands.politics.integrations.UnitedLands.listeners.InfoScreenListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
 import org.unitedlands.politics.integrations.UnitedWar.listeners.WarEventListeners;
@@ -15,15 +18,12 @@ import org.unitedlands.politics.listeners.ServerEventListener;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.DatabaseManager;
 import org.unitedlands.politics.managers.ReputationManager;
-import org.unitedlands.politics.managers.DiplomacyManager;
+import org.unitedlands.politics.managers.TreatyManager;
 import org.unitedlands.politics.managers.TimeManager;
 import org.unitedlands.politics.wrappers.Towny.TownyGeopolWrapper;
 import org.unitedlands.politics.wrappers.UnitedLands.UnitedLandsGeopolWrapper;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolWrapper;
 import org.unitedlands.utils.United;
-
-import com.j256.ormlite.logger.LoggerFactory;
-import com.j256.ormlite.logger.NullLogBackend;
 
 public class UnitedPolitics extends JavaPlugin {
 
@@ -86,7 +86,7 @@ public class UnitedPolitics extends JavaPlugin {
         timeManager = new TimeManager(this);
 
         new ReputationManager(databaseManager);
-        new DiplomacyManager(databaseManager);
+        new TreatyManager(databaseManager);
         new ActorProfileManager(databaseManager);
     }
 
@@ -111,6 +111,7 @@ public class UnitedPolitics extends JavaPlugin {
             United.logger().info("Enabling UnitedLands integrations.", "UnitedPolitics");
 
             getServer().getPluginManager().registerEvents(new InfoScreenListener(), this);
+            getServer().getPluginManager().registerEvents(new CountryListener(), this);
 
             this.townyEnabled = true;
         } else {

@@ -24,4 +24,5 @@ public interface IGeopolWrapper {
 
     ITownWrapper getTownAtLocation(Location location);
     ITownWrapper getTownByPlayer(Player player);
+    INationWrapper getNationByPlayer(Player player);
 }

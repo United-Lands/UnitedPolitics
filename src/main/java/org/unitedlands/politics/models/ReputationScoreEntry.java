@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.unitedlands.politics.classes.Identifiable;
 
-import com.j256.ormlite.field.DatabaseField;
+import org.unitedlands.libs.ormlite.field.DatabaseField;
 
 public class ReputationScoreEntry implements Identifiable {
 

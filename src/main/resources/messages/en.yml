@@ -11,11 +11,9 @@ errors:
     db-save-error: "<red>Error while saving.</red>"
     no-town-resident: "<red>You're not a resident in any town.</red>"
     no-rank: "<red>You don't have the necessary rank to use this.</red>"
-
   reputation:
     no-record: "<red>Reputation record not found, use create first.</red>"
     existing-record: "<red>A record with that key already exists, use set, add or remove instead."
-
   actorprofile:
     no-profile: "<red>This actor doesn't have a profile yet, use <em>create</em> to create one."
     existing-record: "<red>A profile for that actor already exists."
@@ -28,20 +26,25 @@ errors:
     dungeon-not-found: "<red>No dungeon with that name found."
     dungeon-exists: "<red>There aready is a record with this dungeon."
     dungeon-missing: "<red>No record with the given dungeon found."
-
+  treaty:
+    unknown-type: "<red>Unknown treaty type: {1}"
   opinion:
     no-town: '<red>You must be in a town to use this command without a target. Use "/opinion <town/nation> <target_town/target_nation>"</red>'
     target-not-found: "<red>Target {1} not found.</red>"
 
 success:
   reputation:
-    create: "<dark_green>Created reputation entry of {1} for {2} with {3} for key {key}."
-    add: "<dark_green>Added {1} to reputation of {2} with {3} for key {key}."
+    create: "<dark_green>Created reputation entry of {1} for {2} with {4} for key {3}."
+    add: "<dark_green>Added {1} to reputation of {2} with {4} for key {3}."
     set: "<dark_green>Set reputation of {1} with {2} to {3} for key {4}."
     remove: "<dark_green>Removed reputation of {1} with {2} for key {3}."
   actorprofile:
     create: "<dark_green>Created actor profile for {1}."
     saved: "<dark_green>Saved changes for {1}."
+  treaty:
+    create: "<dark_green>Created {1} treate named {2}."
+    broadcast-create: "<aqua>{1} created a new {2} treaty called <b>{3}</b>!"
+    broadcast-join: "<aqua>{1} just joined <b>{2}</b>!"
 
 actorprofile:
   header: "<bold><gold>{1}'s Actor Profile</gold></bold>"

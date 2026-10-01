@@ -3,20 +3,22 @@ package org.unitedlands.politics.managers;
 import java.sql.SQLException;
 
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.classes.Treaty;
 import org.unitedlands.politics.models.ActorProfile;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.models.SchemaVersion;
 import org.unitedlands.politics.services.ActorProfileService;
 import org.unitedlands.politics.services.ReputationScoreEntryService;
+import org.unitedlands.politics.services.TreatyService;
 import org.unitedlands.utils.United;
 
-import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.dao.DaoManager;
-import com.j256.ormlite.jdbc.DataSourceConnectionSource;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.table.TableUtils;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import org.unitedlands.libs.ormlite.dao.Dao;
+import org.unitedlands.libs.ormlite.dao.DaoManager;
+import org.unitedlands.libs.ormlite.jdbc.DataSourceConnectionSource;
+import org.unitedlands.libs.ormlite.support.ConnectionSource;
+import org.unitedlands.libs.ormlite.table.TableUtils;
+import org.unitedlands.libs.zaxxer.hikari.HikariConfig;
+import org.unitedlands.libs.zaxxer.hikari.HikariDataSource;
 
 public class DatabaseManager {
 
@@ -25,6 +27,7 @@ public class DatabaseManager {
 
     private ReputationScoreEntryService reputationScoreEntryService;
     private ActorProfileService actorProfileService;
+    private TreatyService treatyService;
 
     public void initialize() {
 
@@ -80,6 +83,7 @@ public class DatabaseManager {
     private void registerServices() throws SQLException {
         this.reputationScoreEntryService = new ReputationScoreEntryService(getDao(ReputationScoreEntry.class));
         this.actorProfileService = new ActorProfileService(getDao(ActorProfile.class));
+        this.treatyService = new TreatyService(getDao(Treaty.class));
     }
 
     private void verifySchemaVersion() throws SQLException {
@@ -136,9 +140,13 @@ public class DatabaseManager {
     public ReputationScoreEntryService getReputationScoreEntryService() {
         return reputationScoreEntryService;
     }
-    
+
     public ActorProfileService getActorProfileService() {
         return actorProfileService;
+    }
+
+    public TreatyService getTreatyService() {
+        return treatyService;
     }
 
     public ConnectionSource getConnectionSource() {

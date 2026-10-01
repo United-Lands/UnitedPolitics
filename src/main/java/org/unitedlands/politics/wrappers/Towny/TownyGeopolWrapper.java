@@ -126,4 +126,14 @@ public class TownyGeopolWrapper implements IGeopolWrapper {
         }
     }
 
+    @Override
+    public INationWrapper getNationByPlayer(Player player) {
+        try {
+            return new TownyNationWrapper(TownyAPI.getInstance().getNation(player));
+        } catch (NullPointerException ignore) {
+            return null;
+        }
+    }
+
+    
 }

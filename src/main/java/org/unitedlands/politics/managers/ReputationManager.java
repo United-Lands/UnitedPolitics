@@ -102,6 +102,16 @@ public class ReputationManager {
                 && r.getSubject().equals(subjectId) && r.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
     }
 
+    public Collection<ReputationScoreEntry> getReputationScoreEntriesForObject(UUID objectId) {
+        return reputationScoreEntries.stream().filter(r -> r.getObserver().equals(objectId) || r.getSubject().equals(objectId))
+                .collect(Collectors.toList());
+    }
+
+    public Collection<ReputationScoreEntry> getReputationScoreEntriesForObserver(UUID observerId) {
+        return reputationScoreEntries.stream().filter(r -> r.getObserver().equals(observerId))
+                .collect(Collectors.toList());
+    }
+
     public Collection<ReputationScoreEntry> getReputationScoreEntriesForSubject(UUID subjectId) {
         return reputationScoreEntries.stream().filter(r -> r.getSubject().equals(subjectId))
                 .collect(Collectors.toList());
@@ -264,6 +274,13 @@ public class ReputationManager {
         }
 
         return result;
+    }
+
+    public void removeEverythingFor(UUID objectId) {
+        var reputationScoreEntries = getReputationScoreEntriesForObject(objectId);
+        for (var entry : reputationScoreEntries) {
+            removeReputationEntry(entry);
+        }
     }
 
     public ReputationScoreEntry getOrCreateReputationScoreEntry(UUID observerId, UUID subjectId,

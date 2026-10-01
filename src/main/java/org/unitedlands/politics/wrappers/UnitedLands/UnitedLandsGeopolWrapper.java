@@ -139,4 +139,12 @@ public class UnitedLandsGeopolWrapper implements IGeopolWrapper {
         return new UnitedLandsTownWrapper(citizen.getSettlement());
     }
 
+    @Override
+    public INationWrapper getNationByPlayer(Player player) {
+        var citizen = UnitedLandsDataManager.instance().getCitizen(player);
+        if (citizen == null || !citizen.hasCountry())
+            return null;
+        return new UnitedLandsNationWrapper(citizen.getCountry());
+    }
+
 }

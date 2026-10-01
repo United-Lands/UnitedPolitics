@@ -2,16 +2,18 @@ package org.unitedlands.politics.models;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.unitedlands.libs.ormlite.field.DataType;
+
 import org.unitedlands.politics.classes.EventReaction;
 import org.unitedlands.politics.classes.Identifiable;
-
-import com.j256.ormlite.field.DataType;
-import com.j256.ormlite.field.DatabaseField;
+import org.unitedlands.unitedlands.utils.SerializationUtils;
+import org.unitedlands.libs.ormlite.field.DatabaseField;
 
 public class ActorProfile implements Identifiable {
 
@@ -148,42 +150,60 @@ public class ActorProfile implements Identifiable {
         this.partners = null;
     }
 
+    public void addRival(UUID rival) {
+        var r = new HashSet<>(getRivals());
+        r.add(rival);
+        setRivals(r);
+    }
+
+    public boolean hasRival(UUID rival) {
+        return getRivals().contains(rival);
+    }
+
+    public void removeRival(UUID rival) {
+        var r = new HashSet<>(getRivals());
+        r.remove(rival);
+        setRivals(r);
+    }
+
     public Set<UUID> getRivals() {
-        if (rivals == null && rivalsSerialized != null && rivalsSerialized != "") {
-            rivals = Arrays.stream(rivalsSerialized.split("#"))
-                    .map(UUID::fromString)
-                    .collect(Collectors.toSet());
+        if (rivals == null) {
+            rivals = SerializationUtils.deSerializeUuidListToSet(rivalsSerialized);
         }
         return rivals;
     }
 
     public void setRivals(Set<UUID> rivals) {
         this.rivals = rivals;
-        if (rivals.isEmpty())
-            this.rivalsSerialized = null;
-        else
-            this.rivalsSerialized = rivals.stream()
-                    .map(UUID::toString)
-                    .collect(Collectors.joining("#"));
+        this.rivalsSerialized = SerializationUtils.serializeUuidList(rivals);
+    }
+
+    public boolean hasPartner(UUID partner) {
+        return getPartners().contains(partner);
     }
 
     public Set<UUID> getPartners() {
-        if (partners == null && partnersSerialized != null && partnersSerialized != "") {
-            partners = Arrays.stream(partnersSerialized.split("#"))
-                    .map(UUID::fromString)
-                    .collect(Collectors.toSet());
+        if (partners == null) {
+            partners = SerializationUtils.deSerializeUuidListToSet(partnersSerialized);
         }
         return partners;
     }
 
+    public void addPartner(UUID partner) {
+        var p = new HashSet<>(getPartners());
+        p.add(partner);
+        setPartners(p);
+    }
+
+    public void removePartner(UUID partner) {
+        var p = new HashSet<>(getPartners());
+        p.remove(partner);
+        setPartners(p);
+    }
+
     public void setPartners(Set<UUID> partners) {
         this.partners = partners;
-        if (partners.isEmpty())
-            this.partnersSerialized = null;
-        else
-            this.partnersSerialized = partners.stream()
-                    .map(UUID::toString)
-                    .collect(Collectors.joining("#"));
+        this.partnersSerialized = SerializationUtils.serializeUuidList(partners);
     }
 
     public String getHostileDungeonsSerialized() {

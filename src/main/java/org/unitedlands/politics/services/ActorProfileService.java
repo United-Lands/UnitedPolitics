@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.unitedlands.politics.models.ActorProfile;
 
-import com.j256.ormlite.dao.Dao;
+import org.unitedlands.libs.ormlite.dao.Dao;
 
 public class ActorProfileService extends BaseDbService<ActorProfile> {
 

@@ -11,7 +11,7 @@ import org.unitedlands.utils.United;
 public class ActorProfileManager {
 
     private static ActorProfileManager instance;
-    
+
     public static ActorProfileManager instance() {
         return instance;
     }
@@ -37,6 +37,7 @@ public class ActorProfileManager {
         });
 
     }
+
     public Collection<ActorProfile> getActorProfiles() {
         return actorProfiles.values();
     }
@@ -52,6 +53,38 @@ public class ActorProfileManager {
 
         var service = databaseManager.getActorProfileService();
         return service.createOrUpdate(profile);
+    }
+
+    public boolean removeActorProfile(ActorProfile profile) {
+
+        actorProfiles.remove(profile.getId());
+
+        var service = databaseManager.getActorProfileService();
+        return service.delete(profile.getId());
+    }
+
+    public void removeEverythingFor(UUID objectId) {
+
+        for (var actorProfile : getActorProfiles()) {
+            boolean changed = false;
+            if (actorProfile.hasRival(objectId)) {
+                changed = true;
+                actorProfile.removeRival(objectId);
+            }
+            if (actorProfile.hasPartner(objectId)) {
+                changed = true;
+                actorProfile.removePartner(objectId);
+            }
+            if (changed) {
+                ActorProfileManager.instance().addOrUpdateActorProfile(actorProfile);
+            }
+        }
+
+        var actorProfile = getActorProfile(objectId);
+        if (actorProfile != null) {
+            removeActorProfile(actorProfile);
+        }
+        
     }
 
 }

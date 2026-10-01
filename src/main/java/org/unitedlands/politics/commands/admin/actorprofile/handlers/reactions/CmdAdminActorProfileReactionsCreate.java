@@ -2,8 +2,6 @@ package org.unitedlands.politics.commands.admin.actorprofile.handlers.reactions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.unitedlands.annotations.UnitedSubCommand;
