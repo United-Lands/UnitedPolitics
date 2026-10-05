@@ -259,7 +259,7 @@ public class ReputationManager {
 
         // Wars
 
-        if (UnitedPolitics.instance().isUnitedWarEnabled()) {
+        if (UnitedPolitics.instance().isUnitedWarsEnabled()) {
             UnitedWarUtils warUtils = new UnitedWarUtils();
             if (warUtils.isActorInWar(observerObj)) {
                 var opponents = warUtils.getOpponents(observerObj);

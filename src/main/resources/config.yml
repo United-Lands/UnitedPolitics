@@ -147,16 +147,3 @@ event-keys:
   - TRADE_FAILED
   - WAR_DECLARED
 
-# +---------------------------------------------+ #
-# |       Special integration mechanics         | #
-# +---------------------------------------------+ #
-
-integration-mechanics:
-  UnitedTrade:
-    # Disallow picking up trade orders if reputation with NPC town is below minimum defined by the trade point
-    use-minimum-town-reputation: true
-    # Disallow picking up trade orders if reputation with NPC nation is below minimum defined by the trade point
-    use-minimum-nation-reputation: true
-    # The default reputation that a player has if their reputation can't be calculated (e.g. when they're townless)
-    default-reputation: 0
-    minimum-fail-message: "<red>You can't use this, your reputation with {name} is too low (needs to be at least {minimum}).</red>"

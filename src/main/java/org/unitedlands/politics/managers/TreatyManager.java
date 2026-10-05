@@ -101,6 +101,11 @@ public class TreatyManager {
         }
     }
 
+    public boolean haveTreaty(INationWrapper first, INationWrapper second, TreatyType type) {
+        return treaties.values().stream().anyMatch(t -> t.hasMember(first) && t.hasMember(second) && t.getType() == type);
+    }
+
+
     // Mechanics
 
     public boolean payTribute(IGeopolObjectWrapper payer, IGeopolObjectWrapper receiver, double amount, Player player) {

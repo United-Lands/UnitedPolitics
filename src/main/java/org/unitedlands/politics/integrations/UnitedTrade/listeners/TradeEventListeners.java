@@ -6,6 +6,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.trade.classes.TradePoint;
@@ -73,12 +74,10 @@ public class TradeEventListeners implements Listener {
         if (player == null)
             return;
 
-        if (UnitedPolitics.instance().getConfig()
-                .getBoolean("integration-mechanics.UnitedTrade.use-minimum-town-reputation")) {
+        if (IntegrationsConfig.get().unitedTrade().useMinimumTownReputation()) {
 
             double minimum = tradePoint.getMinReputation();
-            double defaultReputation = UnitedPolitics.instance().getConfig()
-                    .getDouble("integration-mechanics.UnitedTrade.default-reputation", 0.0);
+            double defaultReputation = IntegrationsConfig.get().unitedTrade().defaultReputation();
 
             double score = defaultReputation;
             try {
@@ -99,16 +98,14 @@ public class TradeEventListeners implements Listener {
             }
 
         }
-        if (UnitedPolitics.instance().getConfig()
-                .getBoolean("integration-mechanics.UnitedTrade.use-minimum-nation-reputation")) {
+        if (IntegrationsConfig.get().unitedTrade().useMinimumNationReputation()) {
 
             var nation = tradeTown.getNation();
             if (nation == null)
                 return;
 
             double minimum = tradePoint.getMinReputation();
-            double defaultReputation = UnitedPolitics.instance().getConfig()
-                    .getDouble("integration-mechanics.UnitedTrade.default-reputation", 0.0);
+            double defaultReputation = IntegrationsConfig.get().unitedTrade().defaultReputation();
 
             double score = defaultReputation;
             try {

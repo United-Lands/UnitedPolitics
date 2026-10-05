@@ -40,7 +40,7 @@ public class UnitedPolitics extends JavaPlugin {
 
     private boolean townyEnabled;
     private boolean unitedTradeEnabled;
-    private boolean unitedWarEnabled;
+    private boolean unitedWarsEnabled;
     private boolean unitedDungeonsEnabled;
 
     @Override
@@ -131,11 +131,11 @@ public class UnitedPolitics extends JavaPlugin {
             this.unitedTradeEnabled = true;
         }
 
-        Plugin unitedWar = Bukkit.getPluginManager().getPlugin("UnitedWar");
-        if (unitedWar != null && unitedWar.isEnabled()) {
-            United.logger().info("Enabling UnitedWar integrations.", "UnitedPolitics");
-            getServer().getPluginManager().registerEvents(new WarEventListeners(this), this);
-            this.unitedWarEnabled = true;
+        Plugin unitedWars = Bukkit.getPluginManager().getPlugin("UnitedWars");
+        if (unitedWars != null && unitedWars.isEnabled()) {
+            United.logger().info("Enabling UnitedWars integrations.", "UnitedPolitics");
+            getServer().getPluginManager().registerEvents(new WarEventListeners(), this);
+            this.unitedWarsEnabled = true;
         }
 
         Plugin unitedDungeons = Bukkit.getPluginManager().getPlugin("UnitedDungeons");
@@ -168,8 +168,8 @@ public class UnitedPolitics extends JavaPlugin {
         return unitedTradeEnabled;
     }
 
-    public boolean isUnitedWarEnabled() {
-        return unitedWarEnabled;
+    public boolean isUnitedWarsEnabled() {
+        return unitedWarsEnabled;
     }
 
     public boolean isUnitedDungeonsEnabled() {

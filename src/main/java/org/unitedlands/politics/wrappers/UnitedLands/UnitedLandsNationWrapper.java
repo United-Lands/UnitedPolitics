@@ -15,6 +15,10 @@ public class UnitedLandsNationWrapper implements INationWrapper {
 
     private final Country country;
 
+    public Country getCountry() {
+        return country;
+    }
+
     public UnitedLandsNationWrapper(Country country) {
         this.country = country;
     }

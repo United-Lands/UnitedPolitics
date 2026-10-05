@@ -86,7 +86,7 @@ public class Treaty implements Identifiable {
     }
 
     public boolean hasMember(INationWrapper nation) {
-        return members.contains(nation);
+        return getMembers().contains(nation);
     }
 
     public void setMembers(Set<INationWrapper> members) {
