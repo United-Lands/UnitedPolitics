@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.unitedlands.classes.BaseCommandHandler;
 import org.unitedlands.dungeons.UnitedDungeons;
 import org.unitedlands.dungeons.classes.Dungeon;
+import org.unitedlands.dungeons.managers.DungeonManager;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ActorProfileManager;
@@ -25,7 +26,7 @@ public class AdminRemoveHostileDungeonSubcommand extends BaseCommandHandler<Unit
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
         if (args.length == 2) {
-            return UnitedDungeons.getInstance().getDungeonManager().getDungeonNames();
+            return DungeonManager.instance().getDungeonNames();
         }
         return new ArrayList<>();
     }
@@ -52,7 +53,7 @@ public class AdminRemoveHostileDungeonSubcommand extends BaseCommandHandler<Unit
             return;
         }
 
-        Dungeon dungeon = UnitedDungeons.getInstance().getDungeonManager().getDungeon(args[1]);
+        Dungeon dungeon = DungeonManager.instance().getDungeon(args[1]);
         if (dungeon == null) {
             Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.dungeon-not-found"),
                     Map.of("obj-name", args[1]));

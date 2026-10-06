@@ -1,7 +1,7 @@
 package org.unitedlands.politics.integrations.UnitedDungeons.utils;
 
 import org.bukkit.command.CommandSender;
-import org.unitedlands.dungeons.UnitedDungeons;
+import org.unitedlands.dungeons.managers.DungeonManager;
 import org.unitedlands.politics.models.ActorProfile;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.utils.United;
@@ -17,7 +17,7 @@ public class DungeonsActorComponentUtils {
 
         if (profile.getHostileDungeons() != null) {
             for (var dungeonId : profile.getHostileDungeons()) {
-                var dungeon = UnitedDungeons.getInstance().getDungeonManager().getDungeon(dungeonId);
+                var dungeon = DungeonManager.instance().getDungeon(dungeonId);
                 if (dungeon == null)
                     continue;
 
@@ -48,7 +48,7 @@ public class DungeonsActorComponentUtils {
 
         if (profile.getFriendlyDungeons() != null) {
             for (var dungeonId : profile.getFriendlyDungeons()) {
-                var dungeon = UnitedDungeons.getInstance().getDungeonManager().getDungeon(dungeonId);
+                var dungeon = DungeonManager.instance().getDungeon(dungeonId);
                 if (dungeon == null)
                     continue;
 

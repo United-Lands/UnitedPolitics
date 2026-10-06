@@ -124,11 +124,11 @@ public class UnitedLandsGeopolWrapper implements IGeopolWrapper {
 
     @Override
     public ITownWrapper getTownAtLocation(Location location) {
-        try {
-            return new UnitedLandsTownWrapper(UnitedLandsDataManager.instance().getSettlement(location));
-        } catch (Exception ignore) {
-            return null;
+        var settlement = UnitedLandsDataManager.instance().getSettlement(location);
+        if (settlement != null) {
+            return new UnitedLandsTownWrapper(settlement);
         }
+        return null;
     }
 
     @Override
