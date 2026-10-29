@@ -9,7 +9,6 @@ import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationC
 import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
 import org.unitedlands.politics.integrations.UnitedDungeons.listeners.DungeonEventListener;
 import org.unitedlands.politics.integrations.UnitedLands.listeners.CountryListener;
-import org.unitedlands.politics.integrations.UnitedLands.listeners.InfoScreenListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
 import org.unitedlands.politics.integrations.UnitedWar.listeners.WarEventListeners;
 import org.unitedlands.politics.listeners.DeathListener;
@@ -110,7 +109,6 @@ public class UnitedPolitics extends JavaPlugin {
         if (unitedlands != null && unitedlands.isEnabled()) {
             United.logger().info("Enabling UnitedLands integrations.", "UnitedPolitics");
 
-            getServer().getPluginManager().registerEvents(new InfoScreenListener(), this);
             getServer().getPluginManager().registerEvents(new CountryListener(), this);
 
             this.townyEnabled = true;

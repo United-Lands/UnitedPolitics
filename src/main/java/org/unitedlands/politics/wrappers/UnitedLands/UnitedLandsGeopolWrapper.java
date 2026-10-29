@@ -2,6 +2,7 @@ package org.unitedlands.politics.wrappers.UnitedLands;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.politics.wrappers.interfaces.IRegionWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.unitedlands.UnitedLands;
+import org.unitedlands.unitedlands.managers.PermissionManager;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
@@ -27,6 +29,11 @@ public class UnitedLandsGeopolWrapper implements IGeopolWrapper {
     public Collection<INationWrapper> getNations() {
         return UnitedLandsDataManager.instance().getCountries().stream().map(c -> new UnitedLandsNationWrapper(c))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getNationNames() {
+        return UnitedLandsDataManager.instance().getCountryNames();
     }
 
     @Override
@@ -146,5 +153,14 @@ public class UnitedLandsGeopolWrapper implements IGeopolWrapper {
             return null;
         return new UnitedLandsNationWrapper(citizen.getCountry());
     }
+
+    @Override
+    public boolean hasGeopolPermission(Player player, String permission) {
+        var citizen = UnitedLandsDataManager.instance().getCitizen(player);
+        if (citizen == null)
+            return false;
+        return PermissionManager.instance().hasRankPermission(permission, citizen);
+    }
+
 
 }

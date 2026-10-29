@@ -1,6 +1,7 @@
 package org.unitedlands.politics.wrappers.interfaces;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Location;
@@ -8,6 +9,7 @@ import org.bukkit.entity.Player;
 
 public interface IGeopolWrapper {
     Collection<INationWrapper> getNations();
+    List<String> getNationNames();
     INationWrapper getNation(UUID uuid);
     INationWrapper getNation(String name);
 
@@ -25,4 +27,6 @@ public interface IGeopolWrapper {
     ITownWrapper getTownAtLocation(Location location);
     ITownWrapper getTownByPlayer(Player player);
     INationWrapper getNationByPlayer(Player player);
+
+    boolean hasGeopolPermission(Player player, String permission);
 }

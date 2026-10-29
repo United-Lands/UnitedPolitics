@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.Treaty;
 import org.unitedlands.politics.classes.TreatyType;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.utils.United;
@@ -147,9 +148,37 @@ public class TreatyManager {
         double repPerUnit = config.getDouble("settings.tribute.reputationPerMoneyUnit", 0.001d);
         double modifier = repPerUnit * amount;
 
-        ReputationManager.instance().handleReputationChange(receiver, payer, modifier, "paid-tribute", player, true);
+        ReputationManager.instance().handleReputationChange(receiver, payer, modifier, "paid-tribute", player, false);
 
         return true;
     }
 
+    public boolean payPropaganda(IGeopolObjectWrapper payer, IGeopolObjectWrapper target, double amount, Player player) {
+
+        var sourceAccount = payer.getBankAccount();
+        if (sourceAccount == null) {
+            United.logger().info("Couldn't retrieve bank account of " + payer.getName(), "UnitedPolitics");
+            return false;
+        }
+        if (sourceAccount.getBalance() < amount) {
+            United.logger().info("Bank account of " + payer.getName() + " too low.", "UnitedPolitics");
+            return false;
+        }
+
+        String moneyLogReasonSource = UnitedPoliticsConfig.get().actions().propaganda().moneyLogReasonSource();
+
+        try {
+            sourceAccount.removeMoney(amount, moneyLogReasonSource + target.getName());
+        } catch (Exception ex) {
+            United.logger().info("Failed to withdraw tribute from account of " + payer.getName(), "UnitedPolitics");
+            return false;
+        }
+
+        double repPerUnit = UnitedPoliticsConfig.get().actions().propaganda().reputationPerMoneyUnit();
+        double modifier = repPerUnit * amount;
+
+        ReputationManager.instance().handleReputationChange(payer, target, modifier, "paid-propaganda", player, false);
+
+        return true;
+    }
 }

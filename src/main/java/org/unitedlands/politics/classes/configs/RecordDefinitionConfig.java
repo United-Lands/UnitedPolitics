@@ -15,6 +15,7 @@ public interface RecordDefinitionConfig extends UnitedConfigHandler {
     UnitedDynamicSection<ReputationRecordDefinition> recordDefinitions();
 
     record ReputationRecordDefinition(
+        @UnitedSetting(key = "display-name") String displayName,
         @UnitedSetting(key = "description") String description,
         @UnitedSetting(key = "low-cap", def = "-200") double lowCap,
         @UnitedSetting(key = "high-cap", def = "200") double highCap,

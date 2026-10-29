@@ -6,55 +6,79 @@ record-definitions:
 
   # UnitedPolitics default dynamic reputation records
   paid-tribute:
+    display-name: "Paid Tribute"
     description: "They paid tribute to us"
-    low-cap: -25
+    low-cap: 0
     high-cap: 25
+    decay: -1
+    default: 0
+  paid-propaganda:
+    display-name: "Propagada"
+    description: "Propaganda against them"
+    low-cap: -25
+    high-cap: 0
     decay: 1
+    default: 0
+  embassies:
+    display-name: "Embassy"
+    description: "Their embassy's work"
+    low-cap: 0
+    high-cap: 25
+    decay: 0.5
+    default: 0
   killed-member:
+    display-name: "Member kill"
     description: "They killed one of us"
     low-cap: -100
     high-cap: 0
     decay: 1
+    default: 0
   likes-kills:
+    display-name: "Likes kills"
     description: "They killed someone"
     low-cap: 0
     high-cap: 25
     decay: -1
+    default: 0
   dislikes-kills:
+    display-name: "Dislikes kills"
     description: "They killed someone"
     low-cap: -25
     high-cap: 0
     decay: 1
+    default: 0
 
   # UnitedPolitics default static reputation records
   our-town:
+    display-name: "Our town"
     description: "Our town"
     low-cap: 0
     high-cap: 50
     decay: 0
     default: 50
   same-region:
+    display-name: "Same region"
     description: "Same region"
     low-cap: 0
     high-cap: 50
     decay: 0
     default: 50
   our-region:
-    same-region:
+    display-name: "Our region"
     description: "Our region"
     low-cap: 0
     high-cap: 50
     decay: 0
     default: 50
   same-nation:
-    same-region:
+    display-name: "Same nation"
     description: "Same nation"
     low-cap: 0
     high-cap: 50
     decay: 0
     default: 50
   our-nation:
-    same-region:
+    display-name: "Our nation"
     description: "Our nation"
     low-cap: 0
     high-cap: 50
@@ -64,36 +88,42 @@ record-definitions:
   # Rivalry
   # Static
   our-rival: 
+    display-name: "Rival"
     description: "They are our rival"
     low-cap: -100
     high-cap: 0
     decay: 0
     default: -100
   our-rivals-rival: 
+    display-name: Rival's rival"
     description: "They are our rival's rival"
     low-cap: 0
     high-cap: 50
     decay: 0
     default: 50
   our-rivals-partner: 
+    display-name: "Rival's partner"
     description: "They are our rival's partner"
     low-cap: -50
     high-cap: 0
     decay: 0
     default: -50
   our-partner: 
+    display-name: "Partner"
     description: "They are our partner"
     low-cap: 0
     high-cap: 50
     decay: 0
     default: 50
   our-partners-rival: 
+    display-name: "Partner's rival"
     description: "They are our partner's rival"
     low-cap: -50
     high-cap: 0
     decay: 0
     default: -50
   our-partners-partner: 
+    display-name: "Partner's partner"
     description: "They are our partner's partner"
     low-cap: 0
     high-cap: 50
@@ -101,21 +131,25 @@ record-definitions:
     default: 50
   # Dynamic
   helped-rival:
+    display-name: "Helped rival"
     description: "They helped a rival"
     low-cap: -100
     high-cap: 0
     decay: 1
   hurt-rival:
+    display-name: "Hurt rival"
     description: "They disgruntled a rival"
     low-cap: 100
     high-cap: 0
     decay: -1
   helped-partner:
+    display-name: "Helped partner"
     description: "They helped a partner"
     low-cap: 0
     high-cap: 25
     decay: -1
   hurt-partner:
+    display-name: "Hurt partner"
     description: "They disgruntled a partner"
     low-cap: -100
     high-cap: 0
@@ -124,36 +158,46 @@ record-definitions:
   # UnitedTrade integration reputation records
   # Dynamic
   ut-trade-complete:
+    display-name: "Trade fulfilled"
     description: "They completed trade orders"
     low-cap: 0
-    high-cap: 25
+    high-cap: 15
     decay: -2
+    default: 0
   ut-trade-failed:
+    display-name: "Trade failed"
     description: "They failed trade orders"
     low-cap: -25
     high-cap: 0
     decay: 2
-  uw-likes-trade:
+    default: 0
+  ut-likes-trade:
+    display-name: "Likes Traders"
     description: "They are traders"
     low-cap: 0
     high-cap: 50
     decay: -2
-  uw-dislikes-trade:
+    default: 0
+  ut-dislikes-trade:
+    display-name: "Dislikes traders"
     description: "They are traders"
     low-cap: -50
     high-cap: 0
     decay: 2
+    default: 0
 
   # UnitedWar integration reputation records
 
   # Static
   uw-enemy-in-war:
+    display-name: "Enemy"
     description: "Enemy in ongoing war"
     low-cap: -200
     high-cap: 0
     decay: 0
     default: -200
   uw-ally-in-war:
+    display-name: "Ally"
     description: "Ally in ongoing war"
     low-cap: 0
     high-cap: 200
@@ -161,39 +205,53 @@ record-definitions:
     default: 200
   # Dynamic
   uw-warred-us:
+    display-name: "Warred"
     description: "They warred us"
     low-cap: -200
     high-cap: 0
     decay: 2
+    default: 0
   uw-warred-friend:
+    display-name: "Warred friend"
     description: "They warred a friend"
     low-cap: -200
     high-cap: 0
     decay: 2
+    default: 0
   uw-warred-enemy:
+    display-name: "Warred enemy"
     description: "They warred an enemy"
     low-cap: 0
     high-cap: 200
     decay: -2
+    default: 0
   uw-likes-war:
+    display-name: "Likes war"
     description: "They warred someone"
     low-cap: 0
     high-cap: 50
     decay: -2
+    default: 0
   uw-dislikes-war:
+    display-name: "Dislikes war"
     description: "They warred someone"
     low-cap: -50
     high-cap: 0
     decay: 2
+    default: 0
 
   # UnitedDungeons integration reputation records
   ud-looted-hostile-dungeon:
+    display-name: "Looted Dungon"
     description: "They looted a hostile place"
     low-cap: 0
     high-cap: 50
     decay: -1
+    default: 0
   ud-looted-friendly-dungeon:
+    display-name: "Looted Dungon"
     description: "They looted a friendly place"
     low-cap: -50
     high-cap: 0
     decay: 1
+    default: 0

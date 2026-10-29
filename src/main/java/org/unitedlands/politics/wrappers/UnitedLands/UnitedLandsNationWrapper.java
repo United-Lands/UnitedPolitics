@@ -70,7 +70,7 @@ public class UnitedLandsNationWrapper implements INationWrapper {
 
         // Create a default diplomacy attribute if none exists
         if (!country.hasAttribute("DIPLOMACY")) {
-            var diplomanyAttribute = new GeopolAttribute(100, 100, 100, 0);
+            var diplomanyAttribute = new GeopolAttribute("Diplomacy", 100, 100, 100, 0);
             country.addAttribute("DIPLOMACY", diplomanyAttribute);
             country.save();
         }

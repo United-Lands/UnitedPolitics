@@ -2,14 +2,16 @@ prefix: "<bold><red>U</red><white>L</white> Politics <dark_gray>» </dark_gray><
 reload: "<green>Plugin reloaded.</green>"
 forced-new-day: "<green>Forced exeution of new day.</green>"
 
-reputation-changed: "<gray>Reputation - {1} <gold><bold>{1}</bold>: {1}</gray>"
+reputation-changed: "<body><label><b>{1}</b></label> <dark_gray>-></dark_gray> <label><b>{2}</b></label>: {3} ({4}) <dark_gray>|</dark_gray> New total: {5}</body>"
 
 errors:
   general:
+    generic: <error>An error occured. Please contact an admin or open a ticket on the discord.unitedlands.net.</error>
     geopol-obj-not-found: "<red>'{1}' not found.</red>"
     number-format-error: "<red>'{1}' is not a valid number.</red>"
     db-save-error: "<red>Error while saving.</red>"
     no-town-resident: "<red>You're not a resident in any town.</red>"
+    no-nation-resident: "<red>You're not a resident of a country.</red>"
     no-rank: "<red>You don't have the necessary rank to use this.</red>"
   reputation:
     no-record: "<red>Reputation record not found, use create first.</red>"
@@ -31,6 +33,9 @@ errors:
   opinion:
     no-town: '<red>You must be in a town to use this command without a target. Use "/opinion <town/nation> <target_town/target_nation>"</red>'
     target-not-found: "<red>Target {1} not found.</red>"
+  pay:
+    same-entity: <error>Source and target can't be the same.</error>
+    insufficient-funds: <error>Not enough money.</error>
 
 success:
   reputation:
@@ -42,9 +47,12 @@ success:
     create: "<dark_green>Created actor profile for {1}."
     saved: "<dark_green>Saved changes for {1}."
   treaty:
-    create: "<dark_green>Created {1} treate named {2}."
+    create: "<dark_green>Created {1} treaty named {2}."
     broadcast-create: "<aqua>{1} created a new {2} treaty called <b>{3}</b>!"
     broadcast-join: "<aqua>{1} just joined <b>{2}</b>!"
+  pay:
+    tribute: <success>Successfully paid tribute to {2}</success>
+    propaganda: <success>Successfully paid propaganda against {2}</success>
 
 actorprofile:
   header: "<bold><gold>{1}'s Actor Profile</gold></bold>"

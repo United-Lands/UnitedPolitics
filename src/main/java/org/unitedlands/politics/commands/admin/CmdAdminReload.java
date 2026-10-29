@@ -6,11 +6,15 @@ import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.unitedlands.annotations.UnitedSubCommand;
 import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.classes.configs.IntegrationsConfig;
+import org.unitedlands.politics.classes.configs.RecordDefinitionConfig;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.commands.CmdAdmin;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TimeManager;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.registrars.messages.UnitedMessagesRegistrar;
 import org.unitedlands.utils.United;
 
 
@@ -34,6 +38,11 @@ public class CmdAdminReload implements UnitedCommandExecutor {
 
         UnitedPolitics.instance().reloadConfig();
 
+        UnitedMessagesRegistrar.reload(UnitedPolitics.instance());
+        UnitedPoliticsConfig.get().reload();
+        RecordDefinitionConfig.get().reload();
+        IntegrationsConfig.get().reload();
+        
         United.logger().info("Loading database entries...", "UnitedPolitics");
 
         ReputationManager.instance().loadReputationRecords();

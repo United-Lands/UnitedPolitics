@@ -2,6 +2,7 @@ package org.unitedlands.politics.wrappers.Towny;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,7 @@ import org.unitedlands.politics.wrappers.interfaces.IRegionWrapper;
 import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 
 import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.object.Nation;
 
 public class TownyGeopolWrapper implements IGeopolWrapper {
 
@@ -25,6 +27,11 @@ public class TownyGeopolWrapper implements IGeopolWrapper {
     @Override
     public Collection<INationWrapper> getNations() {
         return towny.getNations().stream().map(n -> new TownyNationWrapper(n)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getNationNames() {
+        return towny.getNations().stream().map(Nation::getName).toList();
     }
 
     @Override
@@ -133,6 +140,15 @@ public class TownyGeopolWrapper implements IGeopolWrapper {
         } catch (NullPointerException ignore) {
             return null;
         }
+    }
+
+    @Override
+    public boolean hasGeopolPermission(Player player, String permission) {
+        var resident = TownyAPI.getInstance().getResident(player);
+        if (resident == null)
+            return false;
+
+        return resident.hasPermissionNode(permission);
     }
 
     

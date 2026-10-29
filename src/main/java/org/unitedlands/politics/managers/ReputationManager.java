@@ -103,7 +103,8 @@ public class ReputationManager {
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntriesForObject(UUID objectId) {
-        return reputationScoreEntries.stream().filter(r -> r.getObserver().equals(objectId) || r.getSubject().equals(objectId))
+        return reputationScoreEntries.stream()
+                .filter(r -> r.getObserver().equals(objectId) || r.getSubject().equals(objectId))
                 .collect(Collectors.toList());
     }
 
@@ -344,20 +345,17 @@ public class ReputationManager {
         if (observer == null || subject == null)
             return;
 
-        var msg = "reputation-changed";
-
         // Main entry
         var entry = getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(), configKey);
-        entry.setModifier(entry.getModifier() + modifier);
+
+        double oldModifier = entry.getModifier();
+        entry.setModifier(oldModifier + modifier);
         entry.setTimestamp(System.currentTimeMillis());
 
         if (addOrUpdateReputationScoreEntry(entry)) {
             logChange(observer, subject, configKey, entry.getModifier() + modifier);
             if (player != null) {
-                United.messenger().send(player, msg,
-                        observer.getName(),
-                        ColorFormatter.getGeopolPrefixColored(observer),
-                        ColorFormatter.getAmountColored(entry.getModifier()));
+                sendMessage(observer, subject, configKey, player, entry, oldModifier);
             }
         }
 
@@ -372,15 +370,13 @@ public class ReputationManager {
                 var region = town.getRegion();
                 if (region != null) {
                     var regionEntry = getOrCreateReputationScoreEntry(region.getUUID(), subject.getUUID(), configKey);
+                    double oldRegionModifier = regionEntry.getModifier();
                     regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
                     regionEntry.setTimestamp(System.currentTimeMillis());
                     if (addOrUpdateReputationScoreEntry(regionEntry)) {
                         logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
                         if (player != null) {
-                            United.messenger().send(player, msg,
-                                    region.getName(),
-                                    ColorFormatter.getGeopolPrefixColored(region),
-                                    ColorFormatter.getAmountColored(regionEntry.getModifier()));
+                            sendMessage(region, subject, configKey, player, regionEntry, oldRegionModifier);
                         }
                     }
                 }
@@ -388,15 +384,13 @@ public class ReputationManager {
                 if (nation != null) {
                     var nationEntry = getOrCreateReputationScoreEntry(nation.getUUID(),
                             subject.getUUID(), configKey);
+                    double oldNationModifier = nationEntry.getModifier();
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor * factor));
                     nationEntry.setTimestamp(System.currentTimeMillis());
                     if (addOrUpdateReputationScoreEntry(nationEntry)) {
                         logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor * factor));
                         if (player != null) {
-                            United.messenger().send(player, msg,
-                                    nation.getName(),
-                                    ColorFormatter.getGeopolPrefixColored(nation),
-                                    ColorFormatter.getAmountColored(nationEntry.getModifier()));
+                            sendMessage(nation, subject, configKey, player, nationEntry, oldNationModifier);
                         }
                     }
                 }
@@ -405,15 +399,13 @@ public class ReputationManager {
                 if (nation != null) {
                     var nationEntry = getOrCreateReputationScoreEntry(nation.getUUID(),
                             subject.getUUID(), configKey);
+                    double oldNationModifier = nationEntry.getModifier();
                     nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor));
                     nationEntry.setTimestamp(System.currentTimeMillis());
                     if (addOrUpdateReputationScoreEntry(nationEntry)) {
                         logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor));
                         if (player != null) {
-                            United.messenger().send(player, msg,
-                                    nation.getName(),
-                                    ColorFormatter.getGeopolPrefixColored(nation),
-                                    ColorFormatter.getAmountColored(nationEntry.getModifier()));
+                            sendMessage(nation, subject, configKey, player, nationEntry, oldNationModifier);
                         }
                     }
                 }
@@ -428,15 +420,13 @@ public class ReputationManager {
                         var regionEntry = getOrCreateReputationScoreEntry(
                                 region.getUUID(),
                                 subject.getUUID(), configKey);
+                        double oldRegionModifier = regionEntry.getModifier();
                         regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
                         regionEntry.setTimestamp(System.currentTimeMillis());
                         if (addOrUpdateReputationScoreEntry(regionEntry)) {
                             logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
                             if (player != null) {
-                                United.messenger().send(player, msg,
-                                        region.getName(),
-                                        ColorFormatter.getGeopolPrefixColored(region),
-                                        ColorFormatter.getAmountColored(regionEntry.getModifier()));
+                                sendMessage(region, subject, configKey, player, regionEntry, oldRegionModifier);
                             }
                         }
                     }
@@ -446,16 +436,14 @@ public class ReputationManager {
                     for (ITownWrapper town : towns) {
                         var townEntry = getOrCreateReputationScoreEntry(town.getUUID(),
                                 subject.getUUID(), configKey);
+                        double oldTownModifier = townEntry.getModifier();
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor * factor));
                         townEntry.setTimestamp(System.currentTimeMillis());
                         if (addOrUpdateReputationScoreEntry(townEntry)) {
                             logChange(town, subject, configKey,
                                     townEntry.getModifier() + (modifier * factor * factor));
                             if (player != null) {
-                                United.messenger().send(player, msg,
-                                        town.getName(),
-                                        ColorFormatter.getGeopolPrefixColored(town),
-                                        ColorFormatter.getAmountColored(townEntry.getModifier()));
+                                sendMessage(town, subject, configKey, player, townEntry, oldTownModifier);
                             }
                         }
                     }
@@ -466,21 +454,37 @@ public class ReputationManager {
                     for (ITownWrapper town : towns) {
                         var townEntry = getOrCreateReputationScoreEntry(town.getUUID(),
                                 subject.getUUID(), configKey);
+                        double oldTownModifier = townEntry.getModifier();
                         townEntry.setModifier(townEntry.getModifier() + (modifier * factor));
                         townEntry.setTimestamp(System.currentTimeMillis());
                         if (addOrUpdateReputationScoreEntry(townEntry)) {
                             logChange(town, subject, configKey, townEntry.getModifier() + (modifier * factor));
                             if (player != null) {
-                                United.messenger().send(player, msg,
-                                        town.getName(),
-                                        ColorFormatter.getGeopolPrefixColored(town),
-                                        ColorFormatter.getAmountColored(townEntry.getModifier()));
+                                sendMessage(town, subject, configKey, player, townEntry, oldTownModifier);
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    private void sendMessage(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String configKey, Player player, ReputationScoreEntry entry, double oldModifier) {
+
+        double change = entry.getModifier() - oldModifier;
+        String changeString = ColorFormatter.getAmountColored(change);
+        if (change == 0)
+            changeString += " <yellow>(maxed)</yellow>";
+
+        String displayName = RecordDefinitionConfig.get().recordDefinitions().get(configKey).displayName();
+
+        var total = getTotalReputationScore(observer.getUUID(), subject.getUUID());
+        United.messenger().send(player, "reputation-changed",
+                observer.getName(),
+                subject.getName(),
+                changeString,
+                displayName,
+                ColorFormatter.getAmountColored(total));
     }
 
     private void logChange(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String key, double amount) {
