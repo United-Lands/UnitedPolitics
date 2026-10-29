@@ -3,7 +3,7 @@ package org.unitedlands.politics.integrations.UnitedDungeons.utils;
 import org.bukkit.command.CommandSender;
 import org.unitedlands.dungeons.managers.DungeonManager;
 import org.unitedlands.politics.models.ActorProfile;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
+import org.unitedlands.unitedlands.classes.GeopolObject;
 import org.unitedlands.utils.United;
 
 import net.kyori.adventure.text.Component;
@@ -12,7 +12,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class DungeonsActorComponentUtils {
 
-    public void sendHostileDungeonsComponent(CommandSender sender, ActorProfile profile, IGeopolObjectWrapper actor) {
+    public void sendHostileDungeonsComponent(CommandSender sender, ActorProfile profile, GeopolObject actor) {
         United.messenger().send(sender, "actorprofile.hostiledungeons-header");
 
         if (profile.getHostileDungeons() != null) {
@@ -42,7 +42,7 @@ public class DungeonsActorComponentUtils {
 
     }
 
-    public void sendFriendlyDungeonsComponent(CommandSender sender, ActorProfile profile, IGeopolObjectWrapper actor) {
+    public void sendFriendlyDungeonsComponent(CommandSender sender, ActorProfile profile, GeopolObject actor) {
 
         United.messenger().send(sender, "actorprofile.friendlydungeons-header");
 

@@ -8,14 +8,13 @@ import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.unitedlands.classes.BaseCommandHandler;
-import org.unitedlands.dungeons.UnitedDungeons;
 import org.unitedlands.dungeons.classes.Dungeon;
 import org.unitedlands.dungeons.managers.DungeonManager;
 import org.unitedlands.interfaces.IMessageProvider;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ActorProfileManager;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.Logger;
 import org.unitedlands.utils.Messenger;
 
@@ -42,14 +41,14 @@ public class AdminAddHostileDungeonSubcommand extends BaseCommandHandler<UnitedP
             return;
         }
 
-        IGeopolObjectWrapper actor = GeopolUtils.findGeopolObject(args[0]);
+        GeopolObject actor = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         if (actor == null) {
             Messenger.sendMessage(sender, messageProvider.get("errors.general.geopol-obj-not-found"),
                     Map.of("obj-name", args[0]));
             return;
         }
 
-        var profile = ActorProfileManager.instance().getActorProfile(actor.getUUID());
+        var profile = ActorProfileManager.instance().getActorProfile(actor.getUuid());
         if (profile == null) {
             Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.no-profile"), null,
                     messageProvider.get("prefix"));

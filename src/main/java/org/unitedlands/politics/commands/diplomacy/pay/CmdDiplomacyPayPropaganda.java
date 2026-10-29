@@ -3,11 +3,10 @@ package org.unitedlands.politics.commands.diplomacy.pay;
 import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.unitedlands.annotations.UnitedSubCommand;
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.commandhandlers.DiplomacyCommandHandler;
 import org.unitedlands.politics.managers.TreatyManager;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 @UnitedSubCommand(
@@ -23,7 +22,7 @@ public class CmdDiplomacyPayPropaganda extends DiplomacyCommandHandler {
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            return UnitedPolitics.instance().getGeopolWrapper().getNationNames();
+            return UnitedLandsDataManager.instance().getCountryNames();
         }
         return null;
     }
@@ -40,13 +39,13 @@ public class CmdDiplomacyPayPropaganda extends DiplomacyCommandHandler {
         if (context == null)
             return;
 
-        IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(args[0]);
+        GeopolObject target = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         if (target == null) {
             United.messenger().send(sender, "errors.general.geopol-obj-not-found");
             return;
         }
 
-        if (target.getUUID().equals(context.country().getUUID())) {
+        if (target.getUuid().equals(context.country().getUuid())) {
             United.messenger().send(sender, "errors.pay.same-entity");
             return;
         }
@@ -59,8 +58,7 @@ public class CmdDiplomacyPayPropaganda extends DiplomacyCommandHandler {
             return;
         }
 
-        var account = context.country().getBankAccount();
-        if (account.getBalance() < amount) {
+        if (context.country().getBalance() < amount) {
             United.messenger().send(sender, "errors.pay.insufficient-funds");
             return;
         }

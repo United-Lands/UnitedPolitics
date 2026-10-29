@@ -12,11 +12,9 @@ import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.utils.ColorFormatter;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
-import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
-import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 @UnitedCommand(name = "opinion", usage = "/opinion <observer> [subject]")
@@ -26,10 +24,8 @@ public class CmdOpinion implements UnitedCommandExecutor {
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
         if (args.length == 1 || args.length == 2) {
-            var names = UnitedPolitics.instance().getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
-                    .collect(Collectors.toList());
-            var names2 = UnitedPolitics.instance().getGeopolWrapper().getTowns().stream().map(ITownWrapper::getName)
-                    .collect(Collectors.toList());
+            var names = UnitedLandsDataManager.instance().getCountryNames();
+            var names2 = UnitedLandsDataManager.instance().getSettlementNames();
             names.addAll(names2);
             return names;
         }
@@ -45,16 +41,16 @@ public class CmdOpinion implements UnitedCommandExecutor {
             return;
         }
 
-        IGeopolObjectWrapper observerObj = GeopolUtils.findGeopolObject(args[0]);
+        GeopolObject observerObj = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         if (observerObj == null) {
             return;
         }
 
-        IGeopolObjectWrapper subjectObj = null;
+        GeopolObject subjectObj = null;
         if (args.length == 1) {
-            subjectObj = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
+            subjectObj = UnitedLandsDataManager.instance().getSettlement(player);
         } else if (args.length == 2) {
-            subjectObj = GeopolUtils.findGeopolObject(args[1]);
+            subjectObj = UnitedLandsDataManager.instance().getGeopolObject(args[1]);
         }
 
         if (subjectObj == null) {
@@ -70,12 +66,12 @@ public class CmdOpinion implements UnitedCommandExecutor {
                 new Object[] { observerObj.getCleanName(), subjectObj.getCleanName() });
 
         List<ReputationScoreEntry> allEntries = new ArrayList<>();
-        var dynamicEntries = ReputationManager.instance().getReputationScoreEntries(observerObj.getUUID(),
-                subjectObj.getUUID());
+        var dynamicEntries = ReputationManager.instance().getReputationScoreEntries(observerObj.getUuid(),
+                subjectObj.getUuid());
         allEntries.addAll(dynamicEntries);
 
-        var staticEntries = ReputationManager.instance().calculateStaticReputationScoreEntries(observerObj.getUUID(),
-                subjectObj.getUUID());
+        var staticEntries = ReputationManager.instance().calculateStaticReputationScoreEntries(observerObj.getUuid(),
+                subjectObj.getUuid());
         allEntries.addAll(staticEntries);
 
         if (allEntries == null || allEntries.isEmpty()) {

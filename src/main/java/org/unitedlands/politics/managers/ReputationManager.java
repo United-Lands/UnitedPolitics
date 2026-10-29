@@ -16,11 +16,11 @@ import org.unitedlands.politics.integrations.UnitedWar.utils.UnitedWarUtils;
 import org.unitedlands.politics.models.ActorProfile;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.utils.ColorFormatter;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
-import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
-import org.unitedlands.politics.wrappers.interfaces.IRegionWrapper;
-import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
+import org.unitedlands.unitedlands.classes.Country;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.classes.Region;
+import org.unitedlands.unitedlands.classes.Settlement;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 public class ReputationManager {
@@ -69,14 +69,14 @@ public class ReputationManager {
         return Math.max(-200, Math.min(200, staticScore + dynamicScore));
     }
 
-    public Map<IGeopolObjectWrapper, Double> getTotalReputationScores(UUID observerId) {
+    public Map<GeopolObject, Double> getTotalReputationScores(UUID observerId) {
 
         var dynamicRecords = reputationScoreEntries.stream()
                 .filter(r -> r.getObserver().equals(observerId)).collect(Collectors.groupingBy(g -> g.getSubject()));
 
-        var result = new HashMap<IGeopolObjectWrapper, Double>();
+        var result = new HashMap<GeopolObject, Double>();
         for (var dynamicEntry : dynamicRecords.entrySet()) {
-            var subjectObj = GeopolUtils.findGeopolObject(dynamicEntry.getKey());
+            var subjectObj = UnitedLandsDataManager.instance().getGeopolObject(dynamicEntry.getKey());
             if (subjectObj == null)
                 continue;
 
@@ -123,12 +123,12 @@ public class ReputationManager {
 
         // General geopol relations
 
-        IGeopolObjectWrapper observerObj = GeopolUtils.findGeopolObject(observerId);
-        IGeopolObjectWrapper subjectObj = GeopolUtils.findGeopolObject(subjectId);
+        GeopolObject observerObj = UnitedLandsDataManager.instance().getGeopolObject(observerId);
+        GeopolObject subjectObj = UnitedLandsDataManager.instance().getGeopolObject(subjectId);
 
         if (observerObj != null && subjectObj != null) {
-            if (observerObj instanceof ITownWrapper observerTown) {
-                if (subjectObj instanceof ITownWrapper subjectTown) {
+            if (observerObj instanceof Settlement observerTown) {
+                if (subjectObj instanceof Settlement subjectTown) {
                     // Town observing town
 
                     // Same region score
@@ -137,12 +137,12 @@ public class ReputationManager {
                         result.add(createReputationScoreEntry(observerId, subjectId, "same-region"));
                     }
                     // Same nation score
-                    if (observerTown.getNation() != null && subjectTown.getNation() != null
-                            && observerTown.getNation().equals(subjectTown.getNation())) {
+                    if (observerTown.getCountry() != null && subjectTown.getCountry() != null
+                            && observerTown.getCountry().equals(subjectTown.getCountry())) {
                         result.add(createReputationScoreEntry(observerId, subjectId, "same-nation"));
                     }
 
-                } else if (subjectObj instanceof IRegionWrapper subjectRegion) {
+                } else if (subjectObj instanceof Region subjectRegion) {
                     // Town observing region
 
                     // Our region score
@@ -151,21 +151,21 @@ public class ReputationManager {
                     }
 
                     // Same nation score
-                    if (observerTown.getNation() != null && subjectRegion.getNation() != null
-                            && observerTown.getNation().equals(subjectRegion.getNation())) {
+                    if (observerTown.getCountry() != null && subjectRegion.getCountry() != null
+                            && observerTown.getCountry().equals(subjectRegion.getCountry())) {
                         result.add(createReputationScoreEntry(observerId, subjectId, "same-nation"));
                     }
 
-                } else if (subjectObj instanceof INationWrapper subjectNation) {
+                } else if (subjectObj instanceof Country subjectNation) {
                     // Town observing nation
 
                     // Our nation score
-                    if (observerTown.getNation() != null && observerTown.getNation().equals(subjectNation)) {
+                    if (observerTown.getCountry() != null && observerTown.getCountry().equals(subjectNation)) {
                         result.add(createReputationScoreEntry(observerId, subjectId, "our-nation"));
                     }
                 }
-            } else if (observerObj instanceof IRegionWrapper observerRegion) {
-                if (subjectObj instanceof ITownWrapper subjectTown) {
+            } else if (observerObj instanceof Region observerRegion) {
+                if (subjectObj instanceof Settlement subjectTown) {
                     // Region observing town
 
                     // Our town score
@@ -173,41 +173,41 @@ public class ReputationManager {
                         result.add(createReputationScoreEntry(observerId, subjectId, "our-town"));
                     }
 
-                } else if (subjectObj instanceof IRegionWrapper subjectRegion) {
+                } else if (subjectObj instanceof Region subjectRegion) {
                     // Region observing region
 
                     // Same nation score
-                    if (observerRegion.getNation() != null
-                            && observerRegion.getNation().equals(subjectRegion.getNation())) {
+                    if (observerRegion.getCountry() != null
+                            && observerRegion.getCountry().equals(subjectRegion.getCountry())) {
                         result.add(createReputationScoreEntry(observerId, subjectId, "same-nation"));
                     }
 
-                } else if (subjectObj instanceof INationWrapper subjectNation) {
+                } else if (subjectObj instanceof Country subjectNation) {
                     // Region observing nation
 
                     // Our nation score
-                    if (observerRegion.getNation() != null && observerRegion.getNation().equals(subjectNation)) {
+                    if (observerRegion.getCountry() != null && observerRegion.getCountry().equals(subjectNation)) {
                         result.add(createReputationScoreEntry(observerId, subjectId, "our-nation"));
                     }
                 }
-            } else if (observerObj instanceof INationWrapper observerNation) {
-                if (subjectObj instanceof ITownWrapper subjectTown) {
+            } else if (observerObj instanceof Country observerNation) {
+                if (subjectObj instanceof Settlement subjectTown) {
                     // Nation observing town
 
                     // Our town score
-                    if (subjectTown.getNation() != null && subjectTown.getNation().equals(observerNation)) {
+                    if (subjectTown.getCountry() != null && subjectTown.getCountry().equals(observerNation)) {
                         result.add(createReputationScoreEntry(observerId, subjectId, "our-town"));
                     }
 
-                } else if (subjectObj instanceof IRegionWrapper subjectRegion) {
+                } else if (subjectObj instanceof Region subjectRegion) {
                     // Nation observing region
 
                     // Our region score
-                    if (subjectRegion.getNation() != null && subjectRegion.getNation().equals(observerNation)) {
+                    if (subjectRegion.getCountry() != null && subjectRegion.getCountry().equals(observerNation)) {
                         result.add(createReputationScoreEntry(observerId, subjectId, "our-region"));
                     }
 
-                } else if (subjectObj instanceof @SuppressWarnings("unused") INationWrapper subjectNation) {
+                } else if (subjectObj instanceof @SuppressWarnings("unused") Country subjectNation) {
                     // Nation observing nation
                     // TODO: Rivalry, allies etc.
                 }
@@ -339,14 +339,14 @@ public class ReputationManager {
         return service.delete(entry.getId());
     }
 
-    public void handleReputationChange(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, double modifier,
+    public void handleReputationChange(GeopolObject observer, GeopolObject subject, double modifier,
             String configKey, Player player, boolean doPassthrough) {
 
         if (observer == null || subject == null)
             return;
 
         // Main entry
-        var entry = getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(), configKey);
+        var entry = getOrCreateReputationScoreEntry(observer.getUuid(), subject.getUuid(), configKey);
 
         double oldModifier = entry.getModifier();
         entry.setModifier(oldModifier + modifier);
@@ -370,10 +370,10 @@ public class ReputationManager {
         double upFactor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-up.factor");
         double downFactor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-down.factor");
 
-        Map<IGeopolObjectWrapper, Double> observerPassthroughUp = getPasshroughMapUp(observer, upFactor);
-        Map<IGeopolObjectWrapper, Double> observerPassthroughDown = getPasshroughMapDown(observer, downFactor);
-        Map<IGeopolObjectWrapper, Double> subjectPassthroughUp = getPasshroughMapUp(subject, upFactor);
-        Map<IGeopolObjectWrapper, Double> subjectPassthroughDown = getPasshroughMapDown(subject, downFactor);
+        Map<GeopolObject, Double> observerPassthroughUp = getPasshroughMapUp(observer, upFactor);
+        Map<GeopolObject, Double> observerPassthroughDown = getPasshroughMapDown(observer, downFactor);
+        Map<GeopolObject, Double> subjectPassthroughUp = getPasshroughMapUp(subject, upFactor);
+        Map<GeopolObject, Double> subjectPassthroughDown = getPasshroughMapDown(subject, downFactor);
 
         // Pass reputation up
         for (var observerUpEntry : observerPassthroughUp.entrySet()) {
@@ -404,8 +404,8 @@ public class ReputationManager {
 
     }
 
-    private void addOrUpdatePassthroughEntry(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, double modifier, String configKey, double factor) {
-        var repEntry = getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(), configKey);
+    private void addOrUpdatePassthroughEntry(GeopolObject observer, GeopolObject subject, double modifier, String configKey, double factor) {
+        var repEntry = getOrCreateReputationScoreEntry(observer.getUuid(), subject.getUuid(), configKey);
         repEntry.setModifier(repEntry.getModifier() + (modifier * factor));
         repEntry.setTimestamp(System.currentTimeMillis());
         if (addOrUpdateReputationScoreEntry(repEntry)) {
@@ -413,41 +413,41 @@ public class ReputationManager {
         }
     }
 
-    private Map<IGeopolObjectWrapper, Double> getPasshroughMapUp(IGeopolObjectWrapper obj, Double factor) {
-        Map<IGeopolObjectWrapper, Double> map = new HashMap<>();
-        if (obj instanceof ITownWrapper town) {
+    private Map<GeopolObject, Double> getPasshroughMapUp(GeopolObject obj, Double factor) {
+        Map<GeopolObject, Double> map = new HashMap<>();
+        if (obj instanceof Settlement town) {
             if (town.getRegion() != null) {
                 map.put(town.getRegion(), factor);
             }
-            if (town.getNation() != null) {
-                map.put(town.getNation(), factor * factor);
+            if (town.getCountry() != null) {
+                map.put(town.getCountry(), factor * factor);
             }
-        } else if (obj instanceof IRegionWrapper region) {
-            if (region.getNation() != null) {
-                map.put(region.getNation(), factor);
+        } else if (obj instanceof Region region) {
+            if (region.getCountry() != null) {
+                map.put(region.getCountry(), factor);
             }
         }
         return map;
     }
 
-    private Map<IGeopolObjectWrapper, Double> getPasshroughMapDown(IGeopolObjectWrapper obj, Double factor) {
-        Map<IGeopolObjectWrapper, Double> map = new HashMap<>();
-        if (obj instanceof INationWrapper nation) {
+    private Map<GeopolObject, Double> getPasshroughMapDown(GeopolObject obj, Double factor) {
+        Map<GeopolObject, Double> map = new HashMap<>();
+        if (obj instanceof Country nation) {
             for (var region : nation.getRegions()) {
                 map.put(region, factor);
             }
-            for (var town : nation.getTowns()) {
+            for (var town : nation.getSettlements()) {
                 map.put(town, factor * factor);
             }
-        } else if (obj instanceof IRegionWrapper region) {
-            for (var town : region.getTowns()) {
+        } else if (obj instanceof Region region) {
+            for (var town : region.getSettlements()) {
                 map.put(town, factor);
             }
         }
         return map;
     }
 
-    private void sendMessage(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String configKey,
+    private void sendMessage(GeopolObject observer, GeopolObject subject, String configKey,
             Player player, ReputationScoreEntry entry, double oldModifier) {
 
         double change = entry.getModifier() - oldModifier;
@@ -457,7 +457,7 @@ public class ReputationManager {
 
         String displayName = RecordDefinitionConfig.get().recordDefinitions().get(configKey).displayName();
 
-        var total = getTotalReputationScore(observer.getUUID(), subject.getUUID());
+        var total = getTotalReputationScore(observer.getUuid(), subject.getUuid());
         United.messenger().send(player, "reputation-changed",
                 observer.getName(),
                 subject.getName(),
@@ -466,7 +466,7 @@ public class ReputationManager {
                 ColorFormatter.getAmountColored(total));
     }
 
-    private void logChange(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String key, double amount) {
+    private void logChange(GeopolObject observer, GeopolObject subject, String key, double amount) {
         if (observer == null || subject == null)
             return;
         United.logger().info(
@@ -495,8 +495,8 @@ public class ReputationManager {
                     .sorted(Comparator.comparing(ReputationScoreEntry::getId)).collect(Collectors.toList());
             for (ReputationScoreEntry entry : sortedEntries) {
 
-                IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(entry.getObserver());
-                IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(entry.getSubject());
+                GeopolObject subject = UnitedLandsDataManager.instance().getGeopolObject(entry.getObserver());
+                GeopolObject target = UnitedLandsDataManager.instance().getGeopolObject(entry.getSubject());
 
                 String subjectStr = subject != null ? subject.getName() : entry.getObserver().toString();
                 String targetStr = target != null ? target.getName() : entry.getSubject().toString();

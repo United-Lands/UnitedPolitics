@@ -1,9 +1,9 @@
 package org.unitedlands.politics.utils;
 
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
-import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
-import org.unitedlands.politics.wrappers.interfaces.IRegionWrapper;
-import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
+import org.unitedlands.unitedlands.classes.Country;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.classes.Region;
+import org.unitedlands.unitedlands.classes.Settlement;
 
 public class ColorFormatter {
     public static String getAmountColored(double amount) {
@@ -17,13 +17,13 @@ public class ColorFormatter {
         return amountStr;
     }
 
-    public static String getGeopolPrefixColored(IGeopolObjectWrapper geopolObject) {
+    public static String getGeopolPrefixColored(GeopolObject geopolObject) {
         var prefixStr = "";
-        if (geopolObject instanceof INationWrapper)
+        if (geopolObject instanceof Country)
             prefixStr = "<green>[N]</green>";
-        else if (geopolObject instanceof IRegionWrapper)
+        else if (geopolObject instanceof Region)
             prefixStr = "<yellow>[R]</yellow>";
-        else if (geopolObject instanceof ITownWrapper)
+        else if (geopolObject instanceof Settlement)
             prefixStr = "<aqua>[T]</aqua>";
         return prefixStr;
     }

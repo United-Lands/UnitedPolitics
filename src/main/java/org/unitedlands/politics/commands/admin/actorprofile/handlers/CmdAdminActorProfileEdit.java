@@ -3,8 +3,6 @@ package org.unitedlands.politics.commands.admin.actorprofile.handlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.bukkit.command.CommandSender;
 import org.unitedlands.annotations.UnitedSubCommand;
 import org.unitedlands.politics.UnitedPolitics;
@@ -12,11 +10,9 @@ import org.unitedlands.politics.commands.admin.actorprofile.CmdAdminActorProfile
 import org.unitedlands.politics.integrations.UnitedDungeons.utils.DungeonsActorComponentUtils;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.utils.ColorFormatter;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
-import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
-import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 import net.kyori.adventure.text.Component;
@@ -33,10 +29,8 @@ public class CmdAdminActorProfileEdit implements UnitedCommandExecutor {
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            var names1 = UnitedPolitics.instance().getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
-                    .collect(Collectors.toList());
-            var names2 = UnitedPolitics.instance().getGeopolWrapper().getTowns().stream().map(ITownWrapper::getName)
-                    .collect(Collectors.toList());
+            var names1 = UnitedLandsDataManager.instance().getCountryNames();
+            var names2 = UnitedLandsDataManager.instance().getSettlementNames();
             names1.addAll(names2);
             return names1;
         }
@@ -52,18 +46,18 @@ public class CmdAdminActorProfileEdit implements UnitedCommandExecutor {
 
         // Argument can either be a UUID or a name, try UUID first and then fall back to
         // name.
-        IGeopolObjectWrapper actor = null;
+        GeopolObject actor = null;
         try {
-            actor = GeopolUtils.findGeopolObject(UUID.fromString(args[0]));
+            actor = UnitedLandsDataManager.instance().getGeopolObject(UUID.fromString(args[0]));
         } catch (Exception ignore) {
-            actor = GeopolUtils.findGeopolObject(args[0]);
+            actor = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         }
         if (actor == null) {
             United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[0]);
             return;
         }
 
-        var profile = ActorProfileManager.instance().getActorProfile(actor.getUUID());
+        var profile = ActorProfileManager.instance().getActorProfile(actor.getUuid());
         if (profile == null) {
             United.messenger().send(sender, "errors.actorprofile.no-profile");
             return;
@@ -107,7 +101,7 @@ public class CmdAdminActorProfileEdit implements UnitedCommandExecutor {
 
         if (profile.getRivals() != null) {
             for (var rivalId : profile.getRivals()) {
-                var rival = GeopolUtils.findGeopolObject(rivalId);
+                var rival = UnitedLandsDataManager.instance().getGeopolObject(rivalId);
                 if (rival == null)
                     continue;
 
@@ -137,7 +131,7 @@ public class CmdAdminActorProfileEdit implements UnitedCommandExecutor {
 
         if (profile.getPartners() != null) {
             for (var partnerId : profile.getPartners()) {
-                var partner = GeopolUtils.findGeopolObject(partnerId);
+                var partner = UnitedLandsDataManager.instance().getGeopolObject(partnerId);
                 if (partner == null)
                     continue;
 

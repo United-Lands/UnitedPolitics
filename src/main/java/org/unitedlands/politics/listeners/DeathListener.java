@@ -6,7 +6,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ReputationManager;
-import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
+import org.unitedlands.unitedlands.classes.Settlement;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 
 public class DeathListener implements Listener {
 
@@ -29,19 +30,19 @@ public class DeathListener implements Listener {
 
             var victim = (Player) event.getPlayer();
 
-            ITownWrapper victimTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(victim);
+            Settlement victimTown = UnitedLandsDataManager.instance().getSettlement(victim);
             if (victimTown == null)
                 return;
 
-            ITownWrapper killerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(killingPlayer);
+            Settlement killerTown =  UnitedLandsDataManager.instance().getSettlement(killingPlayer);
             if (killerTown == null)
                 return;
 
-            if (victimTown.getUUID().equals(killerTown.getUUID()))
+            if (victimTown.getUuid().equals(killerTown.getUuid()))
                 return;
 
-            if (victimTown.getNation() != null && killerTown.getNation() != null) {
-                if (victimTown.getNation().getUUID().equals(killerTown.getNation().getUUID()))
+            if (victimTown.getCountry() != null && killerTown.getCountry() != null) {
+                if (victimTown.getCountry().getUuid().equals(killerTown.getCountry().getUuid()))
                     return;
             }
 

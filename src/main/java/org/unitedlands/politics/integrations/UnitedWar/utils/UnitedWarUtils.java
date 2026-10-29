@@ -4,14 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
-
+import org.unitedlands.unitedlands.classes.GeopolObject;
 
 public class UnitedWarUtils {
 
-    public boolean isActorInWar(IGeopolObjectWrapper actor) {
+    public boolean isActorInWar(GeopolObject actor) {
 
-        // if (actor instanceof INationWrapper nation)
+        // if (actor instanceof Country nation)
         //     return instance.getWarManager().isTownInWar(nation.getCapital().getUUID());
         // else if (actor instanceof ITownWrapper town)
         //     return instance.getWarManager().isTownInWar(town.getUUID());
@@ -19,11 +18,11 @@ public class UnitedWarUtils {
         return false;
     }
 
-    public Set<UUID> getOpponents(IGeopolObjectWrapper actor) {
+    public Set<UUID> getOpponents(GeopolObject actor) {
 
         Set<UUID> result = new HashSet<>();
         // Map<War, WarSide> wars = null;
-        // if (actor instanceof INationWrapper nation)
+        // if (actor instanceof Country nation)
         //     wars = instance.getWarManager().getAllTownWars(nation.getCapital().getUUID());
         // else if (actor instanceof ITownWrapper town)
         //     wars = instance.getWarManager().getAllTownWars(town.getUUID());
@@ -41,11 +40,11 @@ public class UnitedWarUtils {
         return result;
     }
 
-    public Set<UUID> getAllies(IGeopolObjectWrapper actor) {
+    public Set<UUID> getAllies(GeopolObject actor) {
 
         Set<UUID> result = new HashSet<>();
         // Map<War, WarSide> wars = null;
-        // if (actor instanceof INationWrapper nation)
+        // if (actor instanceof Country nation)
         //     wars = instance.getWarManager().getAllTownWars(nation.getCapital().getUUID());
         // else if (actor instanceof ITownWrapper town)
         //     wars = instance.getWarManager().getAllTownWars(town.getUUID());

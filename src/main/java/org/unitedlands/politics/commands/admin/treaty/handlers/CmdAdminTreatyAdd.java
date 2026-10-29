@@ -4,11 +4,10 @@ import java.util.List;
 
 import org.bukkit.command.CommandSender;
 import org.unitedlands.annotations.UnitedSubCommand;
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.commands.admin.treaty.CmdAdminTreaty;
 import org.unitedlands.politics.managers.TreatyManager;
-import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 @UnitedSubCommand(
@@ -23,8 +22,7 @@ public class CmdAdminTreatyAdd implements UnitedCommandExecutor {
     public List<String> handleTab(CommandSender sender, String[] args) {
         return switch (args.length) {
             case 1 -> TreatyManager.instance().getTreatyNames();
-            case 2 -> UnitedPolitics.instance().getGeopolWrapper().getNations().stream().map(INationWrapper::getName)
-                    .toList();
+            case 2 -> UnitedLandsDataManager.instance().getCountryNames();
             default -> null;
         };
     }
@@ -43,7 +41,7 @@ public class CmdAdminTreatyAdd implements UnitedCommandExecutor {
             return;
         }
 
-        var country = UnitedPolitics.instance().getGeopolWrapper().getNation(args[1]);
+        var country = UnitedLandsDataManager.instance().getCountry(args[1]);
         if (country == null) {
             United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[1]);
             return;

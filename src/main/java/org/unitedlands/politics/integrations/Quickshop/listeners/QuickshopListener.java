@@ -3,9 +3,9 @@ package org.unitedlands.politics.integrations.Quickshop.listeners;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.unitedlands.annotations.UnitedListener;
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 import com.ghostchu.quickshop.api.event.economy.ShopSuccessPurchaseEvent;
@@ -26,7 +26,7 @@ public class QuickshopListener implements Listener {
 
         var shopLocation = event.getShop().bukkitLocation();
 
-        var shopTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(shopLocation);
+        var shopTown = UnitedLandsDataManager.instance().getSettlement(shopLocation);
         if (shopTown == null)
             return;
 
@@ -34,7 +34,7 @@ public class QuickshopListener implements Listener {
         if (player.isEmpty())
             return;
 
-        var playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player.get());
+        var playerTown = UnitedLandsDataManager.instance().getSettlement(player.get());
         if (playerTown == null || playerTown.equals(shopTown))
             return;
 

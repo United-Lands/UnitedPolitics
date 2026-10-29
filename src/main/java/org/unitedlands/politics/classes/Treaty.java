@@ -5,8 +5,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.unitedlands.politics.UnitedPolitics;
-import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
+import org.unitedlands.unitedlands.classes.Country;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.unitedlands.utils.SerializationUtils;
 
 import org.unitedlands.libs.ormlite.field.DataType;
@@ -29,7 +29,7 @@ public class Treaty implements Identifiable {
     @DatabaseField(canBeNull = false, dataType = DataType.LONG_STRING)
     private String members_serialized;
 
-    private transient Set<INationWrapper> members;
+    private transient Set<Country> members;
 
     @Override
     public UUID getId() {
@@ -77,34 +77,34 @@ public class Treaty implements Identifiable {
         this.members_serialized = members_serialized;
     }
 
-    public Set<INationWrapper> getMembers() {
+    public Set<Country> getMembers() {
         if (members == null) {
             members = SerializationUtils.deserializeUuidListToSet(members_serialized,
-                    UnitedPolitics.instance().getGeopolWrapper()::getNation);
+                    UnitedLandsDataManager.instance()::getCountry);
         }
         return members;
     }
 
-    public boolean hasMember(INationWrapper nation) {
-        return getMembers().contains(nation);
+    public boolean hasMember(Country country) {
+        return getMembers().contains(country);
     }
 
-    public void setMembers(Set<INationWrapper> members) {
+    public void setMembers(Set<Country> members) {
         this.members = members;
         this.members_serialized = members.stream()
-                .map(c -> c.getUUID().toString())
+                .map(c -> c.getUuid().toString())
                 .collect(Collectors.joining("#"));
     }
 
-    public void addMember(INationWrapper nation) {
+    public void addMember(Country country) {
         var t = new HashSet<>(getMembers());
-        t.add(nation);
+        t.add(country);
         setMembers(t);
     }
 
-    public void removeMember(INationWrapper nation) {
+    public void removeMember(Country country) {
         var t = new HashSet<>(getMembers());
-        t.remove(nation);
+        t.remove(country);
         setMembers(t);
     }
 

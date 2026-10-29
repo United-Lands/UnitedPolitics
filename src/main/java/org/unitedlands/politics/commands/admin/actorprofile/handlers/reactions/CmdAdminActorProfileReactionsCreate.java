@@ -9,9 +9,9 @@ import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.EventReaction;
 import org.unitedlands.politics.classes.configs.RecordDefinitionConfig;
 import org.unitedlands.politics.managers.ActorProfileManager;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 @UnitedSubCommand(
@@ -39,13 +39,13 @@ public class CmdAdminActorProfileReactionsCreate implements UnitedCommandExecuto
             return;
         }
 
-        IGeopolObjectWrapper actor = GeopolUtils.findGeopolObject(args[0]);
+        GeopolObject actor = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         if (actor == null) {
             United.messenger().send(sender, "errors.general.geopol-obj-not-found");
             return;
         }
 
-        var profile = ActorProfileManager.instance().getActorProfile(actor.getUUID());
+        var profile = ActorProfileManager.instance().getActorProfile(actor.getUuid());
         if (profile == null) {
             United.messenger().send(sender, "errors.actorprofile.no-profile");
             return;

@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.models.ReputationScoreEntry;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 public class NewDayRunnable implements Runnable {
@@ -42,8 +42,8 @@ public class NewDayRunnable implements Runnable {
 
         for (ReputationScoreEntry entry : sortedEntries) {
 
-            IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(entry.getObserver());
-            IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(entry.getSubject());
+            GeopolObject subject =  UnitedLandsDataManager.instance().getGeopolObject(entry.getObserver());
+            GeopolObject target = UnitedLandsDataManager.instance().getGeopolObject(entry.getSubject());
 
             String subjectStr = subject != null ? subject.getName() : entry.getObserver().toString();
             String targetStr = target != null ? target.getName() : entry.getSubject().toString();

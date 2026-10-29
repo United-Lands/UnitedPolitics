@@ -5,8 +5,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.unitedlands.libs.ormlite.logger.LoggerFactory;
 import org.unitedlands.libs.ormlite.logger.NullLogBackend;
-import org.unitedlands.politics.integrations.Towny.commands.TownyTownReputationCommand;
-import org.unitedlands.politics.integrations.Towny.listeners.TownScreenListener;
 import org.unitedlands.politics.integrations.UnitedDungeons.listeners.DungeonEventListener;
 import org.unitedlands.politics.integrations.UnitedLands.listeners.CountryListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
@@ -19,9 +17,6 @@ import org.unitedlands.politics.managers.DatabaseManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TreatyManager;
 import org.unitedlands.politics.managers.TimeManager;
-import org.unitedlands.politics.wrappers.Towny.TownyGeopolWrapper;
-import org.unitedlands.politics.wrappers.UnitedLands.UnitedLandsGeopolWrapper;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolWrapper;
 import org.unitedlands.utils.United;
 
 public class UnitedPolitics extends JavaPlugin {
@@ -32,13 +27,10 @@ public class UnitedPolitics extends JavaPlugin {
         return instance;
     }
 
-    private IGeopolWrapper geopolWrapper;
-
     private DatabaseManager databaseManager;
     private TimeManager timeManager;
 
     private boolean ulEnabled;
-    private boolean townyEnabled;
     private boolean unitedTradeEnabled;
     private boolean unitedWarsEnabled;
     private boolean unitedDungeonsEnabled;
@@ -81,17 +73,7 @@ public class UnitedPolitics extends JavaPlugin {
     }
 
     private void loadWrappers() {
-        Plugin unitedlands = Bukkit.getPluginManager().getPlugin("UnitedLands");
-        if (unitedlands != null && unitedlands.isEnabled()) {
-            United.logger().info("UnitedLands found, enabling wrapper.", "UnitedPolitics");
-            geopolWrapper = new UnitedLandsGeopolWrapper();
-        } else {
-            Plugin towny = Bukkit.getPluginManager().getPlugin("Towny");
-            if (towny != null && towny.isEnabled()) {
-                United.logger().info("Towny found, enabling wrapper.", "UnitedPolitics");
-                geopolWrapper = new TownyGeopolWrapper();
-            }
-        }
+
     }
 
     private void loadIntegrations() {
@@ -102,17 +84,8 @@ public class UnitedPolitics extends JavaPlugin {
 
             getServer().getPluginManager().registerEvents(new CountryListener(), this);
 
-            this.townyEnabled = true;
-        } else {
-            Plugin towny = Bukkit.getPluginManager().getPlugin("Towny");
-            if (towny != null && towny.isEnabled()) {
-                United.logger().info("Enabling Towny integrations.", "UnitedPolitics");
-                new TownyTownReputationCommand();
-                getServer().getPluginManager().registerEvents(new TownScreenListener(), this);
-                this.townyEnabled = true;
-            }
-        }
-
+            this.ulEnabled = true;
+        } 
         Plugin unitedTrade = Bukkit.getPluginManager().getPlugin("UnitedTrade");
         if (unitedTrade != null && unitedTrade.isEnabled()) {
             United.logger().info("Enabling UnitedTrade integrations.", "UnitedPolitics");
@@ -136,10 +109,6 @@ public class UnitedPolitics extends JavaPlugin {
 
     }
 
-    public IGeopolWrapper getGeopolWrapper() {
-        return geopolWrapper;
-    }
-
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
     }
@@ -152,10 +121,6 @@ public class UnitedPolitics extends JavaPlugin {
 
     public boolean isULEnabled() {
         return ulEnabled;
-    }
-
-    public boolean isTownyEnabled() {
-        return townyEnabled;
     }
 
     public boolean isUnitedTradeEnabled() {

@@ -7,8 +7,8 @@ import org.unitedlands.dungeons.events.DungeonCompleteEvent;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.ReputationManager;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 
 public class DungeonEventListener implements Listener {
 
@@ -42,11 +42,11 @@ public class DungeonEventListener implements Listener {
             if (amount == 0d)
                 continue;
 
-            IGeopolObjectWrapper observer = GeopolUtils.findGeopolObject(profile.getId());
+            GeopolObject observer = UnitedLandsDataManager.instance().getGeopolObject(profile.getId());
 
             for (Player player : event.getPlayers()) {
 
-                IGeopolObjectWrapper playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
+                GeopolObject playerTown = UnitedLandsDataManager.instance().getSettlement(player);
                 if (player == null)
                     continue;
 

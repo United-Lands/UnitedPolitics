@@ -2,14 +2,13 @@ package org.unitedlands.politics.integrations.UnitedWar.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.TreatyType;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TreatyManager;
 import org.unitedlands.politics.utils.ColorFormatter;
-import org.unitedlands.politics.wrappers.UnitedLands.UnitedLandsNationWrapper;
 import org.unitedlands.unitedlands.classes.Country;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 import org.unitedlands.wars.classes.war.WarFactionRole;
 import org.unitedlands.wars.classes.wargoal.WarGoal;
@@ -27,10 +26,8 @@ public class WarEventListeners implements Listener {
 
         if (isCountryConflict(event.getWarGoal())) {
 
-            United.logger().debug("isCountryConflict");
-
-            var attacker = new UnitedLandsNationWrapper((Country) event.getAttacker());
-            var defender = new UnitedLandsNationWrapper((Country) event.getAttacker());
+            var attacker = (Country) event.getAttacker();
+            var defender = (Country) event.getAttacker();
 
             if (TreatyManager.instance().haveTreaty(attacker, defender, TreatyType.ALLIANCE)) {
                 // TODO: Move strings to config
@@ -100,8 +97,7 @@ public class WarEventListeners implements Listener {
         if (defenderFaction == null) {
             return;
         }
-        var defenderCountry = UnitedPolitics.instance().getGeopolWrapper()
-                .getNation(defenderFaction.getFactionLeaderId());
+        var defenderCountry = UnitedLandsDataManager.instance().getCountry(defenderFaction.getFactionLeaderId());
         if (defenderCountry == null) {
             return;
         }
@@ -114,7 +110,7 @@ public class WarEventListeners implements Listener {
 
                 United.logger()
                         .info("Auto-adding ally " + member.getName() + " to faction " + defenderFaction.getName());
-                defenderFaction.addCountry(((UnitedLandsNationWrapper) member).getCountry());
+                defenderFaction.addCountry(member);
             }
         }
     }
@@ -135,7 +131,7 @@ public class WarEventListeners implements Listener {
         // var geopolWrapper = UnitedPolitics.instance().getGeopolWrapper();
 
         // ITownWrapper attacker = geopolWrapper.getTown(event.getDeclaringTownId());
-        // INationWrapper attackerNation = attacker.getNation();
+        // Country attackerNation = attacker.getNation();
         // List<ITownWrapper> attackerNationTowns = new ArrayList<>();
         // if (event.isNationWar()) {
         // if (attackerNation != null) {
