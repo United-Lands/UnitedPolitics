@@ -16,6 +16,9 @@ public interface IntegrationsConfig extends UnitedConfigHandler {
     @UnitedSection(key = "UnitedWars")
     UnitedWarsIntegration unitedWars();
 
+    @UnitedSection(key = "Quickshop")
+    QuickshopIntegration quickshop();
+
     record UnitedTradeIntegration(
         @UnitedSetting(key = "use-minimum-town-reputation", def = "false") boolean useMinimumTownReputation,
         @UnitedSetting(key = "use-minimum-nation-reputation", def = "false") boolean useMinimumNationReputation,
@@ -26,5 +29,13 @@ public interface IntegrationsConfig extends UnitedConfigHandler {
     record UnitedWarsIntegration(
         @UnitedSetting(key = "war-opinion-threshold", def = "50") double warOpinionThreshold
     ) { }
+
+    record QuickshopIntegration(
+        @UnitedSetting(key = "enabled", def = "true") boolean enabled,
+        @UnitedSetting(key = "reputation-per-money-unit", def = "0.001") double reputationPerMoneyUnit,
+        @UnitedSetting(key = "passthrough", def = "true") boolean passthrough
+    ) { }
+
+
 }
 

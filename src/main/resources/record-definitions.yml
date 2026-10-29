@@ -187,7 +187,6 @@ record-definitions:
     default: 0
 
   # UnitedWar integration reputation records
-
   # Static
   uw-enemy-in-war:
     display-name: "Enemy"
@@ -255,3 +254,12 @@ record-definitions:
     high-cap: 0
     decay: 1
     default: 0
+
+  # Quickshop integration reputation records
+  qs-used-shop:
+    display-name: "Used shop"
+    description: "They used our shops"
+    low-cap: 0
+    high-cap: 50
+    decay: -0.5
+    default: 0 

@@ -67,9 +67,9 @@ actions:
     money-log-reason-target: "Tribute paid by "
   propaganda:
     # How much reputation will be deducted per unit of currency (default: -1 for 10,000)
-    reputationPerMoneyUnit: 0.0001
+    reputation-per-money-unit: -0.0001
     # If supported, log entry messages for the economy plugin
-    moneyLogReasonSource: "Paid propaganda against "
+    money-log-reason-source: "Paid propaganda against "
 
 
   # Killing an player of a different town

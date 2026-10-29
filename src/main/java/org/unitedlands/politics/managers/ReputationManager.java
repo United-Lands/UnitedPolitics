@@ -353,123 +353,102 @@ public class ReputationManager {
         entry.setTimestamp(System.currentTimeMillis());
 
         if (addOrUpdateReputationScoreEntry(entry)) {
-            logChange(observer, subject, configKey, entry.getModifier() + modifier);
+            logChange(observer, subject, configKey, entry.getModifier());
             if (player != null) {
                 sendMessage(observer, subject, configKey, player, entry, oldModifier);
             }
         }
 
-        // Passthrough entries
-
         if (!doPassthrough)
             return;
 
-        if (UnitedPolitics.instance().getConfig().getBoolean("rep-passthrough-up.enabled", false)) {
-            double factor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-up.factor");
-            if (observer instanceof ITownWrapper town) {
-                var region = town.getRegion();
-                if (region != null) {
-                    var regionEntry = getOrCreateReputationScoreEntry(region.getUUID(), subject.getUUID(), configKey);
-                    double oldRegionModifier = regionEntry.getModifier();
-                    regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
-                    regionEntry.setTimestamp(System.currentTimeMillis());
-                    if (addOrUpdateReputationScoreEntry(regionEntry)) {
-                        logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
-                        if (player != null) {
-                            sendMessage(region, subject, configKey, player, regionEntry, oldRegionModifier);
-                        }
-                    }
-                }
-                var nation = town.getNation();
-                if (nation != null) {
-                    var nationEntry = getOrCreateReputationScoreEntry(nation.getUUID(),
-                            subject.getUUID(), configKey);
-                    double oldNationModifier = nationEntry.getModifier();
-                    nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor * factor));
-                    nationEntry.setTimestamp(System.currentTimeMillis());
-                    if (addOrUpdateReputationScoreEntry(nationEntry)) {
-                        logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor * factor));
-                        if (player != null) {
-                            sendMessage(nation, subject, configKey, player, nationEntry, oldNationModifier);
-                        }
-                    }
-                }
-            } else if (observer instanceof IRegionWrapper region) {
-                var nation = region.getNation();
-                if (nation != null) {
-                    var nationEntry = getOrCreateReputationScoreEntry(nation.getUUID(),
-                            subject.getUUID(), configKey);
-                    double oldNationModifier = nationEntry.getModifier();
-                    nationEntry.setModifier(nationEntry.getModifier() + (modifier * factor));
-                    nationEntry.setTimestamp(System.currentTimeMillis());
-                    if (addOrUpdateReputationScoreEntry(nationEntry)) {
-                        logChange(nation, subject, configKey, nationEntry.getModifier() + (modifier * factor));
-                        if (player != null) {
-                            sendMessage(nation, subject, configKey, player, nationEntry, oldNationModifier);
-                        }
-                    }
-                }
+        // Passthrough
+
+        // Passthrough works up and down depending on the observer's and subject's
+        // position in the geopolitical hierarchy.
+
+        double upFactor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-up.factor");
+        double downFactor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-down.factor");
+
+        Map<IGeopolObjectWrapper, Double> observerPassthroughUp = getPasshroughMapUp(observer, upFactor);
+        Map<IGeopolObjectWrapper, Double> observerPassthroughDown = getPasshroughMapDown(observer, downFactor);
+        Map<IGeopolObjectWrapper, Double> subjectPassthroughUp = getPasshroughMapUp(subject, upFactor);
+        Map<IGeopolObjectWrapper, Double> subjectPassthroughDown = getPasshroughMapDown(subject, downFactor);
+
+        // Pass reputation up
+        for (var observerUpEntry : observerPassthroughUp.entrySet()) {
+            // Change the main subject reputation
+            addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subject, modifier, configKey, observerUpEntry.getValue());
+            // Also let the reputation change pass through up or down the subject's 
+            // geopolitical layers, with increasingly smaller impact.
+            for (var subjectUpEntry : subjectPassthroughUp.entrySet()) {
+                addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subjectUpEntry.getKey(), modifier, configKey, subjectUpEntry.getValue() * observerUpEntry.getValue());
+            }
+            for (var subjectDownEntry : subjectPassthroughDown.entrySet()) {
+                addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subjectDownEntry.getKey(), modifier, configKey, subjectDownEntry.getValue() * observerUpEntry.getValue());
             }
         }
-        if (UnitedPolitics.instance().getConfig().getBoolean("rep-passthrough-down.enabled", false)) {
-            double factor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-down.factor");
-            if (observer instanceof INationWrapper nation) {
-                var regions = nation.getRegions();
-                if (regions != null && !regions.isEmpty()) {
-                    for (IRegionWrapper region : regions) {
-                        var regionEntry = getOrCreateReputationScoreEntry(
-                                region.getUUID(),
-                                subject.getUUID(), configKey);
-                        double oldRegionModifier = regionEntry.getModifier();
-                        regionEntry.setModifier(regionEntry.getModifier() + (modifier * factor));
-                        regionEntry.setTimestamp(System.currentTimeMillis());
-                        if (addOrUpdateReputationScoreEntry(regionEntry)) {
-                            logChange(region, subject, configKey, regionEntry.getModifier() + (modifier * factor));
-                            if (player != null) {
-                                sendMessage(region, subject, configKey, player, regionEntry, oldRegionModifier);
-                            }
-                        }
-                    }
-                }
-                var towns = nation.getTowns();
-                if (towns != null && !towns.isEmpty()) {
-                    for (ITownWrapper town : towns) {
-                        var townEntry = getOrCreateReputationScoreEntry(town.getUUID(),
-                                subject.getUUID(), configKey);
-                        double oldTownModifier = townEntry.getModifier();
-                        townEntry.setModifier(townEntry.getModifier() + (modifier * factor * factor));
-                        townEntry.setTimestamp(System.currentTimeMillis());
-                        if (addOrUpdateReputationScoreEntry(townEntry)) {
-                            logChange(town, subject, configKey,
-                                    townEntry.getModifier() + (modifier * factor * factor));
-                            if (player != null) {
-                                sendMessage(town, subject, configKey, player, townEntry, oldTownModifier);
-                            }
-                        }
-                    }
-                }
-            } else if (observer instanceof IRegionWrapper region) {
-                var towns = region.getTowns();
-                if (towns != null && !towns.isEmpty()) {
-                    for (ITownWrapper town : towns) {
-                        var townEntry = getOrCreateReputationScoreEntry(town.getUUID(),
-                                subject.getUUID(), configKey);
-                        double oldTownModifier = townEntry.getModifier();
-                        townEntry.setModifier(townEntry.getModifier() + (modifier * factor));
-                        townEntry.setTimestamp(System.currentTimeMillis());
-                        if (addOrUpdateReputationScoreEntry(townEntry)) {
-                            logChange(town, subject, configKey, townEntry.getModifier() + (modifier * factor));
-                            if (player != null) {
-                                sendMessage(town, subject, configKey, player, townEntry, oldTownModifier);
-                            }
-                        }
-                    }
-                }
+        // Pass reputation down
+        for (var observerDownEntry : observerPassthroughDown.entrySet()) {
+            // Change the main subject reputation
+            addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subject, modifier, configKey, observerDownEntry.getValue());
+            for (var subjectUpEntry : subjectPassthroughUp.entrySet()) {
+                addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subjectUpEntry.getKey(), modifier, configKey, subjectUpEntry.getValue() * observerDownEntry.getValue());
             }
+            // Also let the reputation change pass through up or down the subject's 
+            // geopolitical layers, with increasingly smaller impact.
+            for (var subjectDownEntry : subjectPassthroughDown.entrySet()) {
+                addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subjectDownEntry.getKey(), modifier, configKey, subjectDownEntry.getValue() * observerDownEntry.getValue());
+            }
+        }
+
+    }
+
+    private void addOrUpdatePassthroughEntry(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, double modifier, String configKey, double factor) {
+        var repEntry = getOrCreateReputationScoreEntry(observer.getUUID(), subject.getUUID(), configKey);
+        repEntry.setModifier(repEntry.getModifier() + (modifier * factor));
+        repEntry.setTimestamp(System.currentTimeMillis());
+        if (addOrUpdateReputationScoreEntry(repEntry)) {
+            logChange(observer, subject, configKey, repEntry.getModifier());
         }
     }
 
-    private void sendMessage(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String configKey, Player player, ReputationScoreEntry entry, double oldModifier) {
+    private Map<IGeopolObjectWrapper, Double> getPasshroughMapUp(IGeopolObjectWrapper obj, Double factor) {
+        Map<IGeopolObjectWrapper, Double> map = new HashMap<>();
+        if (obj instanceof ITownWrapper town) {
+            if (town.getRegion() != null) {
+                map.put(town.getRegion(), factor);
+            }
+            if (town.getNation() != null) {
+                map.put(town.getNation(), factor * factor);
+            }
+        } else if (obj instanceof IRegionWrapper region) {
+            if (region.getNation() != null) {
+                map.put(region.getNation(), factor);
+            }
+        }
+        return map;
+    }
+
+    private Map<IGeopolObjectWrapper, Double> getPasshroughMapDown(IGeopolObjectWrapper obj, Double factor) {
+        Map<IGeopolObjectWrapper, Double> map = new HashMap<>();
+        if (obj instanceof INationWrapper nation) {
+            for (var region : nation.getRegions()) {
+                map.put(region, factor);
+            }
+            for (var town : nation.getTowns()) {
+                map.put(town, factor * factor);
+            }
+        } else if (obj instanceof IRegionWrapper region) {
+            for (var town : region.getTowns()) {
+                map.put(town, factor);
+            }
+        }
+        return map;
+    }
+
+    private void sendMessage(IGeopolObjectWrapper observer, IGeopolObjectWrapper subject, String configKey,
+            Player player, ReputationScoreEntry entry, double oldModifier) {
 
         double change = entry.getModifier() - oldModifier;
         String changeString = ColorFormatter.getAmountColored(change);

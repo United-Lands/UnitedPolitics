@@ -37,6 +37,7 @@ public class UnitedPolitics extends JavaPlugin {
     private DatabaseManager databaseManager;
     private TimeManager timeManager;
 
+    private boolean ulEnabled;
     private boolean townyEnabled;
     private boolean unitedTradeEnabled;
     private boolean unitedWarsEnabled;
@@ -69,16 +70,6 @@ public class UnitedPolitics extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new DeathListener(), this);
         getServer().getPluginManager().registerEvents(new ReputationEventListener(), this);
     }
-
-    // private void registerCommands() {
-    // var adminCommands = new AdminCommands(this, messageProvider);
-    // getCommand("unitedpoliticsadmin").setExecutor(adminCommands);
-    // getCommand("unitedpoliticsadmin").setTabCompleter(adminCommands);
-
-    // var opinionCommand = new OpinionCommand(instance, messageProvider);
-    // getCommand("opinion").setExecutor(opinionCommand);
-    // getCommand("opinion").setTabCompleter(opinionCommand);
-    // }
 
     private void loadManagers() {
         databaseManager = new DatabaseManager();
@@ -142,6 +133,7 @@ public class UnitedPolitics extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new DungeonEventListener(this), this);
             this.unitedDungeonsEnabled = true;
         }
+
     }
 
     public IGeopolWrapper getGeopolWrapper() {
@@ -157,6 +149,10 @@ public class UnitedPolitics extends JavaPlugin {
     }
 
     // Integrations
+
+    public boolean isULEnabled() {
+        return ulEnabled;
+    }
 
     public boolean isTownyEnabled() {
         return townyEnabled;
