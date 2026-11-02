@@ -9,9 +9,9 @@ import java.util.UUID;
 
 import org.bukkit.entity.Player;
 import org.unitedlands.politics.UnitedPolitics;
-import org.unitedlands.politics.classes.Treaty;
-import org.unitedlands.politics.classes.TreatyType;
 import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
+import org.unitedlands.politics.models.Treaty;
+import org.unitedlands.politics.models.TreatyType;
 import org.unitedlands.unitedlands.classes.Country;
 import org.unitedlands.unitedlands.classes.GeopolObject;
 import org.unitedlands.unitedlands.managers.UnitedLandsEconomyManager;
@@ -43,14 +43,14 @@ public class TreatyManager {
         var service = databaseManager.getTreatyService();
         service.getAllAsync().thenAccept(entries -> {
             for (var entry : entries) {
-                treaties.put(entry.getId(), entry);
+                treaties.put(entry.getUuid(), entry);
             }
             United.logger().info("Loaded " + entries.size() + " treaties to memory.", "UnitedPolitics");
         });
     }
 
     public void addOrUpdateTreaty(Treaty treaty) {
-        treaties.put(treaty.getId(), treaty);
+        treaties.put(treaty.getUuid(), treaty);
         databaseManager.getTreatyService().createOrUpdateAsync(treaty);
     }
 
@@ -79,8 +79,8 @@ public class TreatyManager {
     }
 
     public void removeTreaty(Treaty treaty) {
-        treaties.remove(treaty.getId());
-        databaseManager.getTreatyService().deleteAsync(treaty.getId());
+        treaties.remove(treaty.getUuid());
+        databaseManager.getTreatyService().deleteAsync(treaty.getUuid());
     }
 
     public void removeEverythingFor(Country country) {

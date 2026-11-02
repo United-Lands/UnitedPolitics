@@ -2,10 +2,10 @@ package org.unitedlands.politics.integrations.UnitedWar.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.unitedlands.politics.classes.TreatyType;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TreatyManager;
+import org.unitedlands.politics.models.TreatyType;
 import org.unitedlands.politics.utils.ColorFormatter;
 import org.unitedlands.unitedlands.classes.Country;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;

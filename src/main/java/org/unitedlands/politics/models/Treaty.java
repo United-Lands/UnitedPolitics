@@ -1,4 +1,4 @@
-package org.unitedlands.politics.classes;
+package org.unitedlands.politics.models;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +11,7 @@ import org.unitedlands.unitedlands.utils.SerializationUtils;
 
 import org.unitedlands.libs.ormlite.field.DataType;
 import org.unitedlands.libs.ormlite.field.DatabaseField;
+import org.unitedlands.unitedlands.classes.db.Identifiable;
 
 public class Treaty implements Identifiable {
 
@@ -32,12 +33,12 @@ public class Treaty implements Identifiable {
     private transient Set<Country> members;
 
     @Override
-    public UUID getId() {
+    public UUID getUuid() {
         return id;
     }
 
     @Override
-    public void setId(UUID id) {
+    public void setUuid(UUID id) {
         this.id = id;
     }
 

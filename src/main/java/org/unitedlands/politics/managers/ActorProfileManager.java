@@ -31,7 +31,7 @@ public class ActorProfileManager {
         var service = databaseManager.getActorProfileService();
         service.getAllAsync().thenAccept(entries -> {
             for (var entry : entries) {
-                actorProfiles.put(entry.getId(), entry);
+                actorProfiles.put(entry.getUuid(), entry);
             }
             United.logger().info("Loaded " + entries.size() + " actor profiles to memory.", "UnitedPolitics");
         });
@@ -48,8 +48,8 @@ public class ActorProfileManager {
 
     public boolean addOrUpdateActorProfile(ActorProfile profile) {
 
-        if (!actorProfiles.containsKey(profile.getId()))
-            actorProfiles.put(profile.getId(), profile);
+        if (!actorProfiles.containsKey(profile.getUuid()))
+            actorProfiles.put(profile.getUuid(), profile);
 
         var service = databaseManager.getActorProfileService();
         return service.createOrUpdate(profile);
@@ -57,10 +57,10 @@ public class ActorProfileManager {
 
     public boolean removeActorProfile(ActorProfile profile) {
 
-        actorProfiles.remove(profile.getId());
+        actorProfiles.remove(profile.getUuid());
 
         var service = databaseManager.getActorProfileService();
-        return service.delete(profile.getId());
+        return service.delete(profile.getUuid());
     }
 
     public void removeEverythingFor(UUID objectId) {

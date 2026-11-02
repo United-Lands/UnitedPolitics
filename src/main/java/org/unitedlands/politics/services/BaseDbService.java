@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import org.unitedlands.politics.classes.Identifiable;
+import org.unitedlands.unitedlands.classes.db.Identifiable;
 
 public class BaseDbService<T extends Identifiable> {
 

@@ -336,7 +336,7 @@ public class ReputationManager {
         reputationScoreEntries.remove(entry);
 
         var service = databaseManager.getReputationScoreEntryService();
-        return service.delete(entry.getId());
+        return service.delete(entry.getUuid());
     }
 
     public void handleReputationChange(GeopolObject observer, GeopolObject subject, double modifier,
@@ -492,7 +492,7 @@ public class ReputationManager {
             List<ReputationScoreEntry> entriesToRemove = new ArrayList<>();
 
             var sortedEntries = reputationScoreEntries.stream()
-                    .sorted(Comparator.comparing(ReputationScoreEntry::getId)).collect(Collectors.toList());
+                    .sorted(Comparator.comparing(ReputationScoreEntry::getUuid)).collect(Collectors.toList());
             for (ReputationScoreEntry entry : sortedEntries) {
 
                 GeopolObject subject = UnitedLandsDataManager.instance().getGeopolObject(entry.getObserver());
@@ -524,7 +524,7 @@ public class ReputationManager {
 
                 if (newModifier == 0) {
                     entriesToRemove.add(entry);
-                    if (service.delete(entry.getId())) {
+                    if (service.delete(entry.getUuid())) {
                         United.logger()
                                 .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
                                         + subjectStr
@@ -540,7 +540,7 @@ public class ReputationManager {
                                         + subjectStr
                                         + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
                     } else {
-                        United.logger().error("Error saving entry " + entry.getId(), "UnitedPolitics");
+                        United.logger().error("Error saving entry " + entry.getUuid(), "UnitedPolitics");
                     }
                 }
             }

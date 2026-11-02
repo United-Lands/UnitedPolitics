@@ -3,11 +3,13 @@ package org.unitedlands.politics.managers;
 import java.sql.SQLException;
 
 import org.unitedlands.politics.UnitedPolitics;
-import org.unitedlands.politics.classes.Treaty;
 import org.unitedlands.politics.models.ActorProfile;
+import org.unitedlands.politics.models.DiplomacyRecord;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.models.SchemaVersion;
+import org.unitedlands.politics.models.Treaty;
 import org.unitedlands.politics.services.ActorProfileService;
+import org.unitedlands.politics.services.DiplomacyRecordService;
 import org.unitedlands.politics.services.ReputationScoreEntryService;
 import org.unitedlands.politics.services.TreatyService;
 import org.unitedlands.utils.United;
@@ -28,6 +30,7 @@ public class DatabaseManager {
     private ReputationScoreEntryService reputationScoreEntryService;
     private ActorProfileService actorProfileService;
     private TreatyService treatyService;
+    private DiplomacyRecordService diplomacyRecordService;
 
     public void initialize() {
 
@@ -84,6 +87,7 @@ public class DatabaseManager {
         this.reputationScoreEntryService = new ReputationScoreEntryService(getDao(ReputationScoreEntry.class));
         this.actorProfileService = new ActorProfileService(getDao(ActorProfile.class));
         this.treatyService = new TreatyService(getDao(Treaty.class));
+        this.diplomacyRecordService = new DiplomacyRecordService(getDao(DiplomacyRecord.class));
     }
 
     private void verifySchemaVersion() throws SQLException {
@@ -147,6 +151,10 @@ public class DatabaseManager {
 
     public TreatyService getTreatyService() {
         return treatyService;
+    }
+
+    public DiplomacyRecordService getDiplomacyRecordService() {
+        return diplomacyRecordService;
     }
 
     public ConnectionSource getConnectionSource() {

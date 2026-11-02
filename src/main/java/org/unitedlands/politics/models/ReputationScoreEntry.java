@@ -2,7 +2,7 @@ package org.unitedlands.politics.models;
 
 import java.util.UUID;
 
-import org.unitedlands.politics.classes.Identifiable;
+import org.unitedlands.unitedlands.classes.db.Identifiable;
 
 import org.unitedlands.libs.ormlite.field.DatabaseField;
 
@@ -29,11 +29,11 @@ public class ReputationScoreEntry implements Identifiable {
     @DatabaseField(canBeNull = false)
     private double highCap;
 
-    public UUID getId() {
+    public UUID getUuid() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setUuid(UUID id) {
         this.id = id;
     }
 

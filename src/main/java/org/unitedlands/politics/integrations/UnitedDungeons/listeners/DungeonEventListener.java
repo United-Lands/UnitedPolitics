@@ -42,7 +42,7 @@ public class DungeonEventListener implements Listener {
             if (amount == 0d)
                 continue;
 
-            GeopolObject observer = UnitedLandsDataManager.instance().getGeopolObject(profile.getId());
+            GeopolObject observer = UnitedLandsDataManager.instance().getGeopolObject(profile.getUuid());
 
             for (Player player : event.getPlayers()) {
 

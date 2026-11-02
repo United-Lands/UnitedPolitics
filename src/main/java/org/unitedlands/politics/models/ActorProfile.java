@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.unitedlands.libs.ormlite.field.DataType;
 
 import org.unitedlands.politics.classes.EventReaction;
-import org.unitedlands.politics.classes.Identifiable;
+import org.unitedlands.unitedlands.classes.db.Identifiable;
 import org.unitedlands.unitedlands.utils.SerializationUtils;
 import org.unitedlands.libs.ormlite.field.DatabaseField;
 
@@ -77,11 +77,11 @@ public class ActorProfile implements Identifiable {
         this.id = id;
     }
 
-    public UUID getId() {
+    public UUID getUuid() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setUuid(UUID id) {
         this.id = id;
     }
 

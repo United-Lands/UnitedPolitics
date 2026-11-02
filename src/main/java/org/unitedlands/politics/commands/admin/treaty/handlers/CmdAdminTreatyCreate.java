@@ -6,10 +6,10 @@ import java.util.UUID;
 
 import org.bukkit.command.CommandSender;
 import org.unitedlands.annotations.UnitedSubCommand;
-import org.unitedlands.politics.classes.Treaty;
-import org.unitedlands.politics.classes.TreatyType;
 import org.unitedlands.politics.commands.admin.treaty.CmdAdminTreaty;
 import org.unitedlands.politics.managers.TreatyManager;
+import org.unitedlands.politics.models.Treaty;
+import org.unitedlands.politics.models.TreatyType;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
@@ -49,7 +49,7 @@ public class CmdAdminTreatyCreate implements UnitedCommandExecutor {
         var name = args[2];
 
         var treaty = new Treaty();
-        treaty.setId(UUID.randomUUID());
+        treaty.setUuid(UUID.randomUUID());
         treaty.setTimestamp(System.currentTimeMillis());
         treaty.setType(type);
         treaty.setName(name);

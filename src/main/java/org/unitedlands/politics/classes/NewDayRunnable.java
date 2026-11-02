@@ -38,7 +38,7 @@ public class NewDayRunnable implements Runnable {
 
         var reputationScoreEntries = new ArrayList<>(ReputationManager.instance().getReputationScoreEntries());
         var sortedEntries = reputationScoreEntries.stream()
-                .sorted(Comparator.comparing(ReputationScoreEntry::getId)).collect(Collectors.toList());
+                .sorted(Comparator.comparing(ReputationScoreEntry::getUuid)).collect(Collectors.toList());
 
         for (ReputationScoreEntry entry : sortedEntries) {
 
@@ -71,7 +71,7 @@ public class NewDayRunnable implements Runnable {
 
             if (newModifier == 0) {
                 entriesToRemove.add(entry);
-                if (service.delete(entry.getId())) {
+                if (service.delete(entry.getUuid())) {
                     United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
                             + " reached 0, removed", "UnitedPolitics");
                 }
@@ -82,7 +82,7 @@ public class NewDayRunnable implements Runnable {
                     United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
                             + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
                 } else {
-                    United.logger().error("Error saving entry " + entry.getId(), "UnitedPolitics");
+                    United.logger().error("Error saving entry " + entry.getUuid(), "UnitedPolitics");
                 }
             }
         }
