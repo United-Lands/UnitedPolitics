@@ -4,10 +4,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.unitedlands.annotations.UnitedListener;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
+import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
+import com.ghostchu.quickshop.api.event.economy.ShopPurchaseEvent;
 import com.ghostchu.quickshop.api.event.economy.ShopSuccessPurchaseEvent;
 
 @UnitedListener (
@@ -15,11 +17,47 @@ import com.ghostchu.quickshop.api.event.economy.ShopSuccessPurchaseEvent;
 )
 public class QuickshopListener implements Listener {
 
+    /* Check shop interactions against embargo list */
 
     @EventHandler 
-    private void onPurchase(ShopSuccessPurchaseEvent event) {
-        
-        United.logger().debug("Quickshop trade event in UnitedPolitics.");
+    private void onPurchaseComplete(ShopPurchaseEvent event) {
+        if (!IntegrationsConfig.get().quickshop().enabled())
+            return;
+
+        var shopLocation = event.getShop().bukkitLocation();
+
+        var shopTown = UnitedLandsDataManager.instance().getSettlement(shopLocation);
+        if (shopTown == null)
+            return;
+
+        if (!shopTown.hasCountry())
+            return;
+
+        var player = event.getPurchaser().getBukkitPlayer();
+        if (player.isEmpty())
+            return;
+
+        var citizen = UnitedLandsDataManager.instance().getCitizen(player.get());
+        if (citizen == null)
+            return;
+
+        if (!citizen.hasCountry())
+            return;
+
+        var shopCountry = shopTown.getCountry();
+        var playerCountry = citizen.getCountry();
+
+        if (DiplomacyManager.instance().embargoExists(shopCountry, playerCountry)) {
+            //United.messenger().send(player.get(), "embargo.active", shopCountry.getDisplayName());
+            event.setCancelled(true, United.messenger().get("embargo.active", shopCountry.getDisplayName()));
+        }
+
+    }
+
+    /* Give reputation for purchases / sales */
+
+    @EventHandler 
+    private void onPurchaseComplete(ShopSuccessPurchaseEvent event) {
 
         if (!IntegrationsConfig.get().quickshop().enabled())
             return;

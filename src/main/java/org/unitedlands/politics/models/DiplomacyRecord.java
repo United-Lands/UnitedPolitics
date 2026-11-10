@@ -30,6 +30,13 @@ public class DiplomacyRecord implements Identifiable {
     private transient Set<Country> embargoes;
     private transient Map<Citizen, Country> ambassadors;
 
+    public DiplomacyRecord() {
+    }
+
+    public DiplomacyRecord(UUID id) {
+        this.id = id;
+    }
+
     @Override 
     public UUID getUuid() {
         return id;
@@ -101,7 +108,15 @@ public class DiplomacyRecord implements Identifiable {
     }
 
     public boolean isAmbassador(Citizen citizen) {
-        return ambassadors.containsKey(citizen);
+        return getAmbassadors().containsKey(citizen);
+    }
+
+    public boolean hasAmbassadorIn(Country targeCountry) {
+        return getAmbassadors().values().stream().anyMatch(c -> c.equals(targeCountry));
+    }
+
+    public Country getAmbassdorCountry(Citizen citizen) {
+        return getAmbassadors().get(citizen);
     }
 
     public void addAmbassador(Citizen citizen, Country country) {

@@ -55,7 +55,7 @@ public class NewDayRunnable implements Runnable {
             var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
             var decayThreshold = plugin.getConfig().getLong("rep-decay-grace-period") * 1000;
 
-            if (millisecondsSinceTimestamp < decayThreshold) {
+            if (millisecondsSinceTimestamp < decayThreshold && !entry.ignoreDecayGracePeriod()) {
                 continue;
             }
 

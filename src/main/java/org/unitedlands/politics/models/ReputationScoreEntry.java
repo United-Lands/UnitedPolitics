@@ -28,6 +28,9 @@ public class ReputationScoreEntry implements Identifiable {
     private double lowCap;
     @DatabaseField(canBeNull = false)
     private double highCap;
+    @DatabaseField(canBeNull = false)
+    private boolean ignoreDecayGracePeriod;
+
 
     public UUID getUuid() {
         return id;
@@ -107,6 +110,14 @@ public class ReputationScoreEntry implements Identifiable {
 
     public void setHighCap(double highCap) {
         this.highCap = highCap;
+    }
+
+    public boolean ignoreDecayGracePeriod() {
+        return ignoreDecayGracePeriod;
+    }
+
+    public void setIgnoreDecayGracePeriod(boolean ignoreDecayGracePeriod) {
+        this.ignoreDecayGracePeriod = ignoreDecayGracePeriod;
     }
 
 }

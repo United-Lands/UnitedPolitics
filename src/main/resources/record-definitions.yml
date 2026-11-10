@@ -12,6 +12,7 @@ record-definitions:
     high-cap: 25
     decay: -1
     default: 0
+    ignore-decay-grace-period: false
   paid-propaganda:
     display-name: "Propagada"
     description: "Propaganda against them"
@@ -19,6 +20,7 @@ record-definitions:
     high-cap: 0
     decay: 1
     default: 0
+    ignore-decay-grace-period: false
   embassies:
     display-name: "Embassy"
     description: "Their embassy's work"
@@ -26,6 +28,7 @@ record-definitions:
     high-cap: 25
     decay: 0.5
     default: 0
+    ignore-decay-grace-period: false
   killed-member:
     display-name: "Member kill"
     description: "They killed one of us"
@@ -33,6 +36,7 @@ record-definitions:
     high-cap: 0
     decay: 1
     default: 0
+    ignore-decay-grace-period: false
   likes-kills:
     display-name: "Likes kills"
     description: "They killed someone"
@@ -40,6 +44,7 @@ record-definitions:
     high-cap: 25
     decay: -1
     default: 0
+    ignore-decay-grace-period: false
   dislikes-kills:
     display-name: "Dislikes kills"
     description: "They killed someone"
@@ -47,6 +52,23 @@ record-definitions:
     high-cap: 0
     decay: 1
     default: 0
+    ignore-decay-grace-period: false
+  ambassador:
+    display-name: "Ambassador"
+    description: "Their ambassador's work"
+    low-cap: 0
+    high-cap: 25
+    decay: 0.25
+    default: 0
+    ignore-decay-grace-period: true
+  ambassador-recalled:
+    display-name: "Ambassador recalled"
+    description: "They recalled an ambassador"
+    low-cap: -25
+    high-cap: 0
+    decay: 1
+    default: 0
+    ignore-decay-grace-period: true
 
   # UnitedPolitics default static reputation records
   our-town:
@@ -56,6 +78,7 @@ record-definitions:
     high-cap: 50
     decay: 0
     default: 50
+    ignore-decay-grace-period: false
   same-region:
     display-name: "Same region"
     description: "Same region"
@@ -63,6 +86,7 @@ record-definitions:
     high-cap: 50
     decay: 0
     default: 50
+    ignore-decay-grace-period: false
   our-region:
     display-name: "Our region"
     description: "Our region"
@@ -70,6 +94,7 @@ record-definitions:
     high-cap: 50
     decay: 0
     default: 50
+    ignore-decay-grace-period: false
   same-nation:
     display-name: "Same nation"
     description: "Same nation"
@@ -77,6 +102,7 @@ record-definitions:
     high-cap: 50
     decay: 0
     default: 50
+    ignore-decay-grace-period: false
   our-nation:
     display-name: "Our nation"
     description: "Our nation"
@@ -84,6 +110,15 @@ record-definitions:
     high-cap: 50
     decay: 0
     default: 50
+    ignore-decay-grace-period: false
+  embargo:
+    display-name: "Embargo"
+    description: "They put us on a trade embargo"
+    low-cap: -25
+    high-cap: 0
+    decay: 0
+    default: -25
+    ignore-decay-grace-period: false
 
   # Rivalry
   # Static
@@ -94,6 +129,7 @@ record-definitions:
     high-cap: 0
     decay: 0
     default: -100
+    ignore-decay-grace-period: false
   our-rivals-rival: 
     display-name: Rival's rival"
     description: "They are our rival's rival"
@@ -101,6 +137,7 @@ record-definitions:
     high-cap: 50
     decay: 0
     default: 50
+    ignore-decay-grace-period: false
   our-rivals-partner: 
     display-name: "Rival's partner"
     description: "They are our rival's partner"
@@ -108,6 +145,7 @@ record-definitions:
     high-cap: 0
     decay: 0
     default: -50
+    ignore-decay-grace-period: false
   our-partner: 
     display-name: "Partner"
     description: "They are our partner"
@@ -115,6 +153,7 @@ record-definitions:
     high-cap: 50
     decay: 0
     default: 50
+    ignore-decay-grace-period: false
   our-partners-rival: 
     display-name: "Partner's rival"
     description: "They are our partner's rival"
@@ -122,6 +161,7 @@ record-definitions:
     high-cap: 0
     decay: 0
     default: -50
+    ignore-decay-grace-period: false
   our-partners-partner: 
     display-name: "Partner's partner"
     description: "They are our partner's partner"
@@ -129,6 +169,7 @@ record-definitions:
     high-cap: 50
     decay: 0
     default: 50
+    ignore-decay-grace-period: false
   # Dynamic
   helped-rival:
     display-name: "Helped rival"
@@ -136,24 +177,28 @@ record-definitions:
     low-cap: -100
     high-cap: 0
     decay: 1
+    ignore-decay-grace-period: false
   hurt-rival:
     display-name: "Hurt rival"
     description: "They disgruntled a rival"
     low-cap: 100
     high-cap: 0
     decay: -1
+    ignore-decay-grace-period: false
   helped-partner:
     display-name: "Helped partner"
     description: "They helped a partner"
     low-cap: 0
     high-cap: 25
     decay: -1
+    ignore-decay-grace-period: false
   hurt-partner:
     display-name: "Hurt partner"
     description: "They disgruntled a partner"
     low-cap: -100
     high-cap: 0
     decay: 1
+    ignore-decay-grace-period: false
 
   # UnitedTrade integration reputation records
   # Dynamic
@@ -164,6 +209,7 @@ record-definitions:
     high-cap: 15
     decay: -2
     default: 0
+    ignore-decay-grace-period: false
   ut-trade-failed:
     display-name: "Trade failed"
     description: "They failed trade orders"
@@ -171,6 +217,7 @@ record-definitions:
     high-cap: 0
     decay: 2
     default: 0
+    ignore-decay-grace-period: false
   ut-likes-trade:
     display-name: "Likes Traders"
     description: "They are traders"
@@ -178,6 +225,7 @@ record-definitions:
     high-cap: 50
     decay: -2
     default: 0
+    ignore-decay-grace-period: false
   ut-dislikes-trade:
     display-name: "Dislikes traders"
     description: "They are traders"
@@ -185,6 +233,7 @@ record-definitions:
     high-cap: 0
     decay: 2
     default: 0
+    ignore-decay-grace-period: false
 
   # UnitedWar integration reputation records
   # Static
@@ -195,6 +244,7 @@ record-definitions:
     high-cap: 0
     decay: 0
     default: -200
+    ignore-decay-grace-period: false
   uw-ally-in-war:
     display-name: "Ally"
     description: "Ally in ongoing war"
@@ -202,6 +252,7 @@ record-definitions:
     high-cap: 200
     decay: 0
     default: 200
+    ignore-decay-grace-period: false
   # Dynamic
   uw-warred-us:
     display-name: "Warred"
@@ -210,6 +261,7 @@ record-definitions:
     high-cap: 0
     decay: 2
     default: 0
+    ignore-decay-grace-period: false
   uw-warred-friend:
     display-name: "Warred friend"
     description: "They warred a friend"
@@ -217,6 +269,7 @@ record-definitions:
     high-cap: 0
     decay: 2
     default: 0
+    ignore-decay-grace-period: false
   uw-warred-enemy:
     display-name: "Warred enemy"
     description: "They warred an enemy"
@@ -224,6 +277,7 @@ record-definitions:
     high-cap: 200
     decay: -2
     default: 0
+    ignore-decay-grace-period: false
   uw-likes-war:
     display-name: "Likes war"
     description: "They warred someone"
@@ -231,6 +285,7 @@ record-definitions:
     high-cap: 50
     decay: -2
     default: 0
+    ignore-decay-grace-period: false
   uw-dislikes-war:
     display-name: "Dislikes war"
     description: "They warred someone"
@@ -238,6 +293,7 @@ record-definitions:
     high-cap: 0
     decay: 2
     default: 0
+    ignore-decay-grace-period: false
 
   # UnitedDungeons integration reputation records
   ud-looted-hostile-dungeon:
@@ -247,6 +303,7 @@ record-definitions:
     high-cap: 50
     decay: -1
     default: 0
+    ignore-decay-grace-period: false
   ud-looted-friendly-dungeon:
     display-name: "Looted Dungon"
     description: "They looted a friendly place"
@@ -254,6 +311,7 @@ record-definitions:
     high-cap: 0
     decay: 1
     default: 0
+    ignore-decay-grace-period: false
 
   # Quickshop integration reputation records
   qs-used-shop:
@@ -263,3 +321,4 @@ record-definitions:
     high-cap: 50
     decay: -0.5
     default: 0 
+    ignore-decay-grace-period: false

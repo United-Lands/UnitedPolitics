@@ -14,6 +14,7 @@ import org.unitedlands.politics.listeners.ReputationEventListener;
 import org.unitedlands.politics.listeners.ServerEventListener;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.DatabaseManager;
+import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TreatyManager;
 import org.unitedlands.politics.managers.TimeManager;
@@ -70,6 +71,7 @@ public class UnitedPolitics extends JavaPlugin {
         new ReputationManager(databaseManager);
         new TreatyManager(databaseManager);
         new ActorProfileManager(databaseManager);
+        new DiplomacyManager(databaseManager);
     }
 
     private void loadWrappers() {

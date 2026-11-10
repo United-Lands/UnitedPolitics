@@ -5,6 +5,7 @@ import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.unitedlands.UnitedLands;
 import org.unitedlands.unitedlands.classes.Country;
 import org.unitedlands.unitedlands.managers.PermissionManager;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
@@ -38,7 +39,7 @@ public class DiplomacyCommandHandler implements UnitedCommandExecutor {
 
         if (permission != null) {
             if (!PermissionManager.instance().hasRankPermission(permission, player)) {
-                United.messenger().send(player, "general-errors.no-permission");
+                United.messenger().send(player, "general-errors.no-permission", UnitedLands.instance());
                 return null;
             }
         }

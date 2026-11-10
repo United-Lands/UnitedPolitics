@@ -207,9 +207,15 @@ public class ReputationManager {
                         result.add(createReputationScoreEntry(observerId, subjectId, "our-region"));
                     }
 
-                } else if (subjectObj instanceof @SuppressWarnings("unused") Country subjectNation) {
+                } else if (subjectObj instanceof Country subjectNation) {
                     // Nation observing nation
                     // TODO: Rivalry, allies etc.
+
+                    // See if the subject has put the observer on a trade embargo
+                    var subjectRecord = DiplomacyManager.instance().getOrCreateDiplomacyRecord(subjectNation);
+                    if (subjectRecord.isOnEmbargo(observerNation)) {
+                        result.add(createReputationScoreEntry(observerId, subjectId, "embargo"));
+                    }
                 }
             }
 
@@ -305,6 +311,7 @@ public class ReputationManager {
         double highCap = recordDefinition.highCap();
         double decay = recordDefinition.decay();
         double defaultamount = recordDefinition.defaultValue();
+        boolean ignoreDecayGracePeriod = recordDefinition.ignoreDecayGracePeriod();
 
         entry = new ReputationScoreEntry();
         entry.setTimestamp(System.currentTimeMillis());
@@ -316,6 +323,7 @@ public class ReputationManager {
         entry.setHighCap(highCap);
         entry.setDecayRate(decay);
         entry.setModifier(defaultamount);
+        entry.setIgnoreDecayGracePeriod(ignoreDecayGracePeriod);
 
         return entry;
     }

@@ -94,13 +94,16 @@ public class CmdOpinion implements UnitedCommandExecutor {
             var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
             var decayThreshold = UnitedPolitics.instance().getConfig().getLong("rep-decay-grace-period") * 1000;
 
-            if (millisecondsSinceTimestamp < decayThreshold) {
+            if (millisecondsSinceTimestamp < decayThreshold && !item.ignoreDecayGracePeriod()) {
                 decayStr = "(<gray>Will start decaying in "
                         + United.formatter().formatDuration(decayThreshold - millisecondsSinceTimestamp) + "</gray>)";
             }
 
             United.messenger().send(sender, "opinion-details-entry", false,
-                    new Object[] { item.getDescription(), scoreStr, item.getDecayRate() != 0 ? decayStr : ""});
+                    new Object[] { 
+                        item.getDescription(), 
+                        scoreStr, 
+                        item.getDecayRate() != 0 ? decayStr : ""});
 
         }
 
