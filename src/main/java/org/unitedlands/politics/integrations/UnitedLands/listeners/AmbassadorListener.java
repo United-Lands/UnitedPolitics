@@ -2,10 +2,14 @@ package org.unitedlands.politics.integrations.UnitedLands.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.unitedlands.annotations.UnitedListener;
 import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.unitedlands.classes.events.citizen.CitizenUpdatedEvent;
 import org.unitedlands.unitedlands.classes.events.settlement.SettlementUpdatedEvent;
 
+@UnitedListener (
+    requirePlugins = "UnitedLands"
+)
 public class AmbassadorListener implements Listener {
 
     @EventHandler

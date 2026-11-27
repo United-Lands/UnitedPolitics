@@ -2,6 +2,7 @@ package org.unitedlands.politics.integrations.UnitedWar.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.unitedlands.annotations.UnitedListener;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TreatyManager;
@@ -17,6 +18,9 @@ import org.unitedlands.wars.events.WarInviteEvent;
 import org.unitedlands.wars.events.WarPreRegisterEvent;
 import org.unitedlands.wars.events.WarRegisteredEvent;
 
+@UnitedListener (
+    requirePlugins = "UnitedWars"
+)
 public class WarEventListeners implements Listener {
 
     @EventHandler

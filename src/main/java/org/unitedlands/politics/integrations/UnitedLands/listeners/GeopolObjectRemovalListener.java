@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.unitedlands.annotations.UnitedListener;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.politics.managers.ReputationManager;
@@ -13,6 +14,9 @@ import org.unitedlands.unitedlands.classes.events.region.RegionRemovedEvent;
 import org.unitedlands.unitedlands.classes.events.settlement.SettlementRemovedEvent;
 import org.unitedlands.utils.United;
 
+@UnitedListener (
+    requirePlugins = "UnitedLands"
+)
 public class GeopolObjectRemovalListener implements Listener {
 
     @EventHandler

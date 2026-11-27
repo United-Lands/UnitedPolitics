@@ -3,12 +3,14 @@ package org.unitedlands.politics.listeners;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.unitedlands.annotations.UnitedListener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.unitedlands.classes.Settlement;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 
+@UnitedListener
 public class DeathListener implements Listener {
 
     @EventHandler

@@ -3,6 +3,7 @@ package org.unitedlands.politics.integrations.UnitedDungeons.listeners;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.unitedlands.annotations.UnitedListener;
 import org.unitedlands.dungeons.events.DungeonCompleteEvent;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ActorProfileManager;
@@ -10,6 +11,9 @@ import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.unitedlands.classes.GeopolObject;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 
+@UnitedListener (
+    requirePlugins = "UnitedDungeons"
+)
 public class DungeonEventListener implements Listener {
 
     @EventHandler

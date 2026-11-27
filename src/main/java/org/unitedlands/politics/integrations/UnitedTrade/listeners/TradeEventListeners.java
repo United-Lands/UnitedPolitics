@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.unitedlands.annotations.UnitedListener;
 
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
@@ -18,6 +19,9 @@ import org.unitedlands.utils.United;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
+@UnitedListener (
+    requirePlugins = "UnitedTrade"
+)
 public class TradeEventListeners implements Listener {
 
     @EventHandler
