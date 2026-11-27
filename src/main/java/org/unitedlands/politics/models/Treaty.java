@@ -99,6 +99,10 @@ public class Treaty implements Identifiable {
                 .collect(Collectors.joining("#"));
     }
 
+    public void clearCachedObjects() {
+        this.members = null;
+    }
+
     public void addMember(Country country) {
         var t = new HashSet<>(getMembers());
         t.add(country);

@@ -7,6 +7,7 @@ import org.unitedlands.libs.ormlite.logger.LoggerFactory;
 import org.unitedlands.libs.ormlite.logger.NullLogBackend;
 import org.unitedlands.politics.integrations.UnitedDungeons.listeners.DungeonEventListener;
 import org.unitedlands.politics.integrations.UnitedLands.listeners.AmbassadorListener;
+import org.unitedlands.politics.integrations.UnitedLands.listeners.DataLoadedListener;
 import org.unitedlands.politics.integrations.UnitedLands.listeners.GeopolObjectRemovalListener;
 import org.unitedlands.politics.integrations.UnitedLands.listeners.NewDayListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
@@ -97,6 +98,7 @@ public class UnitedPolitics extends JavaPlugin {
             getServer().getPluginManager().registerEvents(new GeopolObjectRemovalListener(), this);
             getServer().getPluginManager().registerEvents(new AmbassadorListener(), this);
             getServer().getPluginManager().registerEvents(new NewDayListener(), this);
+            getServer().getPluginManager().registerEvents(new DataLoadedListener(), this);
 
             this.ulEnabled = true;
         } 

@@ -134,6 +134,11 @@ public class DiplomacyRecord implements Identifiable {
         setAmbassadors(a);
     }
 
+    public void clearCachedObjects() {
+        this.embargoes = null;
+        this.ambassadors = null;
+    }
+
     public void save() {
         DiplomacyManager.instance().saveDiplomacyRecord(this);
     }

@@ -75,6 +75,12 @@ public class TreatyManager {
         return treaties.values();
     }
 
+    public void clearCachedObjects() {
+        for (var treaty : treaties.values()) {
+            treaty.clearCachedObjects();
+        }
+    }
+
     public List<String> getTreatyNames() {
         return treaties.values().stream().map(t -> t.getName()).toList();
     }

@@ -47,6 +47,12 @@ public class DiplomacyManager {
         return diplomacyRecords.get(country.getUuid());
     }
 
+    public void clearCachedObjects() {
+        for (var record : diplomacyRecords.values()) {
+            record.clearCachedObjects();
+        }
+    }
+
     public DiplomacyRecord getOrCreateDiplomacyRecord(Country country) {
         var record = diplomacyRecords.get(country.getUuid());
         if (record == null)
