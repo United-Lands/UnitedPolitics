@@ -1,38 +1,38 @@
 prefix: "<bold><error>U</error><white>L</white> Politics <dark_gray>» </dark_gray></bold>"
 reload: "<green>Plugin reloaded.</green>"
-forced-new-day: "<green>Forced exeution of new day.</green>"
+forced-new-day: "<green>Forced execution of new day.</green>"
 
 reputation-changed: "<body><label><b>{1}</b></label> <dark_gray>-></dark_gray> <label><b>{2}</b></label>: {3} ({4}) <dark_gray>|</dark_gray> New total: {5}</body>"
 
 errors:
   general:
-    generic: <error>An error occuerror. Please contact an admin or open a ticket on the discord.unitedlands.net.</error>
+    generic: <error>An error occurred. Please contact an admin or open a ticket on the discord.unitedlands.net.</error>
     geopol-obj-not-found: "<error>'{1}' not found.</error>"
     number-format-error: "<error>'{1}' is not a valid number.</error>"
     db-save-error: "<error>Error while saving.</error>"
-    no-town-resident: "<error>You're not a resident in any town.</error>"
     no-nation-resident: "<error>You're not a resident of a country.</error>"
-    no-rank: "<error>You don't have the necessary rank to use this.</error>"
-    player-not-found: "<error>Citizen {1} not found.</error>"
+    citizen-not-found: "<error>Citizen {1} not found.</error>"
     player-only: "<error>This command can only be used by players.</error>"
   reputation:
     no-record: "<error>Reputation record not found, use create first.</error>"
-    existing-record: "<error>A record with that key already exists, use set, add or remove instead."
+    existing-record: "<error>A record with that key already exists, use set, add or remove instead.</error>"
     unknown-key: "<error>No record definition with the key '{1}' exists.</error>"
   actorprofile:
-    no-profile: "<error>This actor doesn't have a profile yet, use <em>create</em> to create one."
-    existing-record: "<error>A profile for that actor already exists."
-    reaction-exists: "<error>There aready is a record with this event key and reaction."
-    reaction-missing: "<error>No record with the given event key found."
-    rival-exists: "<error>There aready is a record with this rival."
-    rival-missing: "<error>No record with the given rival found."
-    partner-exists: "<error>There aready is a record with this partner."
-    partner-missing: "<error>No record with the given partner found."
-    dungeon-not-found: "<error>No dungeon with that name found."
-    dungeon-exists: "<error>There aready is a record with this dungeon."
-    dungeon-missing: "<error>No record with the given dungeon found."
+    no-profile: "<error>This actor doesn't have a profile yet, use <em>create</em> to create one.</error>"
+    existing-record: "<error>A profile for that actor already exists.</error>"
+    reaction-exists: "<error>There already is a record with this event key and reaction.</error>"
+    reaction-missing: "<error>No record with the given event key found.</error>"
+    rival-exists: "<error>There already is a record with this rival.</error>"
+    rival-missing: "<error>No record with the given rival found.</error>"
+    partner-exists: "<error>There already is a record with this partner.</error>"
+    partner-missing: "<error>No record with the given partner found.</error>"
+    dungeon-not-found: "<error>No dungeon with the name '{1}' found.</error>"
+    dungeon-exists: "<error>There already is a record with this dungeon.</error>"
+    dungeon-missing: "<error>No record with the given dungeon found.</error>"
   treaty:
-    unknown-type: "<error>Unknown treaty type: {1}"
+    unknown-type: "<error>Unknown treaty type: {1}</error>"
+    unknown-treaty: "<error>No treaty named '{1}' found.</error>"
+    already-member: "<error>{1} is already a member of this treaty.</error>"
   opinion:
     no-town: '<error>You must be in a town to use this command without a target. Use "/opinion <town/nation> <target_town/target_nation>"</error>'
     target-not-found: "<error>Target {1} not found.</error>"
@@ -47,35 +47,36 @@ errors:
     not-embargoed: <error>The target country is not on the embargo list.</error>
     same-country: <error>Source and target country are the same.</error>
   ambassador:
-    citizen-not-in-country: <error>The citizen is not part a country.</error> 
-    citizen-in-target-country: <error>The citizen is a member of the target country.</error> 
-    already-has-ambassador: <error>{1} already has an ambassador in {2}.</error> 
-    citizen-is-ambassador: <error>{1} is already an ambassador.</error> 
-    citizen-is-not-ambassador: <error>{1} is not an ambassador.</error> 
+    citizen-not-in-country: <error>{1} is not part of a country.</error>
+    citizen-not-in-own-country: <error>{1} is not part of your country.</error>
+    citizen-in-target-country: <error>{1} is a member of {2}.</error>
+    already-has-ambassador: <error>{1} already has an ambassador in {2}.</error>
+    citizen-is-ambassador: <error>{1} is already an ambassador.</error>
+    citizen-is-not-ambassador: <error>{1} is not an ambassador.</error>
+    target-npc: <error>{1} has no leader to receive an ambassador.</error>
+    target-leader-offline: <error>The leader of {1} is currently offline and can't receive your ambassador.</error>
 
 success:
   reputation:
-    create: "<dark_green>Created reputation entry of {1} for {2} with {4} for key {3}."
-    add: "<dark_green>Added {1} to reputation of {2} with {4} for key {3}."
-    set: "<dark_green>Set reputation of {1} with {2} to {3} for key {4}."
-    remove: "<dark_green>Removed reputation of {1} with {2} for key {3}."
+    create: "<dark_green>Created reputation entry of {1} for {2} with {4} for key {3}.</dark_green>"
+    add: "<dark_green>Added {1} to reputation of {2} with {4} for key {3}.</dark_green>"
+    set: "<dark_green>Set reputation of {1} with {2} to {3} for key {4}.</dark_green>"
+    remove: "<dark_green>Removed reputation of {1} with {2} for key {3}.</dark_green>"
   actorprofile:
-    create: "<dark_green>Created actor profile for {1}."
-    saved: "<dark_green>Saved changes for {1}."
+    create: "<dark_green>Created actor profile for {1}.</dark_green>"
   treaty:
-    create: "<dark_green>Created {1} treaty named {2}."
-    broadcast-create: "<aqua>{1} created a new {2} treaty called <b>{3}</b>!"
-    broadcast-join: "<aqua>{1} just joined <b>{2}</b>!"
+    broadcast-create: "<aqua>{1} created a new {2} treaty called <b>{3}</b>!</aqua>"
+    broadcast-join: "<aqua>{1} just joined <b>{2}</b>!</aqua>"
+    broadcast-deleted: "<aqua>The treaty <b>{1}</b> has been dissolved.</aqua>"
   pay:
-    tribute: <success>Successfully paid tribute to {2}</success>
-    propaganda: <success>Successfully paid propaganda against {2}</success>
+    tribute: <success>Successfully paid tribute to {1}.</success>
+    propaganda: <success>Successfully paid propaganda against {1}.</success>
   embargo:
     added: <success>Added country {1} to embargo list of {2}.</success>
     removed: <success>Removed country {1} from embargo list of {2}.</success>
   ambassador:
     set: <success>Assigned {1} as an ambassador of {2} to {3}.</success>
     removed: <success>Removed {1} as an ambassador of {2} in {3}.</success>
-
 
 actorprofile:
   header: "<bold><gold>{1}'s Actor Profile</gold></bold>"
@@ -95,46 +96,19 @@ embargo:
   broadcast: <broadcast>{1} has issued a trade embargo against {2}.</broadcast>
   broadcast-lifted: <broadcast>{1} has lifted the trade embargo against {2}.</broadcast>
   list-header: <body><label><b>{1}</b></label> active embargo list:</body>
-  entry: <body>- {1}</body> 
+  entry: <body>- {1}</body>
   empty: <body><i>No active embargoes found.</i></body>
   active: Your country has been put on a trade embargo by {1}. You are not allowed to use their shops until the embargo is lifted.
 
 ambassador:
-  confirm-sender: "<body>Sending an ambassador to </b>{1}</b> will improve their opinion of your country over time and will cost {2} per day.<br><br>Accept?</body>"
-  confirm-target: "<body><b>{1}</b> wishes to establish diplomatic relations by sending an ambassador to your country. This will improve your opinion of them over time.<br><br>You may chose to evict the ambassador at any time, at the cost of severe damage to your reputation.<br><br>Accept?</body>"
+  confirm-sender: "<body>Sending an ambassador to <b>{1}</b> will improve their opinion of your country over time and will cost {2} per day.<br><br>Accept?</body>"
+  confirm-target: "<body><b>{1}</b> wishes to establish diplomatic relations by sending an ambassador to your country. This will improve your opinion of them over time.<br><br>You may choose to evict the ambassador at any time, at the cost of severe damage to your reputation.<br><br>Accept?</body>"
   confirm-recall: "<warn>Recalling your ambassador from <b>{1}</b> will severely hurt their opinion of you. Continue?</warn>"
-  recall: "<body><b>{1}</b> wishes to establish diplomatic relations by sending an ambassador to your country. This will improve your relations with them over time.<br><br>You may chose to evict the ambassador at any time, at the cost of severe damage to your reputation.<br><br>Accept?</body>"
   broadcast: <broadcast>{1} sent an ambassador to {2}.</broadcast>
   broadcast-recalled: <broadcast>{1} recalled their ambassador from {2}.</broadcast>
-  broadcast-evicted: <broadcast>{1} has evicted the ambassador of {2}.</broadcast>
   list-header: <body><label><b>{1}</b></label>'s ambassadors:</body>
   entry: "<body>- <label>{1}</label>: {2}</body>"
   empty: <body><i>No ambassadors found.</i></body>
-
-tribute:
-  success: "<green>You've paid a tribute of {1} to {2}.</green>"
-  same-entity: "<error>You can't pay tribute to yourself.</error>"
-  is-own-nation: "<error>You can't pay tribute to your own nation.</error>"
-  same-nation: "<error>You can't pay tribute to a town in your own nation.</error>"
-  insufficient-funds: "<error>You don't have enough money.</error>"
-  error: "<error>Something went wrong while trying to pay {1} to {2}. Please contact an Admin or open a support ticket.</error>"
-
-reputation-info-header:
-  - "<error><strikethrough>+|✦                         </strikethrough><bold>[<white> Reputation </white>]</bold><strikethrough>                          |✦+</strikethrough></error>"
-  - "<gold>Your town's reputation scores:</gold>"
-reputation-info-empty: "<gray><em>Your town doesn't have any reputation with anyone</em></gray>"
-reputation-info-entry: "<gray><gold><bold>{1} {2}</bold></gold>: {3}</gray>"
-reputation-entry-footer:
-  - '<gray>Type "/t reputation <name>" to see details.</gray>'
-  - "<error><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></error>"
-
-reputation-details-header:
-  - "<error><strikethrough>+|✦                         </strikethrough><bold>[<white> Reputation </white>]</bold><strikethrough>                          |✦+</strikethrough></error>"
-  - "<gold>Your town's reputation with {1}:</gold>"
-reputation-details-empty: "<gray><em>You don't have any reputation with {1}.</em></gray>"
-reputation-details-entry: "<gray><bold>{1}</bold>: {2} ({3})</gray>"
-reputation-details-footer:
-  - "<error><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></error>"
 
 opinion-details-header: "<error><strikethrough>+|✦                           </strikethrough><bold>[<white> Opinion </white>]</bold><strikethrough>                            |✦+</strikethrough></error><br><gold>{1}'s opinion of {2}:</gold>"
 opinion-details-empty: "<gray><em>They don't have any opinion of {1}.</em></gray>"

@@ -51,7 +51,7 @@ public class CmdAdminActorProfilePartnersRemove implements UnitedCommandExecutor
 
         GeopolObject partner = UnitedLandsDataManager.instance().getGeopolObject(args[1]);
         if (partner == null) {
-            United.messenger().send(sender, "errors.general.geopol-obj-not-found");
+            United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[1]);
             return;
         }
 

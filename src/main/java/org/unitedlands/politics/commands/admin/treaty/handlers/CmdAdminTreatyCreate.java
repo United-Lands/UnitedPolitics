@@ -37,6 +37,7 @@ public class CmdAdminTreatyCreate implements UnitedCommandExecutor {
         try {
             type = TreatyType.valueOf(args[0]);
         } catch (Exception ex) {
+            United.messenger().send(sender, "errors.treaty.unknown-type", args[0]);
             return;
         }
 

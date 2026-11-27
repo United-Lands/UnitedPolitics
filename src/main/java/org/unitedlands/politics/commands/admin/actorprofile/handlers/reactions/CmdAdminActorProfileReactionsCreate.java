@@ -41,7 +41,7 @@ public class CmdAdminActorProfileReactionsCreate implements UnitedCommandExecuto
 
         GeopolObject actor = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         if (actor == null) {
-            United.messenger().send(sender, "errors.general.geopol-obj-not-found");
+            United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[0]);
             return;
         }
 

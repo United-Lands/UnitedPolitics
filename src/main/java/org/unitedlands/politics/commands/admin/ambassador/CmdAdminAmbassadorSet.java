@@ -56,13 +56,13 @@ public class CmdAdminAmbassadorSet implements UnitedCommandExecutor {
         }
 
         if (citizen.getCountry() == null) {
-            United.messenger().send(sender, "errors.ambassador.citizen-not-in-country", targetCountry.getName());
+            United.messenger().send(sender, "errors.ambassador.citizen-not-in-country", citizen.getName());
             return;
         }
 
 
         if (citizen.getCountry().equals(targetCountry)) {
-            United.messenger().send(sender, "errors.ambassador.citizen-in-target-country", targetCountry.getName());
+            United.messenger().send(sender, "errors.ambassador.citizen-in-target-country", citizen.getName(), targetCountry.getName());
             return;
         }
 

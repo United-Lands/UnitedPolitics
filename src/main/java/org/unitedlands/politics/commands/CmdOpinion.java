@@ -43,6 +43,7 @@ public class CmdOpinion implements UnitedCommandExecutor {
 
         GeopolObject observerObj = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         if (observerObj == null) {
+            United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[0]);
             return;
         }
 
@@ -57,7 +58,7 @@ public class CmdOpinion implements UnitedCommandExecutor {
             if (args.length == 1) {
                 United.messenger().send(sender, "errors.opinion.no-town");
             } else if (args.length == 2) {
-                United.messenger().send(sender, "errors.opinion.target-not-found");
+                United.messenger().send(sender, "errors.opinion.target-not-found", args[1]);
             }
             return;
         }

@@ -5,11 +5,13 @@ import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.unitedlands.annotations.UnitedSubCommand;
 import org.unitedlands.politics.classes.commandhandlers.DiplomacyCommandHandler;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.unitedlands.classes.Citizen;
 import org.unitedlands.unitedlands.classes.Confirmation;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
+import org.unitedlands.unitedlands.managers.UnitedLandsEconomyManager;
 import org.unitedlands.utils.United;
 
 @UnitedSubCommand (
@@ -63,7 +65,7 @@ public class CmdAmbassadorAssign extends DiplomacyCommandHandler {
         }
 
         if (citizen.getCountry() == null || !citizen.getCountry().equals(context.country())) {
-            United.messenger().send(sender, "errors.ambassador.citizen-not-in-country", targetCountry.getName());
+            United.messenger().send(sender, "errors.ambassador.citizen-not-in-own-country", citizen.getName());
             return;
         }
 
@@ -113,7 +115,8 @@ public class CmdAmbassadorAssign extends DiplomacyCommandHandler {
             .send();
 
         })
-        .setTitle(United.messenger().get("ambassador.confirm-sender", targetCountry.getDisplayName()))
+        .setTitle(United.messenger().get("ambassador.confirm-sender", targetCountry.getDisplayName(),
+                UnitedLandsEconomyManager.instance().format(UnitedPoliticsConfig.get().ambassadors().upkeep())))
         .setSender(context.player())
         .setReceiver(context.player())
         .send();

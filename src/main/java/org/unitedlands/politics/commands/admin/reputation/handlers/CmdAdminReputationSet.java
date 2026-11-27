@@ -63,7 +63,7 @@ public class CmdAdminReputationSet implements UnitedCommandExecutor {
         try {
             modifier = Double.parseDouble(args[3]);
         } catch (Exception ex) {
-            United.messenger().send(sender, "errors.general.number-format-error");
+            United.messenger().send(sender, "errors.general.number-format-error", args[3]);
             return;
         }
 
