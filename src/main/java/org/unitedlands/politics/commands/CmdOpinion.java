@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.unitedlands.annotations.UnitedCommand;
-import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.models.ReputationScoreEntry;
 import org.unitedlands.politics.utils.ColorFormatter;
@@ -92,7 +92,7 @@ public class CmdOpinion implements UnitedCommandExecutor {
                 timeStamp = 0L;
 
             var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
-            var decayThreshold = UnitedPolitics.instance().getConfig().getLong("rep-decay-grace-period") * 1000;
+            var decayThreshold = UnitedPoliticsConfig.get().repDecayGracePeriod() * 1000;
 
             if (millisecondsSinceTimestamp < decayThreshold && !item.ignoreDecayGracePeriod()) {
                 decayStr = "(<gray>Will start decaying in "

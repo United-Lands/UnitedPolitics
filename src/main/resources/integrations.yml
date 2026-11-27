@@ -5,11 +5,52 @@ UnitedTrade:
   use-minimum-nation-reputation: true
   # The default reputation that a player has if their reputation can't be calculated (e.g. when they're townless)
   default-reputation: 0
-  minimum-fail-message: "<red>You can't use this, your reputation with {name} is too low (needs to be at least {minimum}).</red>"
+  # Give extra money for high reputation
+  reputation-bonus:
+    enabled: true
+    # The minumum reputation to receive a bonus
+    minimum: 50
+    # The reputation above which the bonus is not scaled anymore
+    limit: 100
+    # The multiplier
+    # Example: With minmum 50 and limit 100, at a reputation of 75, the bonus
+    # will be 0.5 (75 is halfway between 50 and 100) * 0.5 (factor) = 0.25, so
+    # an additional 25% of of the original payment.  At 100 reputation, the
+    # bonus will be 1 * 0.5 = 0.5, so an additonal 50%.
+    factor: 0.5
+    # The reason that will be displayed to the player
+    reason: "High reputation with the trader"
 
 UnitedWars:
   # If the attacker's opinion of tha war target is above this value, wars can't be declared
   war-opinion-threshold: 50
+  uw-warred-us:
+    enabled: true
+    # In nation wars, this penalty is applied to the defending nation (and towns if passthrough-down is enabled).
+    # In town wars, this penalty is applied to the defending town.
+    amount: -200
+  # Reputation penalty for warring a town that someone is friends with
+  uw-warred-friend:
+    enabled: true
+    # The reputation needed for a town to be considered a friend
+    threshold: 100
+    # The penalty
+    amount: -100
+  # Reputation penalty for warring a town that someone is enemies with
+  uw-warred-enemy:
+    enabled: true
+    # The reputation needed for a town to be considered an enemy
+    threshold: -100
+    # The bonus
+    amount: 100
+
+UnitedDungeons:
+  looted-hostile-dungeon:
+    # The penalty
+    amount: 5
+  looted-friendly-dungeon:
+    # The penalty
+    amount: -5
 
 Quickshop:
   enabled: true

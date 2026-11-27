@@ -8,9 +8,9 @@ import org.unitedlands.annotations.UnitedSetting;
 import org.unitedlands.registrars.config.UnitedConfigHandler;
 import org.unitedlands.registrars.config.UnitedConfigs;
 
-@UnitedConfig(file = "config.yml") 
+@UnitedConfig(file = "config.yml")
 public interface UnitedPoliticsConfig extends UnitedConfigHandler {
-    static UnitedPoliticsConfig get() { return UnitedConfigs.get(UnitedPoliticsConfig.class); } 
+    static UnitedPoliticsConfig get() { return UnitedConfigs.get(UnitedPoliticsConfig.class); }
 
     @UnitedSetting(key = "developer-mode", def = "false")
     boolean developerMode();
@@ -18,9 +18,26 @@ public interface UnitedPoliticsConfig extends UnitedConfigHandler {
     @UnitedSection(key = "mysql")
     MysqlSettings mysql();
 
+    @UnitedSetting(key = "new-day-interval", def = "1d")
+    String newDayInterval();
 
-    @UnitedSection (key = "actions") 
+    @UnitedSetting(key = "new-day-start-hour", def = "12")
+    int newDayStartHour();
+
+    @UnitedSection(key = "rep-passthrough-up")
+    PassthroughSettings repPassthroughUp();
+
+    @UnitedSection(key = "rep-passthrough-down")
+    PassthroughSettings repPassthroughDown();
+
+    @UnitedSetting(key = "rep-decay-grace-period", def = "259200")
+    long repDecayGracePeriod();
+
+    @UnitedSection (key = "actions")
     ActionSettings actions();
+
+    @UnitedSetting(key = "event-keys")
+    List<String> eventKeys();
 
     record MysqlSettings(
             @UnitedSetting(key = "host",     def = "localhost")     String host,
@@ -30,8 +47,13 @@ public interface UnitedPoliticsConfig extends UnitedConfigHandler {
             @UnitedSetting(key = "database", def = "unitedlands")   String database
     ) {}
 
+    record PassthroughSettings(
+        @UnitedSetting(key = "enabled", def = "true")   boolean enabled,
+        @UnitedSetting(key = "factor", def = "0.5")     double factor
+    ) { }
+
     record ActionSettings(
-        @UnitedSection (key = "tribute") TributeSettings tribute,        
+        @UnitedSection (key = "tribute") TributeSettings tribute,
         @UnitedSection (key = "propaganda") PropagandaSettings propaganda,
         @UnitedSection (key = "killed") KillSettings killed
     ) { }
@@ -43,17 +65,14 @@ public interface UnitedPoliticsConfig extends UnitedConfigHandler {
     ) { }
 
     record PropagandaSettings(
-        @UnitedSetting(key = "reputation-per-money-unit", def = "0.0001")   double reputationPerMoneyUnit,
-        @UnitedSetting(key = "money-log-reason-source", def = "Paid tribute to ")   String moneyLogReasonSource
+        @UnitedSetting(key = "reputation-per-money-unit", def = "-0.0001")   double reputationPerMoneyUnit,
+        @UnitedSetting(key = "money-log-reason-source", def = "Paid propaganda against ")   String moneyLogReasonSource
     ) { }
 
     record KillSettings(
         @UnitedSetting(key = "enabled", def = "true")   boolean enabled,
         @UnitedSetting(key = "blacklisted-worlds")   List<String> blacklistedWorlds,
-        @UnitedSetting(key = "amount", def = "5 ")   double amount
+        @UnitedSetting(key = "amount", def = "-5")   double amount
     ) { }
-
-
-
 
 }

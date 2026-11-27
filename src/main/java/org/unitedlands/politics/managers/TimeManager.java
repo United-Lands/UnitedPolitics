@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitTask;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.NewDayRunnable;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.utils.United;
 
 public class TimeManager {
@@ -39,8 +40,8 @@ public class TimeManager {
 
     public void scheduleNewDay() {
 
-        String interval = UnitedPolitics.instance().getConfig().getString("new-day-interval", "1d");
-        int newDayHour = UnitedPolitics.instance().getConfig().getInt("new-day-start-hour", 12);
+        String interval = UnitedPoliticsConfig.get().newDayInterval();
+        int newDayHour = UnitedPoliticsConfig.get().newDayStartHour();
 
         long secondsToNewDay = 0;
         if (interval.equals("1d")) {

@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.bukkit.entity.Player;
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.models.Treaty;
 import org.unitedlands.politics.models.TreatyType;
@@ -147,9 +146,9 @@ public class TreatyManager {
             return false;
         }
 
-        var config = UnitedPolitics.instance().getConfig();
-        String moneyLogReasonSource = config.getString("settings.tribute.moneyLogReasonSource", "Paid tribute to");
-        String moneyLogReasonTarget = config.getString("settings.tribute.moneyLogReasonTarget", "Tribute paid by");
+        var tributeConfig = UnitedPoliticsConfig.get().actions().tribute();
+        String moneyLogReasonSource = tributeConfig.moneyLogReasonSource();
+        String moneyLogReasonTarget = tributeConfig.moneyLogReasonTarget();
 
         var economy = UnitedLandsEconomyManager.instance();
 
@@ -173,7 +172,7 @@ public class TreatyManager {
             return false;
         }
 
-        double repPerUnit = config.getDouble("settings.tribute.reputationPerMoneyUnit", 0.001d);
+        double repPerUnit = tributeConfig.reputationPerMoneyUnit();
         double modifier = repPerUnit * amount;
 
         ReputationManager.instance().handleReputationChange(receiver, payer, modifier, "paid-tribute", player, false);

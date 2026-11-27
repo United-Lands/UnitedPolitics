@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.unitedlands.classes.Settlement;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
@@ -18,10 +18,11 @@ public class DeathListener implements Listener {
             return;
 
         if (killer instanceof Player killingPlayer) {
-            if (UnitedPolitics.instance().getConfig().getBoolean("settings.killed.enabled", false))
+            var killConfig = UnitedPoliticsConfig.get().actions().killed();
+            if (!killConfig.enabled())
                 return;
 
-            var blacklist = UnitedPolitics.instance().getConfig().getStringList("settings.killed.blacklisted-worlds");
+            var blacklist = killConfig.blacklistedWorlds();
             if (blacklist != null && !blacklist.isEmpty()) {
                 var deathWorld = killer.getLocation().getWorld().getName();
                 if (blacklist.contains(deathWorld))
@@ -46,7 +47,7 @@ public class DeathListener implements Listener {
                     return;
             }
 
-            var amount = UnitedPolitics.instance().getConfig().getDouble("settings.killed.amount");
+            var amount = killConfig.amount();
             ReputationManager.instance().handleReputationChange(victimTown, killerTown, amount, "killed-member",
                     killingPlayer, true);
         }

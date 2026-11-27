@@ -115,7 +115,7 @@ public class UnitedPolitics extends JavaPlugin {
         Plugin unitedDungeons = Bukkit.getPluginManager().getPlugin("UnitedDungeons");
         if (unitedDungeons != null && unitedDungeons.isEnabled()) {
             United.logger().info("Enabling UnitedDungeons integrations.", "UnitedPolitics");
-            getServer().getPluginManager().registerEvents(new DungeonEventListener(this), this);
+            getServer().getPluginManager().registerEvents(new DungeonEventListener(), this);
             this.unitedDungeonsEnabled = true;
         }
 

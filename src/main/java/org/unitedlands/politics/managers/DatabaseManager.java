@@ -2,7 +2,7 @@ package org.unitedlands.politics.managers;
 
 import java.sql.SQLException;
 
-import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.models.ActorProfile;
 import org.unitedlands.politics.models.DiplomacyRecord;
 import org.unitedlands.politics.models.ReputationScoreEntry;
@@ -35,20 +35,21 @@ public class DatabaseManager {
 
     public void initialize() {
 
-        var fileConfig = UnitedPolitics.instance().getConfig();
+        var pluginConfig = UnitedPoliticsConfig.get();
+        var mysql = pluginConfig.mysql();
 
-        String host = fileConfig.getString("mysql.host");
-        int port = fileConfig.getInt("mysql.port");
-        String database = fileConfig.getString("mysql.database");
-        String username = fileConfig.getString("mysql.username");
-        String password = fileConfig.getString("mysql.password");
+        String host = mysql.host();
+        int port = mysql.port();
+        String database = mysql.database();
+        String username = mysql.username();
+        String password = mysql.password();
 
         String jdbcUrl = String.format(
                 "jdbc:mysql://%s:%d/%s?useSSL=%s&serverTimezone=UTC&allowPublicKeyRetrieval=true",
                 host,
                 port,
                 database,
-                fileConfig.getBoolean("developer-mode") ? "false" : "true");
+                pluginConfig.developerMode() ? "false" : "true");
 
         try {
 
@@ -120,7 +121,7 @@ public class DatabaseManager {
     public <T, ID> Dao<T, ID> getDao(Class<T> clazz) throws SQLException {
 
         // In developer mode, drop the table if it exists
-        if (UnitedPolitics.instance().getConfig().getBoolean("developer-mode"))
+        if (UnitedPoliticsConfig.get().developerMode())
             TableUtils.dropTable(connectionSource, clazz, true);
 
         TableUtils.createTableIfNotExists(connectionSource, clazz);

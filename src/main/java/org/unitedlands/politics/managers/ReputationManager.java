@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.configs.RecordDefinitionConfig;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.integrations.UnitedWar.utils.UnitedWarUtils;
 import org.unitedlands.politics.models.ActorProfile;
 import org.unitedlands.politics.models.ReputationScoreEntry;
@@ -393,13 +394,21 @@ public class ReputationManager {
         // Passthrough works up and down depending on the observer's and subject's
         // position in the geopolitical hierarchy.
 
-        double upFactor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-up.factor");
-        double downFactor = UnitedPolitics.instance().getConfig().getDouble("rep-passthrough-down.factor");
+        var upSettings = UnitedPoliticsConfig.get().repPassthroughUp();
+        var downSettings = UnitedPoliticsConfig.get().repPassthroughDown();
 
-        Map<GeopolObject, Double> observerPassthroughUp = getPasshroughMapUp(observer, upFactor);
-        Map<GeopolObject, Double> observerPassthroughDown = getPasshroughMapDown(observer, downFactor);
-        Map<GeopolObject, Double> subjectPassthroughUp = getPasshroughMapUp(subject, upFactor);
-        Map<GeopolObject, Double> subjectPassthroughDown = getPasshroughMapDown(subject, downFactor);
+        Map<GeopolObject, Double> observerPassthroughUp = upSettings.enabled()
+                ? getPasshroughMapUp(observer, upSettings.factor())
+                : new HashMap<>();
+        Map<GeopolObject, Double> observerPassthroughDown = downSettings.enabled()
+                ? getPasshroughMapDown(observer, downSettings.factor())
+                : new HashMap<>();
+        Map<GeopolObject, Double> subjectPassthroughUp = upSettings.enabled()
+                ? getPasshroughMapUp(subject, upSettings.factor())
+                : new HashMap<>();
+        Map<GeopolObject, Double> subjectPassthroughDown = downSettings.enabled()
+                ? getPasshroughMapDown(subject, downSettings.factor())
+                : new HashMap<>();
 
         // Pass reputation up
         for (var observerUpEntry : observerPassthroughUp.entrySet()) {
@@ -519,7 +528,7 @@ public class ReputationManager {
         List<ReputationScoreEntry> entriesToRemove = new ArrayList<>();
         List<ReputationScoreEntry> entriesToUpdate = new ArrayList<>();
 
-        var decayThreshold = UnitedPolitics.instance().getConfig().getLong("rep-decay-grace-period") * 1000;
+        var decayThreshold = UnitedPoliticsConfig.get().repDecayGracePeriod() * 1000;
 
         var sortedEntries = reputationScoreEntries.values().stream()
                 .sorted(Comparator.comparing(ReputationScoreEntry::getUuid)).collect(Collectors.toList());

@@ -38,6 +38,8 @@ errors:
     same-entity: <error>Source and target can't be the same.</error>
     insufficient-funds: <error>Not enough money.</error>
     invalid-amount: "<error>'{1}' is not a valid amount. Please enter a positive number.</error>"
+  trade:
+    minimum-reputation: "<error>You can't use this, your reputation with {1} is too low (needs to be at least {2}).</error>"
   embargo:
     exists: <error>The target country is already on the embargo list.</error>
     not-embargoed: <error>The target country is not on the embargo list.</error>

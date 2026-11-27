@@ -38,8 +38,6 @@ public class CmdAdminReload implements UnitedCommandExecutor {
         TimeManager.instance().cancelScheduledNewDay();
         United.logger().info("Reloading configs...", "UnitedPolitics");
 
-        UnitedPolitics.instance().reloadConfig();
-
         UnitedMessagesRegistrar.reload(UnitedPolitics.instance());
         UnitedPoliticsConfig.get().reload();
         RecordDefinitionConfig.get().reload();

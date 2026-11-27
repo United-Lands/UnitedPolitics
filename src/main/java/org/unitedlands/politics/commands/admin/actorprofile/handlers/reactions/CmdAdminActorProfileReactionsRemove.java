@@ -5,7 +5,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.unitedlands.annotations.UnitedSubCommand;
-import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
 import org.unitedlands.unitedlands.classes.GeopolObject;
@@ -23,7 +23,7 @@ public class CmdAdminActorProfileReactionsRemove implements UnitedCommandExecuto
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
         if (args.length == 2) {
-            return UnitedPolitics.instance().getConfig().getStringList("event-keys");
+            return UnitedPoliticsConfig.get().eventKeys();
         }
         return new ArrayList<>();
     }

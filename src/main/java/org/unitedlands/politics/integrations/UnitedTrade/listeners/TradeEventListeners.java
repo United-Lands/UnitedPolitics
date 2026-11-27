@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.trade.classes.TradePoint;
@@ -44,7 +43,7 @@ public class TradeEventListeners implements Listener {
 
         if (score < minimum) {
             event.setCancelled(true);
-            United.messenger().send(player, "integration-mechanics.UnitedTrade.minimum-fail-message",
+            United.messenger().send(player, "errors.trade.minimum-reputation",
                     tradeTown.getName(), String.valueOf(minimum));
         }
     }
@@ -94,7 +93,7 @@ public class TradeEventListeners implements Listener {
                 event.setValid(false);
                 event.getMessages().add(
                         MiniMessage.miniMessage().deserialize(
-                                United.messenger().get("integration-mechanics.UnitedTrade.minimum-fail-message",
+                                United.messenger().get("errors.trade.minimum-reputation",
                                         tradeTown.getName(), String.valueOf(minimum))));
             }
 
@@ -122,7 +121,7 @@ public class TradeEventListeners implements Listener {
                 event.setValid(false);
                 event.getMessages().add(
                         MiniMessage.miniMessage().deserialize(
-                                United.messenger().get("integration-mechanics.UnitedTrade.minimum-fail-message",
+                                United.messenger().get("errors.trade.minimum-reputation",
                                         nation.getName(), String.valueOf(minimum))));
                 return;
             }
@@ -153,18 +152,18 @@ public class TradeEventListeners implements Listener {
         if (tradeTown.getUuid().equals(playerTown.getUuid()))
             return;
 
-        var config = UnitedPolitics.instance().getConfig();
+        var tradeConfig = IntegrationsConfig.get().unitedTrade();
+        var bonusConfig = tradeConfig.reputationBonus();
 
         // Bonus payment handling
 
-        if (config.getBoolean("settings.ut-trade-complete.reputation-bonus.enabled", false)) {
+        if (bonusConfig.enabled()) {
 
-            var minimum = config.getDouble("settings.ut-trade-complete.reputation-bonus.minimum", 50);
-            var limit = config.getDouble("settings.ut-trade-complete.reputation-bonus.limit", 100);
-            var factor = config.getDouble("settings.ut-trade-complete.reputation-bonus.factor", 0.5);
-            var reason = config.getString("settings.ut-trade-complete.reputation-bonus.reason", "");
-            double defaultReputation = UnitedPolitics.instance().getConfig()
-                    .getDouble("integration-mechanics.UnitedTrade.default-reputation", 0.0);
+            var minimum = bonusConfig.minimum();
+            var limit = bonusConfig.limit();
+            var factor = bonusConfig.factor();
+            var reason = bonusConfig.reason();
+            double defaultReputation = tradeConfig.defaultReputation();
 
             var payment = event.getPayment();
 
