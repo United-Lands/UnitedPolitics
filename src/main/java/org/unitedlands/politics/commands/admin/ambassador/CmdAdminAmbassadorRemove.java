@@ -69,7 +69,7 @@ public class CmdAdminAmbassadorRemove implements UnitedCommandExecutor {
         record.removeAmbassador(citizen);
         record.save();
 
-        var entry = ReputationManager.instance().getOrCreateReputationScoreEntry(country.getUuid(), citizen.getCountry().getUuid(), "ambassador");
+        var entry = ReputationManager.instance().getReputationScoreEntryWithKey(country.getUuid(), citizen.getCountry().getUuid(), "ambassador");
         ReputationManager.instance().removeReputationEntry(entry);
 
         United.messenger().send(sender, "success.ambassador.removed", citizen.getName(), citizen.getCountry().getName(), country.getName());

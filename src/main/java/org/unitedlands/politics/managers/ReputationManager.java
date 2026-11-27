@@ -386,7 +386,14 @@ public class ReputationManager {
 
         ReputationScoreEntry entry;
 
-        var recordDefinition = RecordDefinitionConfig.get().recordDefinitions().get(configSectionKey);
+        var recordDefinitions = RecordDefinitionConfig.get().recordDefinitions();
+        if (configSectionKey == null || !recordDefinitions.has(configSectionKey)) {
+            United.logger().error("No record definition found for reputation key '" + configSectionKey
+                    + "', entry not created.", "UnitedPolitics");
+            return null;
+        }
+
+        var recordDefinition = recordDefinitions.get(configSectionKey);
         String description = recordDefinition.description();
         double lowCap = recordDefinition.lowCap();
         double highCap = recordDefinition.highCap();
@@ -447,6 +454,8 @@ public class ReputationManager {
 
         // Main entry
         var entry = getOrCreateReputationScoreEntry(observer.getUuid(), subject.getUuid(), configKey);
+        if (entry == null)
+            return;
 
         double oldModifier = entry.getModifier();
         entry.setModifier(oldModifier + modifier);
@@ -521,6 +530,8 @@ public class ReputationManager {
     private void addOrUpdatePassthroughEntry(GeopolObject observer, GeopolObject subject, double modifier,
             String configKey, double factor) {
         var repEntry = getOrCreateReputationScoreEntry(observer.getUuid(), subject.getUuid(), configKey);
+        if (repEntry == null)
+            return;
         repEntry.setModifier(repEntry.getModifier() + (modifier * factor));
         repEntry.setTimestamp(System.currentTimeMillis());
         if (addOrUpdateReputationScoreEntry(repEntry)) {
@@ -571,6 +582,8 @@ public class ReputationManager {
             changeString += " <yellow>(maxed)</yellow>";
 
         String displayName = RecordDefinitionConfig.get().recordDefinitions().get(configKey).displayName();
+        if (displayName == null)
+            displayName = configKey;
 
         var total = getTotalReputationScore(observer.getUuid(), subject.getUuid());
         United.messenger().send(player, "reputation-changed",

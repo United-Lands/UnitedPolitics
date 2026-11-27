@@ -18,6 +18,7 @@ errors:
   reputation:
     no-record: "<error>Reputation record not found, use create first.</error>"
     existing-record: "<error>A record with that key already exists, use set, add or remove instead."
+    unknown-key: "<error>No record definition with the key '{1}' exists.</error>"
   actorprofile:
     no-profile: "<error>This actor doesn't have a profile yet, use <em>create</em> to create one."
     existing-record: "<error>A profile for that actor already exists."

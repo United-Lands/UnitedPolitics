@@ -70,7 +70,7 @@ public class CmdAdminReputationSet implements UnitedCommandExecutor {
         ReputationScoreEntry entry = ReputationManager.instance().getOrCreateReputationScoreEntry(observer.getUuid(),
                 subject.getUuid(), key);
         if (entry == null) {
-            United.messenger().send(sender, "errors.reputation.no-record");
+            United.messenger().send(sender, "errors.reputation.unknown-key", key);
             return;
         }
 

@@ -72,6 +72,10 @@ public class CmdAdminReputationCreate implements UnitedCommandExecutor {
 
         var entry = ReputationManager.instance().getOrCreateReputationScoreEntry(observer.getUuid(), subject.getUuid(),
                 key);
+        if (entry == null) {
+            United.messenger().send(sender, "errors.reputation.unknown-key", key);
+            return;
+        }
         entry.setModifier(modifier);
 
         if (ReputationManager.instance().addOrUpdateReputationScoreEntry(entry)) {
