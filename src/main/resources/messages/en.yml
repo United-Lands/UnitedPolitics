@@ -140,3 +140,14 @@ opinion-details-header: "<error><strikethrough>+|✦                           <
 opinion-details-empty: "<gray><em>They don't have any opinion of {1}.</em></gray>"
 opinion-details-entry: "<gray><bold>{1}</bold>: {2} ({3})</gray>"
 opinion-details-footer: "<error><strikethrough>+|✦                                 +✦+                                 |✦+</strikethrough></error>"
+
+war:
+  validation:
+    alliance: "<yellow>You are in an alliance with the target country.</yellow>"
+    non-aggression: "<yellow>You have a binding non-aggression-pact with the target country.</yellow>"
+    opinion-too-high: "<yellow>Your population's opinion of {1} is {2}. You can't declare war above an opinion of {3}. Find ways to lower it first.</yellow>"
+  invite:
+    alliance-required: "You must be in an alliance with the target to invite them to your war."
+    no-defender-faction: "Could not find defender faction."
+    treaty-with-enemy: "The country you are trying to invite has active treaties with one or more of your enemies."
+    conquest-attacker-only: "In conquest wars, only the attacker faction can use invitations. Your allies have already been added to your factions."

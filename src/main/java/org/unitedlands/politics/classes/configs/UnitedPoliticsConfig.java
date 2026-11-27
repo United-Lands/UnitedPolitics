@@ -27,6 +27,12 @@ public interface UnitedPoliticsConfig extends UnitedConfigHandler {
     @UnitedSetting(key = "rep-decay-grace-period", def = "259200")
     long repDecayGracePeriod();
 
+    @UnitedSection(key = "total-reputation")
+    TotalReputationSettings totalReputation();
+
+    @UnitedSection(key = "ambassadors")
+    AmbassadorSettings ambassadors();
+
     @UnitedSection (key = "actions")
     ActionSettings actions();
 
@@ -38,8 +44,19 @@ public interface UnitedPoliticsConfig extends UnitedConfigHandler {
             @UnitedSetting(key = "port",     def = "3306")          int    port,
             @UnitedSetting(key = "username", def = "unitedlands")   String username,
             @UnitedSetting(key = "password", def = "unitedlands")   String password,
-            @UnitedSetting(key = "database", def = "unitedlands")   String database
+            @UnitedSetting(key = "database", def = "unitedlands")   String database,
+            @UnitedSetting(key = "use-ssl", def = "true")           boolean useSsl,
+            @UnitedSetting(key = "reset-database-on-start", def = "false") boolean resetDatabaseOnStart
     ) {}
+
+    record TotalReputationSettings(
+        @UnitedSetting(key = "low-cap", def = "-200")   double lowCap,
+        @UnitedSetting(key = "high-cap", def = "200")   double highCap
+    ) { }
+
+    record AmbassadorSettings(
+        @UnitedSetting(key = "upkeep", def = "2500")   double upkeep
+    ) { }
 
     record PassthroughSettings(
         @UnitedSetting(key = "enabled", def = "true")   boolean enabled,

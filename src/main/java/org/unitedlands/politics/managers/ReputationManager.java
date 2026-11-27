@@ -144,7 +144,12 @@ public class ReputationManager {
                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
         var staticScore = calculateStaticReputationScoreEntries(observerId, subjectId).stream()
                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
-        return Math.max(-200, Math.min(200, staticScore + dynamicScore));
+        return clampTotalReputation(staticScore + dynamicScore);
+    }
+
+    public double clampTotalReputation(double score) {
+        var caps = UnitedPoliticsConfig.get().totalReputation();
+        return Math.max(caps.lowCap(), Math.min(caps.highCap(), score));
     }
 
     public Map<GeopolObject, Double> getTotalReputationScores(UUID observerId) {
@@ -164,7 +169,7 @@ public class ReputationManager {
             var staticScore = calculateStaticReputationScoreEntries(observerId, dynamicEntry.getKey()).stream()
                     .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
 
-            var totalScore = Math.max(-200, Math.min(200, staticScore + dynamicScore));
+            var totalScore = clampTotalReputation(staticScore + dynamicScore);
             result.put(subjectObj, totalScore);
         }
 
@@ -415,6 +420,13 @@ public class ReputationManager {
         entry.setIgnoreDecayGracePeriod(ignoreDecayGracePeriod);
 
         return entry;
+    }
+
+    public void resetToDefault(ReputationScoreEntry entry) {
+        var recordDefinitions = RecordDefinitionConfig.get().recordDefinitions();
+        if (entry == null || !recordDefinitions.has(entry.getKey()))
+            return;
+        entry.setModifier(recordDefinitions.get(entry.getKey()).defaultValue());
     }
 
     public boolean addOrUpdateReputationScoreEntry(ReputationScoreEntry entry) {

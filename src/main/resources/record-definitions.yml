@@ -59,7 +59,7 @@ record-definitions:
     low-cap: 0
     high-cap: 25
     decay: 0.25
-    default: 0
+    default: 0.25
     ignore-decay-grace-period: true
   ambassador-recalled:
     display-name: "Ambassador recalled"
@@ -67,7 +67,7 @@ record-definitions:
     low-cap: -25
     high-cap: 0
     decay: 1
-    default: 0
+    default: -25
     ignore-decay-grace-period: true
 
   # UnitedPolitics default static reputation records

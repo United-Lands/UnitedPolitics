@@ -30,15 +30,12 @@ public class WarEventListeners implements Listener {
             var defender = (Country) event.getDefender();
 
             if (TreatyManager.instance().haveTreaty(attacker, defender, TreatyType.ALLIANCE)) {
-                // TODO: Move strings to config
-                event.setValidationMessage("<yellow>You are in an alliance with the target country.</yellow>");
+                event.setValidationMessage(United.messenger().get("war.validation.alliance"));
                 event.setValid(false);
                 return;
             }
             if (TreatyManager.instance().haveTreaty(attacker, defender, TreatyType.NON_AGGRESSION)) {
-                // TODO: Move strings to config
-                event.setValidationMessage(
-                        "<yellow>You have a binding non-aggression-pact with the target country.</yellow>");
+                event.setValidationMessage(United.messenger().get("war.validation.non-aggression"));
                 event.setValid(false);
                 return;
             }
@@ -66,11 +63,10 @@ public class WarEventListeners implements Listener {
         var threshold = IntegrationsConfig.get().unitedWars().warOpinionThreshold();
 
         if (opinion >= threshold) {
-            // TODO: Move strings to config
-            event.setValidationMessage(
-                    "<yellow>Your population's opinion of " + event.getDefender().getCleanName() + " is "
-                            + ColorFormatter.getAmountColored(opinion) + ". You can't declare war above an opinion of "
-                            + ColorFormatter.getAmountColored(threshold) + ". Find ways to lower it first.</yellow>");
+            event.setValidationMessage(United.messenger().get("war.validation.opinion-too-high",
+                    event.getDefender().getCleanName(),
+                    ColorFormatter.getAmountColored(opinion),
+                    ColorFormatter.getAmountColored(threshold)));
             event.setValid(false);
             return;
         }
@@ -324,24 +320,21 @@ public class WarEventListeners implements Listener {
 
             var attackingCountry = UnitedLandsDataManager.instance().getCountry(event.getInviter().getFactionLeaderId());
             if (!TreatyManager.instance().haveTreaty(attackingCountry, (Country) event.getReceiver(), TreatyType.ALLIANCE)) {
-                // TODO: Move strings to config
-                event.setCancelMessage("You must be in an alliance to with the target to invite them to your war.");
+                event.setCancelMessage(United.messenger().get("war.invite.alliance-required"));
                 event.setCancelled(true);
                 return;
             }
 
             var defenderFaction = event.getWar().getWarFaction(WarFactionRole.DEFENDER);
             if (defenderFaction == null) {
-                // TODO: Move strings to config
-                event.setCancelMessage("Could not find defender faction.");
+                event.setCancelMessage(United.messenger().get("war.invite.no-defender-faction"));
                 event.setCancelled(true);
                 return;
             }
 
             for (var defenderCountry : defenderFaction.getCountries()) {
                 if (TreatyManager.instance().haveAnyTreaty(defenderCountry, (Country) event.getReceiver())) {
-                    // TODO: Move strings to config
-                    event.setCancelMessage("The country you are trying to invite has active treaties with one or more of your enemies.");
+                    event.setCancelMessage(United.messenger().get("war.invite.treaty-with-enemy"));
                     event.setCancelled(true);
                     return;
                 }
@@ -349,8 +342,7 @@ public class WarEventListeners implements Listener {
             
 
         } else {
-            // TODO: Move strings to config
-            event.setCancelMessage("In conquest wars, only the attacker faction can use invitations. Your allies have already been added to your factions.");
+            event.setCancelMessage(United.messenger().get("war.invite.conquest-attacker-only"));
             event.setCancelled(true);
             return;
         }

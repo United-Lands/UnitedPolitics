@@ -4,7 +4,6 @@
 # +---------------------------------------------+ #
 ###################################################
 
-# CAUTION! Developer mode will drop all database tables on startup. DO NOT USE IN PRODUCTION.
 developer-mode: false
 
 # Database connection settings.
@@ -14,6 +13,9 @@ mysql:
   username: unitedpolitics
   password: unitedpolitics
   database: unitedpolitics
+  use-ssl: true
+  # CAUTION! Drops and recreates all database tables on every startup. All data is lost. DO NOT USE IN PRODUCTION.
+  reset-database-on-start: false
 
 ###################################################
 # +---------------------------------------------+ #
@@ -35,6 +37,13 @@ rep-passthrough-down:
 # The time period after the last change in a reputation sore in which the score will not be
 # subject to daily decay (in seconds). Should be be more than a day to be effective.
 rep-decay-grace-period: 259200
+# The lowest and highest total reputation one party can have of another, after all entries are added up.
+total-reputation:
+  low-cap: -200
+  high-cap: 200
+# Daily upkeep a country pays for each ambassador it has posted to another country.
+ambassadors:
+  upkeep: 2500
 
 # ************
 # Actions

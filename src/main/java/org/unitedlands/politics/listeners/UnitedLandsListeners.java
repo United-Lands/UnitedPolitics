@@ -3,6 +3,7 @@ package org.unitedlands.politics.listeners;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.unitedlands.annotations.UnitedListener;
+import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.unitedlands.classes.events.country.CountryUpkeepCalculatedEvent;
 
@@ -14,7 +15,8 @@ public class UnitedLandsListeners implements Listener {
     private void onCountryUpkeepCalculated(CountryUpkeepCalculatedEvent event) {
 
         var record = DiplomacyManager.instance().getOrCreateDiplomacyRecord(event.getCountry());
-        var cost = event.getFinalCosts() + 2500.0 * record.getAmbassadors().keySet().size();
+        var cost = event.getFinalCosts()
+                + UnitedPoliticsConfig.get().ambassadors().upkeep() * record.getAmbassadors().keySet().size();
         event.setFinalCosts(cost);
     }
 }

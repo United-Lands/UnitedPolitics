@@ -49,7 +49,7 @@ public class DatabaseManager {
                 host,
                 port,
                 database,
-                pluginConfig.developerMode() ? "false" : "true");
+                mysql.useSsl() ? "true" : "false");
 
         try {
 
@@ -75,6 +75,13 @@ public class DatabaseManager {
 
             United.logger().info("Connected to MySQL database with HikariCP.", "UnitedPolitics");
 
+            if (mysql.resetDatabaseOnStart()) {
+                United.logger().warning("**************************************************************", "UnitedPolitics");
+                United.logger().warning("reset-database-on-start is enabled: ALL tables in database '" + database
+                        + "' are being dropped and recreated. All data is lost.", "UnitedPolitics");
+                United.logger().warning("**************************************************************", "UnitedPolitics");
+            }
+
             verifySchemaVersion();
             registerServices();
 
@@ -96,6 +103,10 @@ public class DatabaseManager {
     }
 
     private void verifySchemaVersion() throws SQLException {
+
+        if (UnitedPoliticsConfig.get().mysql().resetDatabaseOnStart())
+            return;
+
         Dao<SchemaVersion, Integer> versionDao = getDao(SchemaVersion.class);
         SchemaVersion version = versionDao.queryForId(1);
 
@@ -109,6 +120,9 @@ public class DatabaseManager {
 
     private void applyMigrations(Dao<SchemaVersion, Integer> versionDao, SchemaVersion version) throws SQLException {
         // Example for future migrations on production server
+
+        if (UnitedPoliticsConfig.get().mysql().resetDatabaseOnStart())
+            return;
 
         // if (version.getVersion() < 2) {
         // // Migration 1 → 2: Add new field to `PlayerData`
@@ -124,7 +138,7 @@ public class DatabaseManager {
     public <T, ID> Dao<T, ID> getDao(Class<T> clazz) throws SQLException {
 
         // In developer mode, drop the table if it exists
-        if (UnitedPoliticsConfig.get().developerMode())
+        if (UnitedPoliticsConfig.get().mysql().resetDatabaseOnStart())
             TableUtils.dropTable(connectionSource, clazz, true);
 
         TableUtils.createTableIfNotExists(connectionSource, clazz);

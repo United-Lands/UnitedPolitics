@@ -107,8 +107,8 @@ public class CmdOpinion implements UnitedCommandExecutor {
 
         }
 
-        var total = Math.max(-200, Math.min(200,
-                allEntries.stream().collect(Collectors.summingDouble(ReputationScoreEntry::getModifier))));
+        var total = ReputationManager.instance().clampTotalReputation(
+                allEntries.stream().collect(Collectors.summingDouble(ReputationScoreEntry::getModifier)));
 
         United.messenger().sendRaw(sender,
                 "<white><bold>Total: " + ColorFormatter.getAmountColored(total) + "</bold></white>", false,

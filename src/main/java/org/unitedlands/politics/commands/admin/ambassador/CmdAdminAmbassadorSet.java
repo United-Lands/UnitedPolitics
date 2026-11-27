@@ -82,7 +82,7 @@ public class CmdAdminAmbassadorSet implements UnitedCommandExecutor {
 
         var entry = ReputationManager.instance().getOrCreateReputationScoreEntry(targetCountry.getUuid(), citizen.getCountry().getUuid(), "ambassador");
         if (entry != null) {
-            entry.setModifier(0.25);
+            ReputationManager.instance().resetToDefault(entry);
             ReputationManager.instance().addOrUpdateReputationScoreEntry(entry);
         }
 

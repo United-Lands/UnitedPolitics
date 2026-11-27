@@ -100,7 +100,7 @@ public class CmdAmbassadorAssign extends DiplomacyCommandHandler {
 
                 var entry = ReputationManager.instance().getOrCreateReputationScoreEntry(targetCountry.getUuid(), context.country().getUuid(), "ambassador");
                 if (entry != null) {
-                    entry.setModifier(0.25);
+                    ReputationManager.instance().resetToDefault(entry);
                     ReputationManager.instance().addOrUpdateReputationScoreEntry(entry);
                 }
 

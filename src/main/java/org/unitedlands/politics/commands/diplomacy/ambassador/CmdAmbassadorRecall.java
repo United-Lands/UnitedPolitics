@@ -71,7 +71,7 @@ public class CmdAmbassadorRecall extends DiplomacyCommandHandler {
 
             var entry = ReputationManager.instance().getOrCreateReputationScoreEntry(targetCountry.getUuid(), citizen.getCountry().getUuid(), "ambassador-recalled");
             if (entry != null) {
-                entry.setModifier(-25);
+                ReputationManager.instance().resetToDefault(entry);
                 ReputationManager.instance().addOrUpdateReputationScoreEntry(entry);
             }
         
