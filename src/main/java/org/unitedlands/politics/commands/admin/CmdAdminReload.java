@@ -13,7 +13,6 @@ import org.unitedlands.politics.commands.CmdAdmin;
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.politics.managers.ReputationManager;
-import org.unitedlands.politics.managers.TimeManager;
 import org.unitedlands.politics.managers.TreatyManager;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
 import org.unitedlands.registrars.messages.UnitedMessagesRegistrar;
@@ -34,8 +33,6 @@ public class CmdAdminReload implements UnitedCommandExecutor {
     @Override
     public void handleCommand(CommandSender sender, String[] args) {
 
-        United.logger().info("Stopping schedulers...", "UnitedPolitics");
-        TimeManager.instance().cancelScheduledNewDay();
         United.logger().info("Reloading configs...", "UnitedPolitics");
 
         UnitedMessagesRegistrar.reload(UnitedPolitics.instance());
@@ -50,9 +47,7 @@ public class CmdAdminReload implements UnitedCommandExecutor {
         ActorProfileManager.instance().loadActorProfiles();
         TreatyManager.instance().loadTreaties();
         DiplomacyManager.instance().loadDiplomacyRecords();
-        
-        United.logger().info("Starting schedulers...", "UnitedPolitics");
-        TimeManager.instance().scheduleNewDay();
+
         United.logger().info("Done.", "UnitedPolitics");
 
         United.messenger().send(sender, "reload");

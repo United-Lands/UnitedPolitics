@@ -17,22 +17,6 @@ mysql:
 
 ###################################################
 # +---------------------------------------------+ #
-# |              New Day Scheduling             | #
-# +---------------------------------------------+ #
-###################################################
-
-# How long a day lasts (in real time) until reputation decay is applies. Can't be more than 
-# 24 real-life hours or less than 1 real-life minute. Use d, h, m and s as units.
-new-day-interval: 1d
-# If the new day interval is 1d, this is the hour of the day (UTC) at which the new day is started.
-# If the interval is less than 1d, this option is ignored and the interval is started from the last
-# reboot of the server.
-# Must be a number between 0 and 23.
-new-day-start-hour: 12
-
-
-###################################################
-# +---------------------------------------------+ #
 # |   Settings for reputation actions & events  | #
 # +---------------------------------------------+ #
 ###################################################

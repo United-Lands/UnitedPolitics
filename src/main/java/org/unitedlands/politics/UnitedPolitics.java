@@ -8,6 +8,7 @@ import org.unitedlands.libs.ormlite.logger.NullLogBackend;
 import org.unitedlands.politics.integrations.UnitedDungeons.listeners.DungeonEventListener;
 import org.unitedlands.politics.integrations.UnitedLands.listeners.AmbassadorListener;
 import org.unitedlands.politics.integrations.UnitedLands.listeners.GeopolObjectRemovalListener;
+import org.unitedlands.politics.integrations.UnitedLands.listeners.NewDayListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
 import org.unitedlands.politics.integrations.UnitedWar.listeners.WarEventListeners;
 import org.unitedlands.politics.listeners.DeathListener;
@@ -18,7 +19,6 @@ import org.unitedlands.politics.managers.DatabaseManager;
 import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TreatyManager;
-import org.unitedlands.politics.managers.TimeManager;
 import org.unitedlands.utils.United;
 
 public class UnitedPolitics extends JavaPlugin {
@@ -30,7 +30,6 @@ public class UnitedPolitics extends JavaPlugin {
     }
 
     private DatabaseManager databaseManager;
-    private TimeManager timeManager;
 
     private boolean ulEnabled;
     private boolean unitedTradeEnabled;
@@ -66,8 +65,6 @@ public class UnitedPolitics extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if (timeManager != null)
-            timeManager.cancelScheduledNewDay();
         if (databaseManager != null)
             databaseManager.close();
     }
@@ -80,7 +77,6 @@ public class UnitedPolitics extends JavaPlugin {
 
     private void loadManagers() {
         databaseManager = new DatabaseManager();
-        timeManager = new TimeManager(this);
 
         new ReputationManager(databaseManager);
         new TreatyManager(databaseManager);
@@ -100,6 +96,7 @@ public class UnitedPolitics extends JavaPlugin {
 
             getServer().getPluginManager().registerEvents(new GeopolObjectRemovalListener(), this);
             getServer().getPluginManager().registerEvents(new AmbassadorListener(), this);
+            getServer().getPluginManager().registerEvents(new NewDayListener(), this);
 
             this.ulEnabled = true;
         } 
@@ -128,10 +125,6 @@ public class UnitedPolitics extends JavaPlugin {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
-    }
-
-    public TimeManager getTimeManager() {
-        return timeManager;
     }
 
     // Integrations

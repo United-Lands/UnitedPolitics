@@ -10,7 +10,6 @@ import org.unitedlands.politics.integrations.Quickshop.listeners.QuickshopListen
 import org.unitedlands.politics.managers.ActorProfileManager;
 import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.politics.managers.ReputationManager;
-import org.unitedlands.politics.managers.TimeManager;
 import org.unitedlands.politics.managers.TreatyManager;
 import org.unitedlands.utils.United;
 
@@ -22,7 +21,6 @@ public class ServerEventListener implements Listener {
         ActorProfileManager.instance().loadActorProfiles();
         TreatyManager.instance().loadTreaties();
         DiplomacyManager.instance().loadDiplomacyRecords();
-        TimeManager.instance().scheduleNewDay();
         
         Plugin quickshop = Bukkit.getPluginManager().getPlugin("QuickShop-Hikari");
         if (quickshop != null && quickshop.isEnabled()) {

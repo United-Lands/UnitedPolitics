@@ -18,12 +18,6 @@ public interface UnitedPoliticsConfig extends UnitedConfigHandler {
     @UnitedSection(key = "mysql")
     MysqlSettings mysql();
 
-    @UnitedSetting(key = "new-day-interval", def = "1d")
-    String newDayInterval();
-
-    @UnitedSetting(key = "new-day-start-hour", def = "12")
-    int newDayStartHour();
-
     @UnitedSection(key = "rep-passthrough-up")
     PassthroughSettings repPassthroughUp();
 
