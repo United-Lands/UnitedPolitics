@@ -28,21 +28,14 @@
             <artifactId>UnitedLib</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Geopol plugins -->
-
         <dependency>
             <groupId>org.unitedlands.unitedlands</groupId>
             <artifactId>UnitedLands</artifactId>
             <version>0.0.1</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.palmergames.bukkit.towny</groupId>
-            <artifactId>towny</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
+        <!-- Soft dependencies -->
 
         <dependency>
             <groupId>org.unitedlands.trade</groupId>

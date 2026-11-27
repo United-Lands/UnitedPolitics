@@ -3,13 +3,14 @@ package org.unitedlands.politics.classes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.models.ReputationScoreEntry;
-import org.unitedlands.politics.utils.GeopolUtils;
-import org.unitedlands.politics.wrappers.interfaces.IGeopolObjectWrapper;
+import org.unitedlands.unitedlands.classes.GeopolObject;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 public class NewDayRunnable implements Runnable {
@@ -38,12 +39,12 @@ public class NewDayRunnable implements Runnable {
 
         var reputationScoreEntries = new ArrayList<>(ReputationManager.instance().getReputationScoreEntries());
         var sortedEntries = reputationScoreEntries.stream()
-                .sorted(Comparator.comparing(ReputationScoreEntry::getId)).collect(Collectors.toList());
+                .sorted(Comparator.comparing(ReputationScoreEntry::getUuid)).collect(Collectors.toList());
 
         for (ReputationScoreEntry entry : sortedEntries) {
 
-            IGeopolObjectWrapper subject = GeopolUtils.findGeopolObject(entry.getObserver());
-            IGeopolObjectWrapper target = GeopolUtils.findGeopolObject(entry.getSubject());
+            GeopolObject subject =  UnitedLandsDataManager.instance().getGeopolObject(entry.getObserver());
+            GeopolObject target = UnitedLandsDataManager.instance().getGeopolObject(entry.getSubject());
 
             String subjectStr = subject != null ? subject.getName() : entry.getObserver().toString();
             String targetStr = target != null ? target.getName() : entry.getSubject().toString();
@@ -55,7 +56,7 @@ public class NewDayRunnable implements Runnable {
             var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
             var decayThreshold = plugin.getConfig().getLong("rep-decay-grace-period") * 1000;
 
-            if (millisecondsSinceTimestamp < decayThreshold) {
+            if (millisecondsSinceTimestamp < decayThreshold && !entry.ignoreDecayGracePeriod()) {
                 continue;
             }
 
@@ -71,18 +72,26 @@ public class NewDayRunnable implements Runnable {
 
             if (newModifier == 0) {
                 entriesToRemove.add(entry);
-                if (service.delete(entry.getId())) {
-                    United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
-                            + " reached 0, removed", "UnitedPolitics");
+                try {
+                    if (service.deleteAsync(entry).get()) {
+                        United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
+                                + " reached 0, removed", "UnitedPolitics");
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                 }
 
             } else {
                 entry.setModifier(newModifier);
-                if (service.createOrUpdate(entry)) {
-                    United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
-                            + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
-                } else {
-                    United.logger().error("Error saving entry " + entry.getId(), "UnitedPolitics");
+                try {
+                    if (service.updateAsync(entry).get()) {
+                        United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
+                                + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
+                    } else {
+                        United.logger().error("Error saving entry " + entry.getUuid(), "UnitedPolitics");
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                 }
             }
         }

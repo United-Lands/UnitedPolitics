@@ -2,19 +2,18 @@ package org.unitedlands.politics.integrations.UnitedWar.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.unitedlands.politics.UnitedPolitics;
-import org.unitedlands.politics.classes.TreatyType;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TreatyManager;
+import org.unitedlands.politics.models.TreatyType;
 import org.unitedlands.politics.utils.ColorFormatter;
-import org.unitedlands.politics.wrappers.UnitedLands.UnitedLandsNationWrapper;
 import org.unitedlands.unitedlands.classes.Country;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 import org.unitedlands.wars.classes.war.WarFactionRole;
 import org.unitedlands.wars.classes.wargoal.WarGoal;
 import org.unitedlands.wars.events.WarGoalValidationEvent;
-import org.unitedlands.wars.events.WarPreJoinEvent;
+import org.unitedlands.wars.events.WarInviteEvent;
 import org.unitedlands.wars.events.WarPreRegisterEvent;
 import org.unitedlands.wars.events.WarRegisteredEvent;
 
@@ -27,10 +26,8 @@ public class WarEventListeners implements Listener {
 
         if (isCountryConflict(event.getWarGoal())) {
 
-            United.logger().debug("isCountryConflict");
-
-            var attacker = new UnitedLandsNationWrapper((Country) event.getAttacker());
-            var defender = new UnitedLandsNationWrapper((Country) event.getAttacker());
+            var attacker = (Country) event.getAttacker();
+            var defender = (Country) event.getDefender();
 
             if (TreatyManager.instance().haveTreaty(attacker, defender, TreatyType.ALLIANCE)) {
                 // TODO: Move strings to config
@@ -68,9 +65,6 @@ public class WarEventListeners implements Listener {
                 event.getDefender().getUuid());
         var threshold = IntegrationsConfig.get().unitedWars().warOpinionThreshold();
 
-        United.logger().debug("opinion " + opinion);
-        United.logger().debug("threshold " + threshold);
-
         if (opinion >= threshold) {
             // TODO: Move strings to config
             event.setValidationMessage(
@@ -100,8 +94,7 @@ public class WarEventListeners implements Listener {
         if (defenderFaction == null) {
             return;
         }
-        var defenderCountry = UnitedPolitics.instance().getGeopolWrapper()
-                .getNation(defenderFaction.getFactionLeaderId());
+        var defenderCountry = UnitedLandsDataManager.instance().getCountry(defenderFaction.getFactionLeaderId());
         if (defenderCountry == null) {
             return;
         }
@@ -114,7 +107,7 @@ public class WarEventListeners implements Listener {
 
                 United.logger()
                         .info("Auto-adding ally " + member.getName() + " to faction " + defenderFaction.getName());
-                defenderFaction.addCountry(((UnitedLandsNationWrapper) member).getCountry());
+                defenderFaction.addCountry(member);
             }
         }
     }
@@ -135,7 +128,7 @@ public class WarEventListeners implements Listener {
         // var geopolWrapper = UnitedPolitics.instance().getGeopolWrapper();
 
         // ITownWrapper attacker = geopolWrapper.getTown(event.getDeclaringTownId());
-        // INationWrapper attackerNation = attacker.getNation();
+        // Country attackerNation = attacker.getNation();
         // List<ITownWrapper> attackerNationTowns = new ArrayList<>();
         // if (event.isNationWar()) {
         // if (attackerNation != null) {
@@ -308,7 +301,64 @@ public class WarEventListeners implements Listener {
     }
 
     @EventHandler
-    private void onWarPreJoin(WarPreJoinEvent event) {
+    private void onWarInvite(WarInviteEvent event) {
 
+        // Not all wars allow inviting more towns / nations. Only check for the relevant ones.
+        switch (event.getWar().getWarGoal().getId()) {
+            case "conquest":
+                validateConquestInvitation(event);
+                break;
+            case "revolt":
+                validateRevoltInvitation(event);
+                break;
+            default:
+                return;
+        } 
+
+    }
+
+    private void validateConquestInvitation(WarInviteEvent event) {
+
+        if (event.getInviter().getRole() == WarFactionRole.ATTACKER) {
+            // Attackers in conquest wars can ask their alliance members for assistance
+
+            var attackingCountry = UnitedLandsDataManager.instance().getCountry(event.getInviter().getFactionLeaderId());
+            if (!TreatyManager.instance().haveTreaty(attackingCountry, (Country) event.getReceiver(), TreatyType.ALLIANCE)) {
+                // TODO: Move strings to config
+                event.setCancelMessage("You must be in an alliance to with the target to invite them to your war.");
+                event.setCancelled(true);
+                return;
+            }
+
+            var defenderFaction = event.getWar().getWarFaction(WarFactionRole.DEFENDER);
+            if (defenderFaction == null) {
+                // TODO: Move strings to config
+                event.setCancelMessage("Could not find defender faction.");
+                event.setCancelled(true);
+                return;
+            }
+
+            for (var defenderCountry : defenderFaction.getCountries()) {
+                if (TreatyManager.instance().haveAnyTreaty(defenderCountry, (Country) event.getReceiver())) {
+                    // TODO: Move strings to config
+                    event.setCancelMessage("The country you are trying to invite has active treaties with one or more of your enemies.");
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+            
+
+        } else {
+            // TODO: Move strings to config
+            event.setCancelMessage("In conquest wars, only the attacker faction can use invitations. Your allies have already been added to your factions.");
+            event.setCancelled(true);
+            return;
+        }
+
+
+    }
+
+    private void validateRevoltInvitation(WarInviteEvent event) {
+        
     }
 }

@@ -20,7 +20,8 @@ public interface RecordDefinitionConfig extends UnitedConfigHandler {
         @UnitedSetting(key = "low-cap", def = "-200") double lowCap,
         @UnitedSetting(key = "high-cap", def = "200") double highCap,
         @UnitedSetting(key = "decay", def = "0") double decay,
-        @UnitedSetting(key = "default", def = "0") double defaultValue
+        @UnitedSetting(key = "default", def = "0") double defaultValue,
+        @UnitedSetting(key = "ignore-decay-grace-period", def = "false") boolean ignoreDecayGracePeriod
 
     ) { }
 

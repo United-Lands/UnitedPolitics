@@ -3,7 +3,7 @@ package org.unitedlands.politics.services;
 import java.util.UUID;
 
 import org.unitedlands.politics.models.ReputationScoreEntry;
-
+import org.unitedlands.classes.database.BaseDbService;
 import org.unitedlands.libs.ormlite.dao.Dao;
 
 public class ReputationScoreEntryService extends BaseDbService<ReputationScoreEntry> {

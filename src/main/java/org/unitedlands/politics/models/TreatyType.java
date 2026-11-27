@@ -1,4 +1,4 @@
-package org.unitedlands.politics.classes;
+package org.unitedlands.politics.models;
 
 public enum TreatyType {
     ALLIANCE,

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.unitedlands.politics.models.ActorProfile;
 import org.unitedlands.utils.United;
@@ -31,7 +32,7 @@ public class ActorProfileManager {
         var service = databaseManager.getActorProfileService();
         service.getAllAsync().thenAccept(entries -> {
             for (var entry : entries) {
-                actorProfiles.put(entry.getId(), entry);
+                actorProfiles.put(entry.getUuid(), entry);
             }
             United.logger().info("Loaded " + entries.size() + " actor profiles to memory.", "UnitedPolitics");
         });
@@ -46,21 +47,39 @@ public class ActorProfileManager {
         return actorProfiles.get(id);
     }
 
-    public boolean addOrUpdateActorProfile(ActorProfile profile) {
-
-        if (!actorProfiles.containsKey(profile.getId()))
-            actorProfiles.put(profile.getId(), profile);
-
+    public boolean addActorProfile(ActorProfile profile) {
+        if (actorProfiles.containsKey(profile.getUuid()))
+            return true;
         var service = databaseManager.getActorProfileService();
-        return service.createOrUpdate(profile);
+        try {
+            return service.createAsync(profile).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateActorProfile(ActorProfile profile) {
+        if (!actorProfiles.containsKey(profile.getUuid()))
+            return false;
+        var service = databaseManager.getActorProfileService();
+        try {
+            return service.updateAsync(profile).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public boolean removeActorProfile(ActorProfile profile) {
-
-        actorProfiles.remove(profile.getId());
-
+        actorProfiles.remove(profile.getUuid());
         var service = databaseManager.getActorProfileService();
-        return service.delete(profile.getId());
+        try {
+            return service.deleteAsync(profile).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void removeEverythingFor(UUID objectId) {
@@ -76,7 +95,7 @@ public class ActorProfileManager {
                 actorProfile.removePartner(objectId);
             }
             if (changed) {
-                ActorProfileManager.instance().addOrUpdateActorProfile(actorProfile);
+                ActorProfileManager.instance().updateActorProfile(actorProfile);
             }
         }
 

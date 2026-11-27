@@ -8,12 +8,13 @@ import org.bukkit.event.Listener;
 import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.configs.IntegrationsConfig;
 import org.unitedlands.politics.managers.ReputationManager;
-import org.unitedlands.politics.wrappers.interfaces.ITownWrapper;
 import org.unitedlands.trade.classes.TradePoint;
 import org.unitedlands.trade.classes.events.ShopOpenEvent;
 import org.unitedlands.trade.classes.events.TradeOrderCompletedEvent;
 import org.unitedlands.trade.classes.events.TradeOrderFailedEvent;
 import org.unitedlands.trade.classes.events.TradePointValidationEvent;
+import org.unitedlands.unitedlands.classes.Settlement;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -26,7 +27,7 @@ public class TradeEventListeners implements Listener {
         var player = event.getPlayer();
         var shopPoint = event.getShopPoint();
 
-        var playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
+        var playerTown = UnitedLandsDataManager.instance().getSettlement(player);
         if (player == null)
             return;
 
@@ -34,11 +35,11 @@ public class TradeEventListeners implements Listener {
         if (location == null)
             return;
 
-        ITownWrapper tradeTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(location);
+        Settlement tradeTown = UnitedLandsDataManager.instance().getSettlement(location);
         if (tradeTown == null)
             return;
 
-        var score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUUID(), playerTown.getUUID());
+        var score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUuid(), playerTown.getUuid());
         var minimum = shopPoint.getMinReputation();
 
         if (score < minimum) {
@@ -66,11 +67,11 @@ public class TradeEventListeners implements Listener {
     private void validateReputation(TradePointValidationEvent event, Player player, TradePoint tradePoint,
             Location location) {
 
-        ITownWrapper tradeTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(location);
+        Settlement tradeTown = UnitedLandsDataManager.instance().getSettlement(location);
         if (tradeTown == null)
             return;
 
-        ITownWrapper playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
+        Settlement playerTown = UnitedLandsDataManager.instance().getSettlement(player);
         if (player == null)
             return;
 
@@ -81,8 +82,8 @@ public class TradeEventListeners implements Listener {
 
             double score = defaultReputation;
             try {
-                score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUUID(),
-                        playerTown.getUUID());
+                score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUuid(),
+                        playerTown.getUuid());
             } catch (Exception ignore) {
                 United.logger().warning("Could not get town reputation for player " + player.getName()
                         + ", using default reputation " + score);
@@ -100,7 +101,7 @@ public class TradeEventListeners implements Listener {
         }
         if (IntegrationsConfig.get().unitedTrade().useMinimumNationReputation()) {
 
-            var nation = tradeTown.getNation();
+            var nation = tradeTown.getCountry();
             if (nation == null)
                 return;
 
@@ -109,8 +110,8 @@ public class TradeEventListeners implements Listener {
 
             double score = defaultReputation;
             try {
-                score = ReputationManager.instance().getTotalReputationScore(nation.getUUID(),
-                        playerTown.getUUID());
+                score = ReputationManager.instance().getTotalReputationScore(nation.getUuid(),
+                        playerTown.getUuid());
             } catch (Exception ignore) {
                 United.logger().warning("Could not get town reputation for player " + player.getName()
                         + ", using default reputation " + score);
@@ -139,17 +140,17 @@ public class TradeEventListeners implements Listener {
         if (location == null)
             return;
 
-        ITownWrapper tradeTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(location);
+        Settlement tradeTown = UnitedLandsDataManager.instance().getSettlement(location);
         if (tradeTown == null)
             return;
 
         var player = event.getPlayer();
 
-        ITownWrapper playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
+        Settlement playerTown = UnitedLandsDataManager.instance().getSettlement(player);
         if (player == null)
             return;
 
-        if (tradeTown.getUUID().equals(playerTown.getUUID()))
+        if (tradeTown.getUuid().equals(playerTown.getUuid()))
             return;
 
         var config = UnitedPolitics.instance().getConfig();
@@ -169,8 +170,8 @@ public class TradeEventListeners implements Listener {
 
             double score = defaultReputation;
             try {
-                score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUUID(),
-                        playerTown.getUUID());
+                score = ReputationManager.instance().getTotalReputationScore(tradeTown.getUuid(),
+                        playerTown.getUuid());
 
             } catch (Exception ignore) {
                 United.logger().warning("Could not get town reputation for player " + player.getName()
@@ -209,17 +210,17 @@ public class TradeEventListeners implements Listener {
         if (location == null)
             return;
 
-        ITownWrapper tradeTown = UnitedPolitics.instance().getGeopolWrapper().getTownAtLocation(location);
+        Settlement tradeTown = UnitedLandsDataManager.instance().getSettlement(location);
         if (tradeTown == null)
             return;
 
         var player = event.getPlayer();
 
-        ITownWrapper playerTown = UnitedPolitics.instance().getGeopolWrapper().getTownByPlayer(player);
+        Settlement playerTown = UnitedLandsDataManager.instance().getSettlement(player);
         if (player == null)
             return;
 
-        if (tradeTown.getUUID().equals(playerTown.getUUID()))
+        if (tradeTown.getUuid().equals(playerTown.getUuid()))
             return;
 
         var amount = tradePoint.getReputationOnFail();

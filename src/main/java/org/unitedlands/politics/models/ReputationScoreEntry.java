@@ -2,7 +2,7 @@ package org.unitedlands.politics.models;
 
 import java.util.UUID;
 
-import org.unitedlands.politics.classes.Identifiable;
+import org.unitedlands.classes.database.Identifiable;
 
 import org.unitedlands.libs.ormlite.field.DatabaseField;
 
@@ -28,12 +28,15 @@ public class ReputationScoreEntry implements Identifiable {
     private double lowCap;
     @DatabaseField(canBeNull = false)
     private double highCap;
+    @DatabaseField(canBeNull = false)
+    private boolean ignoreDecayGracePeriod;
 
-    public UUID getId() {
+
+    public UUID getUuid() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setUuid(UUID id) {
         this.id = id;
     }
 
@@ -107,6 +110,14 @@ public class ReputationScoreEntry implements Identifiable {
 
     public void setHighCap(double highCap) {
         this.highCap = highCap;
+    }
+
+    public boolean ignoreDecayGracePeriod() {
+        return ignoreDecayGracePeriod;
+    }
+
+    public void setIgnoreDecayGracePeriod(boolean ignoreDecayGracePeriod) {
+        this.ignoreDecayGracePeriod = ignoreDecayGracePeriod;
     }
 
 }

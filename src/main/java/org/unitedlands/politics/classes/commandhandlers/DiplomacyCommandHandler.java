@@ -4,16 +4,18 @@ import java.util.List;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.unitedlands.politics.UnitedPolitics;
-import org.unitedlands.politics.wrappers.interfaces.INationWrapper;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
+import org.unitedlands.unitedlands.UnitedLands;
+import org.unitedlands.unitedlands.classes.Country;
+import org.unitedlands.unitedlands.managers.PermissionManager;
+import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 public class DiplomacyCommandHandler implements UnitedCommandExecutor {
 
     public record DiplomacyCommandHandlerContext(
             Player player,
-            INationWrapper country) {
+            Country country) {
     }
 
     @Override
@@ -29,15 +31,15 @@ public class DiplomacyCommandHandler implements UnitedCommandExecutor {
     protected DiplomacyCommandHandlerContext validate(CommandSender sender, String permission) {
 
         var player = (Player) sender;
-        var nation = UnitedPolitics.instance().getGeopolWrapper().getNationByPlayer(player);
+        var nation = UnitedLandsDataManager.instance().getCountry(player);
         if (nation == null) {
             United.messenger().send(sender, "null");
             return null;
         }
 
         if (permission != null) {
-            if (!UnitedPolitics.instance().getGeopolWrapper().hasGeopolPermission(player, permission)) {
-                United.messenger().send(player, "general-errors.no-permission");
+            if (!PermissionManager.instance().hasRankPermission(permission, player)) {
+                United.messenger().send(player, "general-errors.no-permission", UnitedLands.instance());
                 return null;
             }
         }
