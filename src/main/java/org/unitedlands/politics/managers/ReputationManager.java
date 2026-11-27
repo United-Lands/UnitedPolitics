@@ -2,6 +2,7 @@ package org.unitedlands.politics.managers;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,8 @@ public class ReputationManager {
     private final DatabaseManager databaseManager;
 
     private Map<UUID, ReputationScoreEntry> reputationScoreEntries = new HashMap<>();
+    private Map<UUID, Map<UUID, Map<UUID, ReputationScoreEntry>>> entriesByObserver = new HashMap<>();
+    private Map<UUID, Map<UUID, Map<UUID, ReputationScoreEntry>>> entriesBySubject = new HashMap<>();
 
     public ReputationManager(DatabaseManager databaseManager) {
         instance = this;
@@ -47,11 +50,12 @@ public class ReputationManager {
         var service = databaseManager.getReputationScoreEntryService();
         try {
             var entries = service.getAllAsync().get();
-            Map<UUID, ReputationScoreEntry> loadedEntries = new HashMap<>();
+            reputationScoreEntries = new HashMap<>();
+            entriesByObserver = new HashMap<>();
+            entriesBySubject = new HashMap<>();
             for (var entry : entries) {
-                loadedEntries.put(entry.getUuid(), entry);
+                putEntry(entry);
             }
-            reputationScoreEntries = loadedEntries;
             United.logger().info("Loaded " + entries.size() + " reputation entries to memory.", "UnitedPolitics");
         } catch (InterruptedException | ExecutionException e) {
             United.logger().error("Failed to load reputation entries: " + e.getMessage(), "UnitedPolitics");
@@ -59,16 +63,84 @@ public class ReputationManager {
 
     }
 
+    private void putEntry(ReputationScoreEntry entry) {
+        var previous = reputationScoreEntries.put(entry.getUuid(), entry);
+        if (previous != null)
+            unindexEntry(previous);
+        indexEntry(entry);
+    }
+
+    private ReputationScoreEntry removeEntry(UUID entryId) {
+        var removed = reputationScoreEntries.remove(entryId);
+        if (removed != null)
+            unindexEntry(removed);
+        return removed;
+    }
+
+    private void indexEntry(ReputationScoreEntry entry) {
+        var observerId = entry.getObserver();
+        var subjectId = entry.getSubject();
+        if (observerId == null || subjectId == null)
+            return;
+        var pair = entriesByObserver.computeIfAbsent(observerId, k -> new HashMap<>())
+                .computeIfAbsent(subjectId, k -> new HashMap<>());
+        pair.put(entry.getUuid(), entry);
+        entriesBySubject.computeIfAbsent(subjectId, k -> new HashMap<>()).putIfAbsent(observerId, pair);
+    }
+
+    private void unindexEntry(ReputationScoreEntry entry) {
+        var observerId = entry.getObserver();
+        var subjectId = entry.getSubject();
+        if (observerId == null || subjectId == null)
+            return;
+        var subjects = entriesByObserver.get(observerId);
+        if (subjects == null)
+            return;
+        var pair = subjects.get(subjectId);
+        if (pair == null)
+            return;
+        pair.remove(entry.getUuid());
+        if (!pair.isEmpty())
+            return;
+        subjects.remove(subjectId);
+        if (subjects.isEmpty())
+            entriesByObserver.remove(observerId);
+        var observers = entriesBySubject.get(subjectId);
+        if (observers != null) {
+            observers.remove(observerId);
+            if (observers.isEmpty())
+                entriesBySubject.remove(subjectId);
+        }
+    }
+
+    private Collection<ReputationScoreEntry> getPairEntries(UUID observerId, UUID subjectId) {
+        var subjects = entriesByObserver.get(observerId);
+        if (subjects == null)
+            return List.of();
+        var pair = subjects.get(subjectId);
+        if (pair == null)
+            return List.of();
+        return pair.values();
+    }
+
+    private static List<ReputationScoreEntry> flatten(Map<UUID, Map<UUID, ReputationScoreEntry>> pairs) {
+        List<ReputationScoreEntry> result = new ArrayList<>();
+        if (pairs == null)
+            return result;
+        for (var pair : pairs.values()) {
+            result.addAll(pair.values());
+        }
+        return result;
+    }
+
     public List<String> getReputationKeys(UUID observerId, UUID subjectId) {
-        return reputationScoreEntries.values().stream()
-                .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
+        return getPairEntries(observerId, subjectId).stream()
                 .map(ReputationScoreEntry::getKey)
                 .collect(Collectors.toList());
     }
 
     public double getTotalReputationScore(UUID observerId, UUID subjectId) {
-        var dynamicScore = reputationScoreEntries.values().stream()
-                .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
+        var dynamicScore = getPairEntries(observerId, subjectId).stream()
                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
         var staticScore = calculateStaticReputationScoreEntries(observerId, subjectId).stream()
                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
@@ -77,16 +149,18 @@ public class ReputationManager {
 
     public Map<GeopolObject, Double> getTotalReputationScores(UUID observerId) {
 
-        var dynamicRecords = reputationScoreEntries.values().stream()
-                .filter(r -> r.getObserver().equals(observerId)).collect(Collectors.groupingBy(g -> g.getSubject()));
-
         var result = new HashMap<GeopolObject, Double>();
+        var dynamicRecords = entriesByObserver.get(observerId);
+        if (dynamicRecords == null)
+            return result;
+
         for (var dynamicEntry : dynamicRecords.entrySet()) {
             var subjectObj = UnitedLandsDataManager.instance().getGeopolObject(dynamicEntry.getKey());
             if (subjectObj == null)
                 continue;
 
-            var dynamicScore = dynamicEntry.getValue().stream().collect(Collectors.summingDouble(r -> r.getModifier()));
+            var dynamicScore = dynamicEntry.getValue().values().stream()
+                    .collect(Collectors.summingDouble(r -> r.getModifier()));
             var staticScore = calculateStaticReputationScoreEntries(observerId, dynamicEntry.getKey()).stream()
                     .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
 
@@ -98,30 +172,29 @@ public class ReputationManager {
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntries(UUID observerId, UUID subjectId) {
-        return reputationScoreEntries.values().stream()
-                .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
-                .collect(Collectors.toList());
+        return new ArrayList<>(getPairEntries(observerId, subjectId));
     }
 
     public ReputationScoreEntry getReputationScoreEntryWithKey(UUID observerId, UUID subjectId, String key) {
-        return reputationScoreEntries.values().stream().filter(r -> r.getObserver().equals(observerId)
-                && r.getSubject().equals(subjectId) && r.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
+        return getPairEntries(observerId, subjectId).stream()
+                .filter(r -> r.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntriesForObject(UUID objectId) {
-        return reputationScoreEntries.values().stream()
-                .filter(r -> r.getObserver().equals(objectId) || r.getSubject().equals(objectId))
-                .collect(Collectors.toList());
+        var result = flatten(entriesByObserver.get(objectId));
+        for (var entry : flatten(entriesBySubject.get(objectId))) {
+            if (!objectId.equals(entry.getObserver()))
+                result.add(entry);
+        }
+        return result;
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntriesForObserver(UUID observerId) {
-        return reputationScoreEntries.values().stream().filter(r -> r.getObserver().equals(observerId))
-                .collect(Collectors.toList());
+        return flatten(entriesByObserver.get(observerId));
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntriesForSubject(UUID subjectId) {
-        return reputationScoreEntries.values().stream().filter(r -> r.getSubject().equals(subjectId))
-                .collect(Collectors.toList());
+        return flatten(entriesBySubject.get(subjectId));
     }
 
     public Collection<ReputationScoreEntry> calculateStaticReputationScoreEntries(UUID observerId, UUID subjectId) {
@@ -293,7 +366,7 @@ public class ReputationManager {
         if (entriesToRemove.isEmpty())
             return;
         for (var entry : entriesToRemove) {
-            reputationScoreEntries.remove(entry.getUuid());
+            removeEntry(entry.getUuid());
         }
         databaseManager.getReputationScoreEntryService().deleteAllAsync(entriesToRemove);
     }
@@ -345,10 +418,10 @@ public class ReputationManager {
         var service = databaseManager.getReputationScoreEntryService();
 
         if (reputationScoreEntries.containsKey(entry.getUuid())) {
-            reputationScoreEntries.put(entry.getUuid(), entry);
+            putEntry(entry);
             service.updateAsync(entry);
         } else {
-            reputationScoreEntries.put(entry.getUuid(), entry);
+            putEntry(entry);
             service.createAsync(entry);
         }
         return true;
@@ -358,7 +431,7 @@ public class ReputationManager {
         if (entry == null || entry.getUuid() == null)
             return false;
 
-        var removed = reputationScoreEntries.remove(entry.getUuid());
+        var removed = removeEntry(entry.getUuid());
         if (removed == null)
             return false;
 
@@ -518,7 +591,7 @@ public class ReputationManager {
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntries() {
-        return reputationScoreEntries.values();
+        return Collections.unmodifiableCollection(reputationScoreEntries.values());
     }
 
     public void doReputationDecay() {
@@ -575,7 +648,7 @@ public class ReputationManager {
         }
 
         for (var entry : entriesToRemove) {
-            reputationScoreEntries.remove(entry.getUuid());
+            removeEntry(entry.getUuid());
         }
 
         if (!entriesToUpdate.isEmpty())

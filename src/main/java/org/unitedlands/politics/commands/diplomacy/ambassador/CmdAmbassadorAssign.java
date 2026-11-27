@@ -77,7 +77,7 @@ public class CmdAmbassadorAssign extends DiplomacyCommandHandler {
             return;
         }
 
-        var targetLeader = context.country().getLeader();
+        var targetLeader = targetCountry.getLeader();
         if (targetLeader == null) {
             United.messenger().send(sender, "errors.ambassador.target-npc", targetCountry.getName());
             return;

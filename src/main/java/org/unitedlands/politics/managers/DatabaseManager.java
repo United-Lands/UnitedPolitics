@@ -33,7 +33,7 @@ public class DatabaseManager {
     private TreatyService treatyService;
     private DiplomacyRecordService diplomacyRecordService;
 
-    public void initialize() {
+    public boolean initialize() {
 
         var pluginConfig = UnitedPoliticsConfig.get();
         var mysql = pluginConfig.mysql();
@@ -79,9 +79,12 @@ public class DatabaseManager {
             registerServices();
 
             United.logger().info("DatabaseManager initialized successfully.", "UnitedPolitics");
+            return true;
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            United.logger().error("Failed to initialize database: " + e.getMessage(), "UnitedPolitics");
             e.printStackTrace();
+            return false;
         }
     }
 

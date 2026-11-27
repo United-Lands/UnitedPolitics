@@ -45,7 +45,7 @@ public class DungeonEventListener implements Listener {
             for (Player player : event.getPlayers()) {
 
                 GeopolObject playerTown = UnitedLandsDataManager.instance().getSettlement(player);
-                if (player == null)
+                if (playerTown == null)
                     continue;
 
                 ReputationManager.instance().handleReputationChange(observer, playerTown, amount, sectionName, player, false);

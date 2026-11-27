@@ -47,14 +47,19 @@ public class UnitedPolitics extends JavaPlugin {
         saveDefaultConfig();
 
         loadManagers();
+
+        if (!databaseManager.initialize()) {
+            United.logger().error("Database unavailable, disabling UnitedPolitics.", "UnitedPolitics");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         loadWrappers();
 
         loadIntegrations();
 
         registerEvents();
         // registerCommands();
-
-        databaseManager.initialize();
 
         United.logger().info("UnitedPolitics initialized.", "UnitedPolitics");
     }

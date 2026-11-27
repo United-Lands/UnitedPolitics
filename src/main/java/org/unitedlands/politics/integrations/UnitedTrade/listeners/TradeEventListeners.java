@@ -27,7 +27,7 @@ public class TradeEventListeners implements Listener {
         var shopPoint = event.getShopPoint();
 
         var playerTown = UnitedLandsDataManager.instance().getSettlement(player);
-        if (player == null)
+        if (playerTown == null)
             return;
 
         var location = shopPoint.getLocation();
@@ -71,7 +71,7 @@ public class TradeEventListeners implements Listener {
             return;
 
         Settlement playerTown = UnitedLandsDataManager.instance().getSettlement(player);
-        if (player == null)
+        if (playerTown == null)
             return;
 
         if (IntegrationsConfig.get().unitedTrade().useMinimumTownReputation()) {
@@ -146,7 +146,7 @@ public class TradeEventListeners implements Listener {
         var player = event.getPlayer();
 
         Settlement playerTown = UnitedLandsDataManager.instance().getSettlement(player);
-        if (player == null)
+        if (playerTown == null)
             return;
 
         if (tradeTown.getUuid().equals(playerTown.getUuid()))
@@ -216,7 +216,7 @@ public class TradeEventListeners implements Listener {
         var player = event.getPlayer();
 
         Settlement playerTown = UnitedLandsDataManager.instance().getSettlement(player);
-        if (player == null)
+        if (playerTown == null)
             return;
 
         if (tradeTown.getUuid().equals(playerTown.getUuid()))
