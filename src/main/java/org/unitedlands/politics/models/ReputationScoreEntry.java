@@ -2,7 +2,7 @@ package org.unitedlands.politics.models;
 
 import java.util.UUID;
 
-import org.unitedlands.unitedlands.classes.db.Identifiable;
+import org.unitedlands.classes.database.Identifiable;
 
 import org.unitedlands.libs.ormlite.field.DatabaseField;
 

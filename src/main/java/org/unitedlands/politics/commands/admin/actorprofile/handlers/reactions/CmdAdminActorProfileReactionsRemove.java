@@ -58,7 +58,7 @@ public class CmdAdminActorProfileReactionsRemove implements UnitedCommandExecuto
                 actorReactions.remove(reaction);
                 profile.setEventReactions(actorReactions);
 
-                if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
+                if (ActorProfileManager.instance().updateActorProfile(profile)) {
                     var cmd = "upa actorprofile edit " + actor.getName();
                     Bukkit.dispatchCommand(sender, cmd);
                 } else {

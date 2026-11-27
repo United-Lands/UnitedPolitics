@@ -74,7 +74,7 @@ public class AdminAddFriendlyDungeonSubcommand extends BaseCommandHandler<United
         actorFriendlyDungeons.add(dungeon.getUuid());
         profile.setFriendlyDungeons(actorFriendlyDungeons);
 
-        if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
+        if (ActorProfileManager.instance().updateActorProfile(profile)) {
             var cmd = "upa actorprofile edit " + actor.getName();
             Bukkit.dispatchCommand(sender, cmd);
         } else {

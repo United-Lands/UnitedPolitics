@@ -68,7 +68,7 @@ public class AdminRemoveHostileDungeonSubcommand extends BaseCommandHandler<Unit
                 hostileDungeons.remove(dungeon.getUuid());
                 profile.setHostileDungeons(hostileDungeons);
 
-                if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
+                if (ActorProfileManager.instance().updateActorProfile(profile)) {
                     var cmd = "upa actorprofile edit " + actor.getName();
                     Bukkit.dispatchCommand(sender, cmd);
                 } else {

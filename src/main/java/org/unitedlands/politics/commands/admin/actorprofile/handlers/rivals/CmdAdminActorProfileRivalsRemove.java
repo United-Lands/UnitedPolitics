@@ -64,7 +64,7 @@ public class CmdAdminActorProfileRivalsRemove implements UnitedCommandExecutor {
                 actorRivals.remove(rival.getUuid());
                 profile.setRivals(actorRivals);
 
-                if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
+                if (ActorProfileManager.instance().updateActorProfile(profile)) {
                     var cmd = "upa actorprofile edit " + actor.getName();
                     Bukkit.dispatchCommand(sender, cmd);
                 } else {

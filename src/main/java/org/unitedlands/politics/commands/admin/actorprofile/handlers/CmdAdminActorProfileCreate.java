@@ -52,7 +52,7 @@ public class CmdAdminActorProfileCreate implements UnitedCommandExecutor {
         var profile = new ActorProfile(actor.getUuid());
         profile.setTimestamp(System.currentTimeMillis());
 
-        if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
+        if (ActorProfileManager.instance().addActorProfile(profile)) {
             United.messenger().send(sender, "success.actorprofile.create", args[0]);
         } else {
             United.messenger().send(sender, "errors.general.db-save-error");

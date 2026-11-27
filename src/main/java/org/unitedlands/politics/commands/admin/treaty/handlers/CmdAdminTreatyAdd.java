@@ -53,7 +53,7 @@ public class CmdAdminTreatyAdd implements UnitedCommandExecutor {
         }
 
         treaty.addMember(country);
-        TreatyManager.instance().addOrUpdateTreaty(treaty);
+        TreatyManager.instance().updateTreaty(treaty);
 
         United.messenger().broadcast("success.treaty.broadcast-join", country.getCleanName(), treaty.getCleanName());
 

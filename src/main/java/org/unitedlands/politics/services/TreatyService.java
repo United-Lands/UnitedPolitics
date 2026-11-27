@@ -2,6 +2,7 @@ package org.unitedlands.politics.services;
 
 import java.util.UUID;
 
+import org.unitedlands.classes.database.BaseDbService;
 import org.unitedlands.libs.ormlite.dao.Dao;
 import org.unitedlands.politics.models.Treaty;
 

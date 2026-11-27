@@ -3,6 +3,7 @@ package org.unitedlands.politics.classes;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.unitedlands.politics.UnitedPolitics;
@@ -71,18 +72,26 @@ public class NewDayRunnable implements Runnable {
 
             if (newModifier == 0) {
                 entriesToRemove.add(entry);
-                if (service.delete(entry.getUuid())) {
-                    United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
-                            + " reached 0, removed", "UnitedPolitics");
+                try {
+                    if (service.deleteAsync(entry).get()) {
+                        United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
+                                + " reached 0, removed", "UnitedPolitics");
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                 }
 
             } else {
                 entry.setModifier(newModifier);
-                if (service.createOrUpdate(entry)) {
-                    United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
-                            + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
-                } else {
-                    United.logger().error("Error saving entry " + entry.getUuid(), "UnitedPolitics");
+                try {
+                    if (service.updateAsync(entry).get()) {
+                        United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with " + subjectStr
+                                + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
+                    } else {
+                        United.logger().error("Error saving entry " + entry.getUuid(), "UnitedPolitics");
+                    }
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                 }
             }
         }

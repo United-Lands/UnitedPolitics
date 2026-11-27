@@ -12,6 +12,7 @@ import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.models.Treaty;
 import org.unitedlands.politics.models.TreatyType;
+import org.unitedlands.unitedlands.classes.BankRecordTransactionType;
 import org.unitedlands.unitedlands.classes.Country;
 import org.unitedlands.unitedlands.classes.GeopolObject;
 import org.unitedlands.unitedlands.managers.UnitedLandsEconomyManager;
@@ -49,9 +50,14 @@ public class TreatyManager {
         });
     }
 
-    public void addOrUpdateTreaty(Treaty treaty) {
+    public void addTreaty(Treaty treaty) {
         treaties.put(treaty.getUuid(), treaty);
-        databaseManager.getTreatyService().createOrUpdateAsync(treaty);
+        databaseManager.getTreatyService().createAsync(treaty);
+    }
+
+    public void updateTreaty(Treaty treaty) {
+        treaties.put(treaty.getUuid(), treaty);
+        databaseManager.getTreatyService().updateAsync(treaty);
     }
 
     public Treaty getTreaty(UUID uuid) {
@@ -80,7 +86,7 @@ public class TreatyManager {
 
     public void removeTreaty(Treaty treaty) {
         treaties.remove(treaty.getUuid());
-        databaseManager.getTreatyService().deleteAsync(treaty.getUuid());
+        databaseManager.getTreatyService().deleteAsync(treaty);
     }
 
     public void removeEverythingFor(Country country) {
@@ -93,7 +99,7 @@ public class TreatyManager {
                 if (treaty.getMembers().size() <= 1) {
                     treatiesToRemove.add(treaty);
                 } else {
-                    addOrUpdateTreaty(treaty);
+                    updateTreaty(treaty);
                 }
             }
         }
@@ -102,6 +108,11 @@ public class TreatyManager {
             removeTreaty(treatyToRemove);
         }
     }
+
+    public boolean haveAnyTreaty(Country first, Country second) {
+        return treaties.values().stream().anyMatch(t -> t.hasMember(first) && t.hasMember(second));
+    }
+
 
     public boolean haveTreaty(Country first, Country second, TreatyType type) {
         return treaties.values().stream().anyMatch(t -> t.hasMember(first) && t.hasMember(second) && t.getType() == type);
@@ -123,14 +134,14 @@ public class TreatyManager {
         String moneyLogReasonTarget = config.getString("settings.tribute.moneyLogReasonTarget", "Tribute paid by");
 
         try {
-            UnitedLandsEconomyManager.instance().deposit(receiver.getUuid(), amount, moneyLogReasonTarget + payer.getName());
+            UnitedLandsEconomyManager.instance().deposit(receiver.getUuid(), amount, BankRecordTransactionType.DIPLOMACY, moneyLogReasonTarget + payer.getName());
         } catch (Exception ex) {
             United.logger().info("Failed to deposit tribute to account of " + receiver.getName(), "UnitedPolitics");
             return false;
         }
 
         try {
-            UnitedLandsEconomyManager.instance().withdraw(payer.getUuid(), amount, moneyLogReasonSource + receiver.getName());
+            UnitedLandsEconomyManager.instance().withdraw(payer.getUuid(), amount, BankRecordTransactionType.DIPLOMACY, moneyLogReasonSource + receiver.getName());
         } catch (Exception ex) {
             United.logger().info("Failed to withdraw tribute from account of " + payer.getName(), "UnitedPolitics");
             return false;
@@ -155,7 +166,7 @@ public class TreatyManager {
         String moneyLogReasonSource = UnitedPoliticsConfig.get().actions().propaganda().moneyLogReasonSource();
 
         try {
-            UnitedLandsEconomyManager.instance().withdraw(payer.getUuid(), amount, moneyLogReasonSource + target.getName());
+            UnitedLandsEconomyManager.instance().withdraw(payer.getUuid(), amount, BankRecordTransactionType.DIPLOMACY, moneyLogReasonSource + target.getName());
         } catch (Exception ex) {
             United.logger().info("Failed to withdraw propaganda investment from account of " + payer.getName(), "UnitedPolitics");
             return false;

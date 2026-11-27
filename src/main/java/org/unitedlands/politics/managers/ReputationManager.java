@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
@@ -330,11 +331,29 @@ public class ReputationManager {
 
     public boolean addOrUpdateReputationScoreEntry(ReputationScoreEntry entry) {
 
-        if (!reputationScoreEntries.contains(entry))
-            reputationScoreEntries.add(entry);
-
         var service = databaseManager.getReputationScoreEntryService();
-        return service.createOrUpdate(entry);
+
+        if (!reputationScoreEntries.contains(entry)) {
+            try {
+                if (service.createAsync(entry).get()) {
+                    reputationScoreEntries.add(entry);
+                    return true;
+                } else {
+                    United.logger().error("Error while faving entry " + entry.getUuid());
+                    return false;
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            try {
+                return service.updateAsync(entry).get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
     }
 
     public boolean removeReputationEntry(ReputationScoreEntry entry) {
@@ -344,7 +363,12 @@ public class ReputationManager {
         reputationScoreEntries.remove(entry);
 
         var service = databaseManager.getReputationScoreEntryService();
-        return service.delete(entry.getUuid());
+        try {
+            return service.deleteAsync(entry).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void handleReputationChange(GeopolObject observer, GeopolObject subject, double modifier,
@@ -386,33 +410,40 @@ public class ReputationManager {
         // Pass reputation up
         for (var observerUpEntry : observerPassthroughUp.entrySet()) {
             // Change the main subject reputation
-            addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subject, modifier, configKey, observerUpEntry.getValue());
-            // Also let the reputation change pass through up or down the subject's 
+            addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subject, modifier, configKey,
+                    observerUpEntry.getValue());
+            // Also let the reputation change pass through up or down the subject's
             // geopolitical layers, with increasingly smaller impact.
             for (var subjectUpEntry : subjectPassthroughUp.entrySet()) {
-                addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subjectUpEntry.getKey(), modifier, configKey, subjectUpEntry.getValue() * observerUpEntry.getValue());
+                addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subjectUpEntry.getKey(), modifier, configKey,
+                        subjectUpEntry.getValue() * observerUpEntry.getValue());
             }
             for (var subjectDownEntry : subjectPassthroughDown.entrySet()) {
-                addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subjectDownEntry.getKey(), modifier, configKey, subjectDownEntry.getValue() * observerUpEntry.getValue());
+                addOrUpdatePassthroughEntry(observerUpEntry.getKey(), subjectDownEntry.getKey(), modifier, configKey,
+                        subjectDownEntry.getValue() * observerUpEntry.getValue());
             }
         }
         // Pass reputation down
         for (var observerDownEntry : observerPassthroughDown.entrySet()) {
             // Change the main subject reputation
-            addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subject, modifier, configKey, observerDownEntry.getValue());
+            addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subject, modifier, configKey,
+                    observerDownEntry.getValue());
             for (var subjectUpEntry : subjectPassthroughUp.entrySet()) {
-                addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subjectUpEntry.getKey(), modifier, configKey, subjectUpEntry.getValue() * observerDownEntry.getValue());
+                addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subjectUpEntry.getKey(), modifier, configKey,
+                        subjectUpEntry.getValue() * observerDownEntry.getValue());
             }
-            // Also let the reputation change pass through up or down the subject's 
+            // Also let the reputation change pass through up or down the subject's
             // geopolitical layers, with increasingly smaller impact.
             for (var subjectDownEntry : subjectPassthroughDown.entrySet()) {
-                addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subjectDownEntry.getKey(), modifier, configKey, subjectDownEntry.getValue() * observerDownEntry.getValue());
+                addOrUpdatePassthroughEntry(observerDownEntry.getKey(), subjectDownEntry.getKey(), modifier, configKey,
+                        subjectDownEntry.getValue() * observerDownEntry.getValue());
             }
         }
 
     }
 
-    private void addOrUpdatePassthroughEntry(GeopolObject observer, GeopolObject subject, double modifier, String configKey, double factor) {
+    private void addOrUpdatePassthroughEntry(GeopolObject observer, GeopolObject subject, double modifier,
+            String configKey, double factor) {
         var repEntry = getOrCreateReputationScoreEntry(observer.getUuid(), subject.getUuid(), configKey);
         repEntry.setModifier(repEntry.getModifier() + (modifier * factor));
         repEntry.setTimestamp(System.currentTimeMillis());
@@ -532,23 +563,35 @@ public class ReputationManager {
 
                 if (newModifier == 0) {
                     entriesToRemove.add(entry);
-                    if (service.delete(entry.getUuid())) {
-                        United.logger()
-                                .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
-                                        + subjectStr
-                                        + " reached 0, removed", "UnitedPolitics");
+                    try {
+                        if (service.deleteAsync(entry).get()) {
+                            United.logger()
+                                    .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
+                                            + subjectStr
+                                            + " reached 0, removed", "UnitedPolitics");
+                        }
+                        else {
+                            United.logger().error("Error while removing entry " + entry.getUuid());
+                        }
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                        return;
                     }
-
                 } else {
                     entry.setModifier(newModifier);
 
-                    if (service.createOrUpdate(entry)) {
-                        United.logger()
-                                .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
-                                        + subjectStr
-                                        + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
-                    } else {
-                        United.logger().error("Error saving entry " + entry.getUuid(), "UnitedPolitics");
+                    try {
+                        if (service.updateAsync(entry).get()) {
+                            United.logger()
+                                    .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
+                                            + subjectStr
+                                            + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
+                        } else {
+                            United.logger().error("Error saving entry " + entry.getUuid(), "UnitedPolitics");
+                        }
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                        return;
                     }
                 }
             }

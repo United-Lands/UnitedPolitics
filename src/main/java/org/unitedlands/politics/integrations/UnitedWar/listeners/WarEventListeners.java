@@ -13,7 +13,7 @@ import org.unitedlands.utils.United;
 import org.unitedlands.wars.classes.war.WarFactionRole;
 import org.unitedlands.wars.classes.wargoal.WarGoal;
 import org.unitedlands.wars.events.WarGoalValidationEvent;
-import org.unitedlands.wars.events.WarPreJoinEvent;
+import org.unitedlands.wars.events.WarInviteEvent;
 import org.unitedlands.wars.events.WarPreRegisterEvent;
 import org.unitedlands.wars.events.WarRegisteredEvent;
 
@@ -27,7 +27,7 @@ public class WarEventListeners implements Listener {
         if (isCountryConflict(event.getWarGoal())) {
 
             var attacker = (Country) event.getAttacker();
-            var defender = (Country) event.getAttacker();
+            var defender = (Country) event.getDefender();
 
             if (TreatyManager.instance().haveTreaty(attacker, defender, TreatyType.ALLIANCE)) {
                 // TODO: Move strings to config
@@ -64,9 +64,6 @@ public class WarEventListeners implements Listener {
         var opinion = ReputationManager.instance().getTotalReputationScore(event.getAttacker().getUuid(),
                 event.getDefender().getUuid());
         var threshold = IntegrationsConfig.get().unitedWars().warOpinionThreshold();
-
-        United.logger().debug("opinion " + opinion);
-        United.logger().debug("threshold " + threshold);
 
         if (opinion >= threshold) {
             // TODO: Move strings to config
@@ -304,7 +301,64 @@ public class WarEventListeners implements Listener {
     }
 
     @EventHandler
-    private void onWarPreJoin(WarPreJoinEvent event) {
+    private void onWarInvite(WarInviteEvent event) {
 
+        // Not all wars allow inviting more towns / nations. Only check for the relevant ones.
+        switch (event.getWar().getWarGoal().getId()) {
+            case "conquest":
+                validateConquestInvitation(event);
+                break;
+            case "revolt":
+                validateRevoltInvitation(event);
+                break;
+            default:
+                return;
+        } 
+
+    }
+
+    private void validateConquestInvitation(WarInviteEvent event) {
+
+        if (event.getInviter().getRole() == WarFactionRole.ATTACKER) {
+            // Attackers in conquest wars can ask their alliance members for assistance
+
+            var attackingCountry = UnitedLandsDataManager.instance().getCountry(event.getInviter().getFactionLeaderId());
+            if (!TreatyManager.instance().haveTreaty(attackingCountry, (Country) event.getReceiver(), TreatyType.ALLIANCE)) {
+                // TODO: Move strings to config
+                event.setCancelMessage("You must be in an alliance to with the target to invite them to your war.");
+                event.setCancelled(true);
+                return;
+            }
+
+            var defenderFaction = event.getWar().getWarFaction(WarFactionRole.DEFENDER);
+            if (defenderFaction == null) {
+                // TODO: Move strings to config
+                event.setCancelMessage("Could not find defender faction.");
+                event.setCancelled(true);
+                return;
+            }
+
+            for (var defenderCountry : defenderFaction.getCountries()) {
+                if (TreatyManager.instance().haveAnyTreaty(defenderCountry, (Country) event.getReceiver())) {
+                    // TODO: Move strings to config
+                    event.setCancelMessage("The country you are trying to invite has active treaties with one or more of your enemies.");
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+            
+
+        } else {
+            // TODO: Move strings to config
+            event.setCancelMessage("In conquest wars, only the attacker faction can use invitations. Your allies have already been added to your factions.");
+            event.setCancelled(true);
+            return;
+        }
+
+
+    }
+
+    private void validateRevoltInvitation(WarInviteEvent event) {
+        
     }
 }

@@ -74,7 +74,7 @@ public class AdminAddHostileDungeonSubcommand extends BaseCommandHandler<UnitedP
         actorHostileDungeons.add(dungeon.getUuid());
         profile.setHostileDungeons(actorHostileDungeons);
 
-        if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
+        if (ActorProfileManager.instance().updateActorProfile(profile)) {
             var cmd = "upa actorprofile edit " + actor.getName();
             Bukkit.dispatchCommand(sender, cmd);
         } else {

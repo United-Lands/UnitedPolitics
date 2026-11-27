@@ -11,7 +11,7 @@ import org.unitedlands.unitedlands.utils.SerializationUtils;
 
 import org.unitedlands.libs.ormlite.field.DataType;
 import org.unitedlands.libs.ormlite.field.DatabaseField;
-import org.unitedlands.unitedlands.classes.db.Identifiable;
+import org.unitedlands.classes.database.Identifiable;
 
 public class Treaty implements Identifiable {
 

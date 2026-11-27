@@ -55,7 +55,7 @@ public class CmdAdminTreatyCreate implements UnitedCommandExecutor {
         treaty.setName(name);
         treaty.addMember(country);
 
-        TreatyManager.instance().addOrUpdateTreaty(treaty);
+        TreatyManager.instance().addTreaty(treaty);
 
         United.messenger().broadcast("success.treaty.broadcast-create", country.getCleanName(), type.toString().toLowerCase(), treaty.getCleanName());
 

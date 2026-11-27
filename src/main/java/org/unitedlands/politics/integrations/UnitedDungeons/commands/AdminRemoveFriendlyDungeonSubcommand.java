@@ -68,7 +68,7 @@ public class AdminRemoveFriendlyDungeonSubcommand extends BaseCommandHandler<Uni
                 friendlyDungeons.remove(dungeon.getUuid());
                 profile.setFriendlyDungeons(friendlyDungeons);
 
-                if (ActorProfileManager.instance().addOrUpdateActorProfile(profile)) {
+                if (ActorProfileManager.instance().updateActorProfile(profile)) {
                     var cmd = "upa actorprofile edit " + actor.getName();
                     Bukkit.dispatchCommand(sender, cmd);
                 } else {
