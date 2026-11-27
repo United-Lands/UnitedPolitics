@@ -1,27 +1,26 @@
-package org.unitedlands.politics.integrations.UnitedDungeons.commands;
+package org.unitedlands.politics.integrations.UnitedDungeons.commands.friendlydungeon;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.unitedlands.classes.BaseCommandHandler;
-import org.unitedlands.dungeons.UnitedDungeons;
+import org.unitedlands.annotations.UnitedSubCommand;
 import org.unitedlands.dungeons.classes.Dungeon;
 import org.unitedlands.dungeons.managers.DungeonManager;
-import org.unitedlands.interfaces.IMessageProvider;
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ActorProfileManager;
+import org.unitedlands.registrars.command.UnitedCommandExecutor;
 import org.unitedlands.unitedlands.classes.GeopolObject;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
-public class AdminRemoveFriendlyDungeonSubcommand extends BaseCommandHandler<UnitedPolitics> {
-
-    public AdminRemoveFriendlyDungeonSubcommand(UnitedPolitics plugin, IMessageProvider messageProvider) {
-        super(plugin, messageProvider);
-    }
+@UnitedSubCommand(
+    parent = CmdAdminActorProfileFriendlyDungeon.class,
+    name = "remove",
+    usage = "/upa actorprofile friendlydungeon remove <actor> <dungeon>",
+    catchAll = true,
+    requirePlugins = { "UnitedDungeons" }
+)
+public class CmdAdminActorProfileFriendlyDungeonRemove implements UnitedCommandExecutor {
 
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
@@ -34,29 +33,25 @@ public class AdminRemoveFriendlyDungeonSubcommand extends BaseCommandHandler<Uni
     @Override
     public void handleCommand(CommandSender sender, String[] args) {
         if (args.length != 2) {
-            Messenger.sendMessage(sender, messageProvider.getList("usages.hostiledungeon.remove"), null,
-                    messageProvider.get("prefix"));
+            sendUsage(sender);
             return;
         }
 
         GeopolObject actor = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         if (actor == null) {
-            Messenger.sendMessage(sender, messageProvider.get("errors.general.geopol-obj-not-found"),
-                    Map.of("obj-name", args[0]));
+            United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[0]);
             return;
         }
 
         var profile = ActorProfileManager.instance().getActorProfile(actor.getUuid());
         if (profile == null) {
-            Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.no-profile"), null,
-                    messageProvider.get("prefix"));
+            United.messenger().send(sender, "errors.actorprofile.no-profile");
             return;
         }
 
         Dungeon dungeon = DungeonManager.instance().getDungeon(args[1]);
         if (dungeon == null) {
-            Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.dungeon-not-found"),
-                    Map.of("obj-name", args[1]));
+            United.messenger().send(sender, "errors.actorprofile.dungeon-not-found", args[1]);
             return;
         }
 
@@ -72,18 +67,13 @@ public class AdminRemoveFriendlyDungeonSubcommand extends BaseCommandHandler<Uni
                     var cmd = "upa actorprofile edit " + actor.getName();
                     Bukkit.dispatchCommand(sender, cmd);
                 } else {
-                    Messenger.sendMessage(sender, messageProvider.get("errors.general.db-save-error"),
-                            null);
+                    United.messenger().send(sender, "errors.general.db-save-error");
                 }
-
             } else {
-                Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.dungeon-missing"), null,
-                        messageProvider.get("prefix"));
+                United.messenger().send(sender, "errors.actorprofile.dungeon-missing");
             }
         } else {
-            Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.dungeon-missing"), null,
-                    messageProvider.get("prefix"));
-            return;
+            United.messenger().send(sender, "errors.actorprofile.dungeon-missing");
         }
 
     }

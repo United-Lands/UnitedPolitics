@@ -1,33 +1,31 @@
-package org.unitedlands.politics.integrations.UnitedDungeons.commands;
+package org.unitedlands.politics.integrations.UnitedDungeons.commands.friendlydungeon;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.unitedlands.classes.BaseCommandHandler;
+import org.unitedlands.annotations.UnitedSubCommand;
 import org.unitedlands.dungeons.classes.Dungeon;
 import org.unitedlands.dungeons.managers.DungeonManager;
-import org.unitedlands.interfaces.IMessageProvider;
-import org.unitedlands.politics.UnitedPolitics;
 import org.unitedlands.politics.managers.ActorProfileManager;
+import org.unitedlands.registrars.command.UnitedCommandExecutor;
 import org.unitedlands.unitedlands.classes.GeopolObject;
 import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
-import org.unitedlands.utils.Logger;
-import org.unitedlands.utils.Messenger;
+import org.unitedlands.utils.United;
 
-public class AdminAddFriendlyDungeonSubcommand extends BaseCommandHandler<UnitedPolitics> {
-
-    public AdminAddFriendlyDungeonSubcommand(UnitedPolitics plugin, IMessageProvider messageProvider) {
-        super(plugin, messageProvider);
-    }
+@UnitedSubCommand(
+    parent = CmdAdminActorProfileFriendlyDungeon.class,
+    name = "add",
+    usage = "/upa actorprofile friendlydungeon add <actor> <dungeon>",
+    catchAll = true,
+    requirePlugins = { "UnitedDungeons" }
+)
+public class CmdAdminActorProfileFriendlyDungeonAdd implements UnitedCommandExecutor {
 
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {
         if (args.length == 2) {
-            Logger.log("Dungeons: " + String.join(",", DungeonManager.instance().getDungeonNames()));
             return DungeonManager.instance().getDungeonNames();
         }
         return new ArrayList<>();
@@ -36,36 +34,32 @@ public class AdminAddFriendlyDungeonSubcommand extends BaseCommandHandler<United
     @Override
     public void handleCommand(CommandSender sender, String[] args) {
         if (args.length != 2) {
-            Messenger.sendMessage(sender, messageProvider.getList("usages.friendlydungeon.add"), null,
-                    messageProvider.get("prefix"));
+            sendUsage(sender);
             return;
         }
 
         GeopolObject actor = UnitedLandsDataManager.instance().getGeopolObject(args[0]);
         if (actor == null) {
-            Messenger.sendMessage(sender, messageProvider.get("errors.general.geopol-obj-not-found"),
-                    Map.of("obj-name", args[0]));
+            United.messenger().send(sender, "errors.general.geopol-obj-not-found", args[0]);
             return;
         }
 
         var profile = ActorProfileManager.instance().getActorProfile(actor.getUuid());
         if (profile == null) {
-            Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.no-profile"), null,
-                    messageProvider.get("prefix"));
+            United.messenger().send(sender, "errors.actorprofile.no-profile");
             return;
         }
 
         Dungeon dungeon = DungeonManager.instance().getDungeon(args[1]);
         if (dungeon == null) {
-            Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.dungeon-not-found"),
-                    Map.of("obj-name", args[1]));
+            United.messenger().send(sender, "errors.actorprofile.dungeon-not-found", args[1]);
             return;
         }
 
         var actorFriendlyDungeons = profile.getFriendlyDungeons();
         if (actorFriendlyDungeons != null) {
             if (actorFriendlyDungeons.stream().filter(r -> r.equals(dungeon.getUuid())).findAny().orElse(null) != null) {
-                Messenger.sendMessage(sender, messageProvider.get("errors.actorprofile.dungeon-exists"), null);
+                United.messenger().send(sender, "errors.actorprofile.dungeon-exists");
             }
         } else {
             actorFriendlyDungeons = new HashSet<>();
@@ -78,8 +72,7 @@ public class AdminAddFriendlyDungeonSubcommand extends BaseCommandHandler<United
             var cmd = "upa actorprofile edit " + actor.getName();
             Bukkit.dispatchCommand(sender, cmd);
         } else {
-            Messenger.sendMessage(sender, messageProvider.get("errors.general.db-save-error"),
-                    null);
+            United.messenger().send(sender, "errors.general.db-save-error");
         }
     }
 
