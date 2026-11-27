@@ -12,7 +12,7 @@ import org.unitedlands.registrars.command.UnitedCommandExecutor;
     usage = "/diplomacy embargo <command> <args>"
 )
 
-public class CmdDipomacyEmbargo implements UnitedCommandExecutor {
+public class CmdDiplomacyEmbargo implements UnitedCommandExecutor {
 
     @Override
     public void handleCommand(CommandSender sender, String[] args) {

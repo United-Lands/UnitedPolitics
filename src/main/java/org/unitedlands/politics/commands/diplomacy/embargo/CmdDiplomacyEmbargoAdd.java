@@ -11,13 +11,13 @@ import org.unitedlands.unitedlands.managers.UnitedLandsDataManager;
 import org.unitedlands.utils.United;
 
 @UnitedSubCommand (
-    parent = CmdDipomacyEmbargo.class,
+    parent = CmdDiplomacyEmbargo.class,
     name = "add",
     description = "Command for adding embargoes",
     usage = "/diplomacy embargo add <country>"
 )
 
-public class CmdDipomacyEmbargoAdd extends DiplomacyCommandHandler {
+public class CmdDiplomacyEmbargoAdd extends DiplomacyCommandHandler {
 
     @Override
     public List<String> handleTab(CommandSender sender, String[] args) {

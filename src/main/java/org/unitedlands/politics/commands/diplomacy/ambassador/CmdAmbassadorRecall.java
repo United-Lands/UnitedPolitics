@@ -61,7 +61,7 @@ public class CmdAmbassadorRecall extends DiplomacyCommandHandler {
             return;
         }
         
-        var targetCountry = record.getAmbassdorCountry(citizen);
+        var targetCountry = record.getAmbassadorCountry(citizen);
 
         Confirmation confirmation = new Confirmation("ambassador-recalled");
         confirmation.setRunnable(() -> { 

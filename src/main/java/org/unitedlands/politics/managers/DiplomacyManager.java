@@ -110,7 +110,7 @@ public class DiplomacyManager {
             if (citizenCountry != null && citizenCountry.getUuid().equals(record.getUuid()))
                 continue;
 
-            var targetCountry = record.getAmbassdorCountry(citizen);
+            var targetCountry = record.getAmbassadorCountry(citizen);
             record.removeAmbassador(citizen);
             saveDiplomacyRecord(record);
 

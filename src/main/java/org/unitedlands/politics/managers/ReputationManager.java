@@ -492,16 +492,16 @@ public class ReputationManager {
         var downSettings = UnitedPoliticsConfig.get().repPassthroughDown();
 
         Map<GeopolObject, Double> observerPassthroughUp = upSettings.enabled()
-                ? getPasshroughMapUp(observer, upSettings.factor())
+                ? getPassthroughMapUp(observer, upSettings.factor())
                 : new HashMap<>();
         Map<GeopolObject, Double> observerPassthroughDown = downSettings.enabled()
-                ? getPasshroughMapDown(observer, downSettings.factor())
+                ? getPassthroughMapDown(observer, downSettings.factor())
                 : new HashMap<>();
         Map<GeopolObject, Double> subjectPassthroughUp = upSettings.enabled()
-                ? getPasshroughMapUp(subject, upSettings.factor())
+                ? getPassthroughMapUp(subject, upSettings.factor())
                 : new HashMap<>();
         Map<GeopolObject, Double> subjectPassthroughDown = downSettings.enabled()
-                ? getPasshroughMapDown(subject, downSettings.factor())
+                ? getPassthroughMapDown(subject, downSettings.factor())
                 : new HashMap<>();
 
         // Pass reputation up
@@ -551,7 +551,7 @@ public class ReputationManager {
         }
     }
 
-    private Map<GeopolObject, Double> getPasshroughMapUp(GeopolObject obj, Double factor) {
+    private Map<GeopolObject, Double> getPassthroughMapUp(GeopolObject obj, Double factor) {
         Map<GeopolObject, Double> map = new HashMap<>();
         if (obj instanceof Settlement town) {
             if (town.getRegion() != null) {
@@ -568,7 +568,7 @@ public class ReputationManager {
         return map;
     }
 
-    private Map<GeopolObject, Double> getPasshroughMapDown(GeopolObject obj, Double factor) {
+    private Map<GeopolObject, Double> getPassthroughMapDown(GeopolObject obj, Double factor) {
         Map<GeopolObject, Double> map = new HashMap<>();
         if (obj instanceof Country nation) {
             for (var region : nation.getRegions()) {

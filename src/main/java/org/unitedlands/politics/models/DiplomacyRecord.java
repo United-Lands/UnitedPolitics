@@ -114,11 +114,11 @@ public class DiplomacyRecord implements Identifiable {
         return getAmbassadors().containsKey(citizen);
     }
 
-    public boolean hasAmbassadorIn(Country targeCountry) {
-        return getAmbassadors().values().stream().anyMatch(c -> c.equals(targeCountry));
+    public boolean hasAmbassadorIn(Country targetCountry) {
+        return getAmbassadors().values().stream().anyMatch(c -> c.equals(targetCountry));
     }
 
-    public Country getAmbassdorCountry(Citizen citizen) {
+    public Country getAmbassadorCountry(Citizen citizen) {
         return getAmbassadors().get(citizen);
     }
 
