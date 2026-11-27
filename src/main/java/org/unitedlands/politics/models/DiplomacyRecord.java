@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.unitedlands.libs.ormlite.field.DataType;
 import org.unitedlands.libs.ormlite.field.DatabaseField;
-import org.unitedlands.politics.UnitedPolitics;
+import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.classes.database.Identifiable;
 import org.unitedlands.unitedlands.classes.Citizen;
 import org.unitedlands.unitedlands.classes.Country;
@@ -132,7 +132,7 @@ public class DiplomacyRecord implements Identifiable {
     }
 
     public void save() {
-        UnitedPolitics.instance().getDatabaseManager().getDiplomacyRecordService().updateAsync(this);
+        DiplomacyManager.instance().saveDiplomacyRecord(this);
     }
 
     @Override

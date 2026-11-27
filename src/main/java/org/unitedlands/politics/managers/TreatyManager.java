@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.bukkit.entity.Player;
 import org.unitedlands.politics.UnitedPolitics;
@@ -28,7 +29,7 @@ public class TreatyManager {
 
     private final DatabaseManager databaseManager;
 
-    private Map<UUID, Treaty> treaties;
+    private Map<UUID, Treaty> treaties = new HashMap<>();
 
     public TreatyManager(DatabaseManager databaseManager) {
         instance = this;
@@ -39,15 +40,18 @@ public class TreatyManager {
 
     public void loadTreaties() {
 
-        treaties = new HashMap<>();
-
         var service = databaseManager.getTreatyService();
-        service.getAllAsync().thenAccept(entries -> {
+        try {
+            var entries = service.getAllAsync().get();
+            Map<UUID, Treaty> loadedTreaties = new HashMap<>();
             for (var entry : entries) {
-                treaties.put(entry.getUuid(), entry);
+                loadedTreaties.put(entry.getUuid(), entry);
             }
+            treaties = loadedTreaties;
             United.logger().info("Loaded " + entries.size() + " treaties to memory.", "UnitedPolitics");
-        });
+        } catch (InterruptedException | ExecutionException e) {
+            United.logger().error("Failed to load treaties: " + e.getMessage(), "UnitedPolitics");
+        }
     }
 
     public void addTreaty(Treaty treaty) {

@@ -3,6 +3,7 @@ package org.unitedlands.politics.managers;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.unitedlands.politics.models.DiplomacyRecord;
 import org.unitedlands.unitedlands.classes.Citizen;
@@ -25,42 +26,62 @@ public class DiplomacyManager {
     }
 
     public void loadDiplomacyRecords() {
-        diplomacyRecords = new HashMap<>();
 
         var service = databaseManager.getDiplomacyRecordService();
-        service.getAllAsync().thenAccept(entries -> {
+        try {
+            var entries = service.getAllAsync().get();
+            Map<UUID, DiplomacyRecord> loadedRecords = new HashMap<>();
             for (var entry : entries) {
-                diplomacyRecords.put(entry.getUuid(), entry);
+                loadedRecords.put(entry.getUuid(), entry);
             }
+            diplomacyRecords = loadedRecords;
             United.logger().info("Loaded " + entries.size() + " diplomacy records to memory.", "UnitedPolitics");
-        });
+        } catch (InterruptedException | ExecutionException e) {
+            United.logger().error("Failed to load diplomacy records: " + e.getMessage(), "UnitedPolitics");
+        }
 
+    }
+
+    public DiplomacyRecord getDiplomacyRecord(Country country) {
+        return diplomacyRecords.get(country.getUuid());
     }
 
     public DiplomacyRecord getOrCreateDiplomacyRecord(Country country) {
-        return diplomacyRecords.computeIfAbsent(country.getUuid(), k -> new DiplomacyRecord(country.getUuid()));
+        var record = diplomacyRecords.get(country.getUuid());
+        if (record == null)
+            record = new DiplomacyRecord(country.getUuid());
+        return record;
     }
 
-    public void addOrUpdateDiplomacyRecord(Country country, DiplomacyRecord record) {
-        diplomacyRecords.put(country.getUuid(), record);
+    public void saveDiplomacyRecord(DiplomacyRecord record) {
+        var service = databaseManager.getDiplomacyRecordService();
+        if (diplomacyRecords.containsKey(record.getUuid())) {
+            diplomacyRecords.put(record.getUuid(), record);
+            service.updateAsync(record);
+        } else {
+            diplomacyRecords.put(record.getUuid(), record);
+            service.createAsync(record);
+        }
+    }
+
+    public void removeDiplomacyRecord(DiplomacyRecord record) {
+        var removed = diplomacyRecords.remove(record.getUuid());
+        if (removed != null)
+            databaseManager.getDiplomacyRecordService().deleteAsync(removed);
     }
 
     public boolean embargoExists(Country country, Country targetCountry) {
-        if (diplomacyRecords.containsKey(country.getUuid())) {
-            return diplomacyRecords.get(country.getUuid()).isOnEmbargo(targetCountry);
-        }
-        return false;
+        var record = diplomacyRecords.get(country.getUuid());
+        return record != null && record.isOnEmbargo(targetCountry);
     }
 
     public boolean isAmbassador(Citizen citizen) {
-            return diplomacyRecords.values().stream().anyMatch(r -> r.isAmbassador(citizen));
+        return diplomacyRecords.values().stream().anyMatch(r -> r.isAmbassador(citizen));
     }
 
     public boolean hasAmbassador(Country country, Country targetCountry) {
-        if (diplomacyRecords.containsKey(country.getUuid())) {
-            return diplomacyRecords.get(country.getUuid()).hasAmbassadorIn(targetCountry);
-        }
-        return false;
+        var record = diplomacyRecords.get(country.getUuid());
+        return record != null && record.hasAmbassadorIn(targetCountry);
     }
 
 }

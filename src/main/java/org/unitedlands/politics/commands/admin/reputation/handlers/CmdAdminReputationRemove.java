@@ -59,7 +59,7 @@ public class CmdAdminReputationRemove implements UnitedCommandExecutor {
 
         var key = args[2];
 
-        ReputationScoreEntry entry = ReputationManager.instance().getOrCreateReputationScoreEntry(observer.getUuid(),
+        ReputationScoreEntry entry = ReputationManager.instance().getReputationScoreEntryWithKey(observer.getUuid(),
                 subject.getUuid(), key);
         if (entry == null) {
             United.messenger().send(sender, "errors.reputation.no-record");

@@ -58,6 +58,14 @@ public class UnitedPolitics extends JavaPlugin {
         United.logger().info("UnitedPolitics initialized.", "UnitedPolitics");
     }
 
+    @Override
+    public void onDisable() {
+        if (timeManager != null)
+            timeManager.cancelScheduledNewDay();
+        if (databaseManager != null)
+            databaseManager.close();
+    }
+
     private void registerEvents() {
         getServer().getPluginManager().registerEvents(new ServerEventListener(), this);
         getServer().getPluginManager().registerEvents(new DeathListener(), this);

@@ -13,6 +13,7 @@ import org.unitedlands.politics.services.DiplomacyRecordService;
 import org.unitedlands.politics.services.ReputationScoreEntryService;
 import org.unitedlands.politics.services.TreatyService;
 import org.unitedlands.utils.United;
+import org.unitedlands.classes.database.BaseDbService;
 
 import org.unitedlands.libs.ormlite.dao.Dao;
 import org.unitedlands.libs.ormlite.dao.DaoManager;
@@ -126,7 +127,14 @@ public class DatabaseManager {
         return DaoManager.createDao(connectionSource, clazz);
     }
 
+    public boolean awaitPendingWrites() {
+        if (connectionSource == null)
+            return true;
+        return BaseDbService.awaitPendingWrites(connectionSource, 30);
+    }
+
     public void close() {
+        awaitPendingWrites();
         try {
             if (connectionSource != null) {
                 connectionSource.close();

@@ -18,7 +18,7 @@ public class ActorProfileManager {
     }
 
     private final DatabaseManager databaseManager;
-    private Map<UUID, ActorProfile> actorProfiles;
+    private Map<UUID, ActorProfile> actorProfiles = new HashMap<>();
 
     public ActorProfileManager(DatabaseManager databaseManager) {
         instance = this;
@@ -27,15 +27,18 @@ public class ActorProfileManager {
 
     public void loadActorProfiles() {
 
-        actorProfiles = new HashMap<>();
-
         var service = databaseManager.getActorProfileService();
-        service.getAllAsync().thenAccept(entries -> {
+        try {
+            var entries = service.getAllAsync().get();
+            Map<UUID, ActorProfile> loadedProfiles = new HashMap<>();
             for (var entry : entries) {
-                actorProfiles.put(entry.getUuid(), entry);
+                loadedProfiles.put(entry.getUuid(), entry);
             }
+            actorProfiles = loadedProfiles;
             United.logger().info("Loaded " + entries.size() + " actor profiles to memory.", "UnitedPolitics");
-        });
+        } catch (InterruptedException | ExecutionException e) {
+            United.logger().error("Failed to load actor profiles: " + e.getMessage(), "UnitedPolitics");
+        }
 
     }
 
@@ -50,36 +53,25 @@ public class ActorProfileManager {
     public boolean addActorProfile(ActorProfile profile) {
         if (actorProfiles.containsKey(profile.getUuid()))
             return true;
-        var service = databaseManager.getActorProfileService();
-        try {
-            return service.createAsync(profile).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return false;
-        }
+        actorProfiles.put(profile.getUuid(), profile);
+        databaseManager.getActorProfileService().createAsync(profile);
+        return true;
     }
 
     public boolean updateActorProfile(ActorProfile profile) {
         if (!actorProfiles.containsKey(profile.getUuid()))
             return false;
-        var service = databaseManager.getActorProfileService();
-        try {
-            return service.updateAsync(profile).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return false;
-        }
+        actorProfiles.put(profile.getUuid(), profile);
+        databaseManager.getActorProfileService().updateAsync(profile);
+        return true;
     }
 
     public boolean removeActorProfile(ActorProfile profile) {
-        actorProfiles.remove(profile.getUuid());
-        var service = databaseManager.getActorProfileService();
-        try {
-            return service.deleteAsync(profile).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        var removed = actorProfiles.remove(profile.getUuid());
+        if (removed == null)
             return false;
-        }
+        databaseManager.getActorProfileService().deleteAsync(removed);
+        return true;
     }
 
     public void removeEverythingFor(UUID objectId) {

@@ -8,7 +8,7 @@ import org.unitedlands.libs.ormlite.field.DatabaseField;
 
 public class ReputationScoreEntry implements Identifiable {
 
-    @DatabaseField(generatedId = true, width = 36, canBeNull = false)
+    @DatabaseField(id = true, width = 36, canBeNull = false)
     private UUID id;
     @DatabaseField(canBeNull = false)
     private Long timestamp;

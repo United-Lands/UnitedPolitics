@@ -33,9 +33,8 @@ public class ReputationManager {
     }
 
     private final DatabaseManager databaseManager;
-    private static final Object LOCK = new Object();
 
-    private Collection<ReputationScoreEntry> reputationScoreEntries;
+    private Map<UUID, ReputationScoreEntry> reputationScoreEntries = new HashMap<>();
 
     public ReputationManager(DatabaseManager databaseManager) {
         instance = this;
@@ -44,25 +43,30 @@ public class ReputationManager {
 
     public void loadReputationRecords() {
 
-        reputationScoreEntries = new ArrayList<>();
-
         var service = databaseManager.getReputationScoreEntryService();
-        service.getAllAsync().thenAccept(entries -> {
-            reputationScoreEntries = entries;
+        try {
+            var entries = service.getAllAsync().get();
+            Map<UUID, ReputationScoreEntry> loadedEntries = new HashMap<>();
+            for (var entry : entries) {
+                loadedEntries.put(entry.getUuid(), entry);
+            }
+            reputationScoreEntries = loadedEntries;
             United.logger().info("Loaded " + entries.size() + " reputation entries to memory.", "UnitedPolitics");
-        });
+        } catch (InterruptedException | ExecutionException e) {
+            United.logger().error("Failed to load reputation entries: " + e.getMessage(), "UnitedPolitics");
+        }
 
     }
 
     public List<String> getReputationKeys(UUID observerId, UUID subjectId) {
-        return reputationScoreEntries.stream()
+        return reputationScoreEntries.values().stream()
                 .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
                 .map(ReputationScoreEntry::getKey)
                 .collect(Collectors.toList());
     }
 
     public double getTotalReputationScore(UUID observerId, UUID subjectId) {
-        var dynamicScore = reputationScoreEntries.stream()
+        var dynamicScore = reputationScoreEntries.values().stream()
                 .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
                 .collect(Collectors.summingDouble(ReputationScoreEntry::getModifier));
         var staticScore = calculateStaticReputationScoreEntries(observerId, subjectId).stream()
@@ -72,7 +76,7 @@ public class ReputationManager {
 
     public Map<GeopolObject, Double> getTotalReputationScores(UUID observerId) {
 
-        var dynamicRecords = reputationScoreEntries.stream()
+        var dynamicRecords = reputationScoreEntries.values().stream()
                 .filter(r -> r.getObserver().equals(observerId)).collect(Collectors.groupingBy(g -> g.getSubject()));
 
         var result = new HashMap<GeopolObject, Double>();
@@ -93,29 +97,29 @@ public class ReputationManager {
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntries(UUID observerId, UUID subjectId) {
-        return reputationScoreEntries.stream()
+        return reputationScoreEntries.values().stream()
                 .filter(r -> r.getObserver().equals(observerId) && r.getSubject().equals(subjectId))
                 .collect(Collectors.toList());
     }
 
     public ReputationScoreEntry getReputationScoreEntryWithKey(UUID observerId, UUID subjectId, String key) {
-        return reputationScoreEntries.stream().filter(r -> r.getObserver().equals(observerId)
+        return reputationScoreEntries.values().stream().filter(r -> r.getObserver().equals(observerId)
                 && r.getSubject().equals(subjectId) && r.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntriesForObject(UUID objectId) {
-        return reputationScoreEntries.stream()
+        return reputationScoreEntries.values().stream()
                 .filter(r -> r.getObserver().equals(objectId) || r.getSubject().equals(objectId))
                 .collect(Collectors.toList());
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntriesForObserver(UUID observerId) {
-        return reputationScoreEntries.stream().filter(r -> r.getObserver().equals(observerId))
+        return reputationScoreEntries.values().stream().filter(r -> r.getObserver().equals(observerId))
                 .collect(Collectors.toList());
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntriesForSubject(UUID subjectId) {
-        return reputationScoreEntries.stream().filter(r -> r.getSubject().equals(subjectId))
+        return reputationScoreEntries.values().stream().filter(r -> r.getSubject().equals(subjectId))
                 .collect(Collectors.toList());
     }
 
@@ -213,8 +217,7 @@ public class ReputationManager {
                     // TODO: Rivalry, allies etc.
 
                     // See if the subject has put the observer on a trade embargo
-                    var subjectRecord = DiplomacyManager.instance().getOrCreateDiplomacyRecord(subjectNation);
-                    if (subjectRecord.isOnEmbargo(observerNation)) {
+                    if (DiplomacyManager.instance().embargoExists(subjectNation, observerNation)) {
                         result.add(createReputationScoreEntry(observerId, subjectId, "embargo"));
                     }
                 }
@@ -315,6 +318,7 @@ public class ReputationManager {
         boolean ignoreDecayGracePeriod = recordDefinition.ignoreDecayGracePeriod();
 
         entry = new ReputationScoreEntry();
+        entry.setUuid(UUID.randomUUID());
         entry.setTimestamp(System.currentTimeMillis());
         entry.setObserver(observerId);
         entry.setSubject(subjectId);
@@ -331,44 +335,31 @@ public class ReputationManager {
 
     public boolean addOrUpdateReputationScoreEntry(ReputationScoreEntry entry) {
 
+        if (entry == null || entry.getUuid() == null)
+            return false;
+
         var service = databaseManager.getReputationScoreEntryService();
 
-        if (!reputationScoreEntries.contains(entry)) {
-            try {
-                if (service.createAsync(entry).get()) {
-                    reputationScoreEntries.add(entry);
-                    return true;
-                } else {
-                    United.logger().error("Error while faving entry " + entry.getUuid());
-                    return false;
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                return false;
-            }
+        if (reputationScoreEntries.containsKey(entry.getUuid())) {
+            reputationScoreEntries.put(entry.getUuid(), entry);
+            service.updateAsync(entry);
         } else {
-            try {
-                return service.updateAsync(entry).get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                return false;
-            }
+            reputationScoreEntries.put(entry.getUuid(), entry);
+            service.createAsync(entry);
         }
+        return true;
     }
 
     public boolean removeReputationEntry(ReputationScoreEntry entry) {
-        if (entry == null)
-            return true;
-
-        reputationScoreEntries.remove(entry);
-
-        var service = databaseManager.getReputationScoreEntryService();
-        try {
-            return service.deleteAsync(entry).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        if (entry == null || entry.getUuid() == null)
             return false;
-        }
+
+        var removed = reputationScoreEntries.remove(entry.getUuid());
+        if (removed == null)
+            return false;
+
+        databaseManager.getReputationScoreEntryService().deleteAsync(removed);
+        return true;
     }
 
     public void handleReputationChange(GeopolObject observer, GeopolObject subject, double modifier,
@@ -515,89 +506,70 @@ public class ReputationManager {
     }
 
     public Collection<ReputationScoreEntry> getReputationScoreEntries() {
-        return reputationScoreEntries;
-    }
-
-    public void setReputationScoreEntries(Collection<ReputationScoreEntry> reputationScoreEntries) {
-        this.reputationScoreEntries = reputationScoreEntries;
+        return reputationScoreEntries.values();
     }
 
     public void doReputationDecay() {
 
-        synchronized (LOCK) {
+        var service = databaseManager.getReputationScoreEntryService();
 
-            var service = databaseManager.getReputationScoreEntryService();
+        List<ReputationScoreEntry> entriesToRemove = new ArrayList<>();
+        List<ReputationScoreEntry> entriesToUpdate = new ArrayList<>();
 
-            List<ReputationScoreEntry> entriesToRemove = new ArrayList<>();
+        var decayThreshold = UnitedPolitics.instance().getConfig().getLong("rep-decay-grace-period") * 1000;
 
-            var sortedEntries = reputationScoreEntries.stream()
-                    .sorted(Comparator.comparing(ReputationScoreEntry::getUuid)).collect(Collectors.toList());
-            for (ReputationScoreEntry entry : sortedEntries) {
+        var sortedEntries = reputationScoreEntries.values().stream()
+                .sorted(Comparator.comparing(ReputationScoreEntry::getUuid)).collect(Collectors.toList());
+        for (ReputationScoreEntry entry : sortedEntries) {
 
-                GeopolObject subject = UnitedLandsDataManager.instance().getGeopolObject(entry.getObserver());
-                GeopolObject target = UnitedLandsDataManager.instance().getGeopolObject(entry.getSubject());
+            GeopolObject subject = UnitedLandsDataManager.instance().getGeopolObject(entry.getObserver());
+            GeopolObject target = UnitedLandsDataManager.instance().getGeopolObject(entry.getSubject());
 
-                String subjectStr = subject != null ? subject.getName() : entry.getObserver().toString();
-                String targetStr = target != null ? target.getName() : entry.getSubject().toString();
+            String subjectStr = subject != null ? subject.getName() : entry.getObserver().toString();
+            String targetStr = target != null ? target.getName() : entry.getSubject().toString();
 
-                var timeStamp = entry.getTimestamp();
-                if (timeStamp == null)
-                    timeStamp = 0L;
+            var timeStamp = entry.getTimestamp();
+            if (timeStamp == null)
+                timeStamp = 0L;
 
-                var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
-                var decayThreshold = UnitedPolitics.instance().getConfig().getLong("rep-decay-grace-period") * 1000;
+            var millisecondsSinceTimestamp = (System.currentTimeMillis() - timeStamp);
 
-                if (millisecondsSinceTimestamp < decayThreshold) {
-                    continue;
-                }
-
-                var decay = entry.getDecayRate();
-                var currentModifier = entry.getModifier();
-                var newModifier = currentModifier + decay;
-
-                if (currentModifier < 0 && decay > 0) {
-                    newModifier = Math.min(newModifier, 0);
-                } else if (currentModifier > 0 && decay < 0) {
-                    newModifier = Math.max(newModifier, 0);
-                }
-
-                if (newModifier == 0) {
-                    entriesToRemove.add(entry);
-                    try {
-                        if (service.deleteAsync(entry).get()) {
-                            United.logger()
-                                    .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
-                                            + subjectStr
-                                            + " reached 0, removed", "UnitedPolitics");
-                        }
-                        else {
-                            United.logger().error("Error while removing entry " + entry.getUuid());
-                        }
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-                } else {
-                    entry.setModifier(newModifier);
-
-                    try {
-                        if (service.updateAsync(entry).get()) {
-                            United.logger()
-                                    .info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
-                                            + subjectStr
-                                            + ": " + currentModifier + " → " + newModifier, "UnitedPolitics");
-                        } else {
-                            United.logger().error("Error saving entry " + entry.getUuid(), "UnitedPolitics");
-                        }
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-                }
+            if (millisecondsSinceTimestamp < decayThreshold && !entry.ignoreDecayGracePeriod()) {
+                continue;
             }
 
-            reputationScoreEntries.removeAll(entriesToRemove);
+            var decay = entry.getDecayRate();
+            var currentModifier = entry.getModifier();
+            var newModifier = currentModifier + decay;
+
+            if (currentModifier < 0 && decay > 0) {
+                newModifier = Math.min(newModifier, 0);
+            } else if (currentModifier > 0 && decay < 0) {
+                newModifier = Math.max(newModifier, 0);
+            }
+
+            if (newModifier == 0) {
+                entriesToRemove.add(entry);
+                United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
+                        + subjectStr + " reached 0, removed", "UnitedPolitics");
+            } else {
+                entry.setModifier(newModifier);
+                if (entry.getModifier() == currentModifier)
+                    continue;
+                entriesToUpdate.add(entry);
+                United.logger().info("Reputation entry {" + entry.getKey() + "} of " + targetStr + " with "
+                        + subjectStr + ": " + currentModifier + " → " + entry.getModifier(), "UnitedPolitics");
+            }
         }
+
+        for (var entry : entriesToRemove) {
+            reputationScoreEntries.remove(entry.getUuid());
+        }
+
+        if (!entriesToUpdate.isEmpty())
+            service.updateAllAsync(entriesToUpdate);
+        if (!entriesToRemove.isEmpty())
+            service.deleteAllAsync(entriesToRemove);
     }
 
 }

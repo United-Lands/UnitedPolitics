@@ -11,8 +11,10 @@ import org.unitedlands.politics.classes.configs.RecordDefinitionConfig;
 import org.unitedlands.politics.classes.configs.UnitedPoliticsConfig;
 import org.unitedlands.politics.commands.CmdAdmin;
 import org.unitedlands.politics.managers.ActorProfileManager;
+import org.unitedlands.politics.managers.DiplomacyManager;
 import org.unitedlands.politics.managers.ReputationManager;
 import org.unitedlands.politics.managers.TimeManager;
+import org.unitedlands.politics.managers.TreatyManager;
 import org.unitedlands.registrars.command.UnitedCommandExecutor;
 import org.unitedlands.registrars.messages.UnitedMessagesRegistrar;
 import org.unitedlands.utils.United;
@@ -45,8 +47,11 @@ public class CmdAdminReload implements UnitedCommandExecutor {
         
         United.logger().info("Loading database entries...", "UnitedPolitics");
 
+        UnitedPolitics.instance().getDatabaseManager().awaitPendingWrites();
         ReputationManager.instance().loadReputationRecords();
         ActorProfileManager.instance().loadActorProfiles();
+        TreatyManager.instance().loadTreaties();
+        DiplomacyManager.instance().loadDiplomacyRecords();
         
         United.logger().info("Starting schedulers...", "UnitedPolitics");
         TimeManager.instance().scheduleNewDay();
