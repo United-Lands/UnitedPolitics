@@ -60,6 +60,7 @@ public class CmdAdminActorProfileFriendlyDungeonAdd implements UnitedCommandExec
         if (actorFriendlyDungeons != null) {
             if (actorFriendlyDungeons.stream().filter(r -> r.equals(dungeon.getUuid())).findAny().orElse(null) != null) {
                 United.messenger().send(sender, "errors.actorprofile.dungeon-exists");
+                return;
             }
         } else {
             actorFriendlyDungeons = new HashSet<>();

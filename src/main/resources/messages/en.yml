@@ -14,6 +14,7 @@ errors:
     no-nation-resident: "<error>You're not a resident of a country.</error>"
     no-rank: "<error>You don't have the necessary rank to use this.</error>"
     player-not-found: "<error>Citizen {1} not found.</error>"
+    player-only: "<error>This command can only be used by players.</error>"
   reputation:
     no-record: "<error>Reputation record not found, use create first.</error>"
     existing-record: "<error>A record with that key already exists, use set, add or remove instead."

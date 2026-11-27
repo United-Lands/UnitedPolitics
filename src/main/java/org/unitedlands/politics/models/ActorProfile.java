@@ -103,8 +103,10 @@ public class ActorProfile implements Identifiable {
     }
 
     public List<EventReaction> getEventReactions() {
-        if (eventReactions == null && eventReactionsSerialized != null && eventReactionsSerialized != "") {
+        if (eventReactions == null) {
             eventReactions = new ArrayList<>();
+            if (eventReactionsSerialized == null || eventReactionsSerialized.isBlank())
+                return eventReactions;
             var reactions = eventReactionsSerialized.split(";");
             for (var reaction : reactions) {
                 var values = reaction.split("#");
@@ -225,10 +227,8 @@ public class ActorProfile implements Identifiable {
     }
 
     public Set<UUID> getHostileDungeons() {
-        if (hostileDungeons == null && hostileDungeonsSerialized != null && hostileDungeonsSerialized != "") {
-            hostileDungeons = Arrays.stream(hostileDungeonsSerialized.split("#"))
-                    .map(UUID::fromString)
-                    .collect(Collectors.toSet());
+        if (hostileDungeons == null) {
+            hostileDungeons = deserializeDungeons(hostileDungeonsSerialized);
         }
         return hostileDungeons;
     }
@@ -244,12 +244,18 @@ public class ActorProfile implements Identifiable {
     }
 
     public Set<UUID> getFriendlyDungeons() {
-        if (friendlyDungeons == null && friendlyDungeonsSerialized != null && friendlyDungeonsSerialized != "") {
-            friendlyDungeons = Arrays.stream(friendlyDungeonsSerialized.split("#"))
-                    .map(UUID::fromString)
-                    .collect(Collectors.toSet());
+        if (friendlyDungeons == null) {
+            friendlyDungeons = deserializeDungeons(friendlyDungeonsSerialized);
         }
         return friendlyDungeons;
+    }
+
+    private static Set<UUID> deserializeDungeons(String serialized) {
+        if (serialized == null || serialized.isBlank())
+            return new HashSet<>();
+        return Arrays.stream(serialized.split("#"))
+                .map(UUID::fromString)
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     public void setFriendlyDungeons(Set<UUID> friendlyDungeons) {

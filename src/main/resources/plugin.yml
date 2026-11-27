@@ -1,8 +1,8 @@
 name: UnitedPolitics
-version: 0.1
+version: 2.0.0
 main: org.unitedlands.politics.UnitedPolitics
-api-version: 1.18
+api-version: 1.21
 description: A custom United Lands plugin that for politcal relations.
 author: Theriel_
 depend: [ UnitedLib, UnitedLands ]
-softdepend: [ UnitedTrade, UnitedWars, UnitedDungeons, Quickshop-Hikari ]
+softdepend: [ UnitedTrade, UnitedWars, UnitedDungeons, QuickShop-Hikari ]

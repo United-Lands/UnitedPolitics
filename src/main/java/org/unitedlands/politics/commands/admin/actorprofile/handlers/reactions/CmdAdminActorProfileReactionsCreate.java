@@ -69,6 +69,7 @@ public class CmdAdminActorProfileReactionsCreate implements UnitedCommandExecuto
                     r -> r.getEventKey().equals(eventKey) && r.getReactionReputationKey().equals(reactionRecordKey))
                     .findAny().orElse(null) != null) {
                 United.messenger().send(sender, "errors.actorprofile.reaction-exists");
+                return;
             }
         } else {
             actorReactions = new ArrayList<>();

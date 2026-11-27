@@ -60,6 +60,7 @@ public class CmdAdminActorProfileRivalsAdd implements UnitedCommandExecutor {
         if (actorRivals != null) {
             if (actorRivals.stream().filter(r -> r.equals(rival.getUuid())).findAny().orElse(null) != null) {
                 United.messenger().send(sender, "errors.actorprofile.rival-exists");
+                return;
             }
         } else {
             actorRivals = new HashSet<>();

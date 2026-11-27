@@ -30,10 +30,14 @@ public class DiplomacyCommandHandler implements UnitedCommandExecutor {
 
     protected DiplomacyCommandHandlerContext validate(CommandSender sender, String permission) {
 
-        var player = (Player) sender;
+        if (!(sender instanceof Player player)) {
+            United.messenger().send(sender, "errors.general.player-only");
+            return null;
+        }
+
         var nation = UnitedLandsDataManager.instance().getCountry(player);
         if (nation == null) {
-            United.messenger().send(sender, "null");
+            United.messenger().send(sender, "errors.general.no-nation-resident");
             return null;
         }
 
