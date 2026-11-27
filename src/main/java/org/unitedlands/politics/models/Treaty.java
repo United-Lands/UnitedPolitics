@@ -1,6 +1,7 @@
 package org.unitedlands.politics.models;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -80,8 +81,9 @@ public class Treaty implements Identifiable {
 
     public Set<Country> getMembers() {
         if (members == null) {
-            members = SerializationUtils.deserializeUuidListToSet(members_serialized,
-                    UnitedLandsDataManager.instance()::getCountry);
+            members = new HashSet<>(SerializationUtils.deserializeUuidListToSet(members_serialized,
+                    UnitedLandsDataManager.instance()::getCountry));
+            members.removeIf(Objects::isNull);
         }
         return members;
     }

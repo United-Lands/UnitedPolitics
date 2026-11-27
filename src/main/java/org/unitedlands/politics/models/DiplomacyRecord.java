@@ -3,6 +3,7 @@ package org.unitedlands.politics.models;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -58,8 +59,9 @@ public class DiplomacyRecord implements Identifiable {
 
     public Set<Country> getEmbargoes() {
         if (embargoes == null) {
-            embargoes = SerializationUtils.deserializeUuidListToSet(embargoesSerialized, 
-                UnitedLandsDataManager.instance()::getCountry);
+            embargoes = new HashSet<>(SerializationUtils.deserializeUuidListToSet(embargoesSerialized,
+                UnitedLandsDataManager.instance()::getCountry));
+            embargoes.removeIf(Objects::isNull);
         }
         return embargoes;
     }
@@ -95,9 +97,10 @@ public class DiplomacyRecord implements Identifiable {
     
     public Map<Citizen, Country> getAmbassadors() {
         if (ambassadors == null) {
-            ambassadors = SerializationUtils.deserializeUuidMap(ambassadorsSerialized, 
+            ambassadors = new HashMap<>(SerializationUtils.deserializeUuidMap(ambassadorsSerialized,
                 UnitedLandsDataManager.instance()::getCitizen,
-                UnitedLandsDataManager.instance()::getCountry);
+                UnitedLandsDataManager.instance()::getCountry));
+            ambassadors.entrySet().removeIf(e -> e.getKey() == null || e.getValue() == null);
         }
         return ambassadors;
     }

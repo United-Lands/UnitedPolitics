@@ -6,7 +6,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.unitedlands.libs.ormlite.logger.LoggerFactory;
 import org.unitedlands.libs.ormlite.logger.NullLogBackend;
 import org.unitedlands.politics.integrations.UnitedDungeons.listeners.DungeonEventListener;
-import org.unitedlands.politics.integrations.UnitedLands.listeners.CountryListener;
+import org.unitedlands.politics.integrations.UnitedLands.listeners.AmbassadorListener;
+import org.unitedlands.politics.integrations.UnitedLands.listeners.GeopolObjectRemovalListener;
 import org.unitedlands.politics.integrations.UnitedTrade.listeners.TradeEventListeners;
 import org.unitedlands.politics.integrations.UnitedWar.listeners.WarEventListeners;
 import org.unitedlands.politics.listeners.DeathListener;
@@ -92,7 +93,8 @@ public class UnitedPolitics extends JavaPlugin {
         if (unitedlands != null && unitedlands.isEnabled()) {
             United.logger().info("Enabling UnitedLands integrations.", "UnitedPolitics");
 
-            getServer().getPluginManager().registerEvents(new CountryListener(), this);
+            getServer().getPluginManager().registerEvents(new GeopolObjectRemovalListener(), this);
+            getServer().getPluginManager().registerEvents(new AmbassadorListener(), this);
 
             this.ulEnabled = true;
         } 

@@ -288,10 +288,13 @@ public class ReputationManager {
     }
 
     public void removeEverythingFor(UUID objectId) {
-        var reputationScoreEntries = getReputationScoreEntriesForObject(objectId);
-        for (var entry : reputationScoreEntries) {
-            removeReputationEntry(entry);
+        var entriesToRemove = getReputationScoreEntriesForObject(objectId);
+        if (entriesToRemove.isEmpty())
+            return;
+        for (var entry : entriesToRemove) {
+            reputationScoreEntries.remove(entry.getUuid());
         }
+        databaseManager.getReputationScoreEntryService().deleteAllAsync(entriesToRemove);
     }
 
     public ReputationScoreEntry getOrCreateReputationScoreEntry(UUID observerId, UUID subjectId,

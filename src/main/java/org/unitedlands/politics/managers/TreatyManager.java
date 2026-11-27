@@ -125,7 +125,21 @@ public class TreatyManager {
 
     // Mechanics
 
+    public static boolean isValidPaymentAmount(double amount) {
+        return Double.isFinite(amount) && amount > 0;
+    }
+
     public boolean payTribute(GeopolObject payer, GeopolObject receiver, double amount, Player player) {
+
+        if (!isValidPaymentAmount(amount)) {
+            United.logger().warning("Rejected invalid tribute amount " + amount + " from " + payer.getName(), "UnitedPolitics");
+            return false;
+        }
+
+        if (payer.getUuid().equals(receiver.getUuid())) {
+            United.logger().warning("Rejected tribute from " + payer.getName() + " to itself.", "UnitedPolitics");
+            return false;
+        }
 
         var sourceBalance = payer.getBalance();
         if (sourceBalance < amount) {
@@ -137,17 +151,25 @@ public class TreatyManager {
         String moneyLogReasonSource = config.getString("settings.tribute.moneyLogReasonSource", "Paid tribute to");
         String moneyLogReasonTarget = config.getString("settings.tribute.moneyLogReasonTarget", "Tribute paid by");
 
-        try {
-            UnitedLandsEconomyManager.instance().deposit(receiver.getUuid(), amount, BankRecordTransactionType.DIPLOMACY, moneyLogReasonTarget + payer.getName());
-        } catch (Exception ex) {
-            United.logger().info("Failed to deposit tribute to account of " + receiver.getName(), "UnitedPolitics");
+        var economy = UnitedLandsEconomyManager.instance();
+
+        if (!withdraw(payer, amount, moneyLogReasonSource + receiver.getName())) {
+            United.logger().warning("Failed to withdraw tribute from account of " + payer.getName(), "UnitedPolitics");
             return false;
         }
 
+        boolean deposited;
         try {
-            UnitedLandsEconomyManager.instance().withdraw(payer.getUuid(), amount, BankRecordTransactionType.DIPLOMACY, moneyLogReasonSource + receiver.getName());
+            deposited = economy.deposit(receiver.getUuid(), amount, BankRecordTransactionType.DIPLOMACY,
+                    moneyLogReasonTarget + payer.getName());
         } catch (Exception ex) {
-            United.logger().info("Failed to withdraw tribute from account of " + payer.getName(), "UnitedPolitics");
+            deposited = false;
+        }
+
+        if (!deposited) {
+            United.logger().error("Failed to deposit tribute to account of " + receiver.getName()
+                    + ", refunding " + payer.getName(), "UnitedPolitics");
+            refund(payer, amount, moneyLogReasonSource + receiver.getName());
             return false;
         }
 
@@ -161,6 +183,16 @@ public class TreatyManager {
 
     public boolean payPropaganda(GeopolObject payer, GeopolObject target, double amount, Player player) {
 
+        if (!isValidPaymentAmount(amount)) {
+            United.logger().warning("Rejected invalid propaganda amount " + amount + " from " + payer.getName(), "UnitedPolitics");
+            return false;
+        }
+
+        if (payer.getUuid().equals(target.getUuid())) {
+            United.logger().warning("Rejected propaganda from " + payer.getName() + " against itself.", "UnitedPolitics");
+            return false;
+        }
+
         var sourceBalance = payer.getBalance();
         if (sourceBalance < amount) {
             United.logger().info("Bank account of " + payer.getName() + " too low.", "UnitedPolitics");
@@ -169,10 +201,8 @@ public class TreatyManager {
 
         String moneyLogReasonSource = UnitedPoliticsConfig.get().actions().propaganda().moneyLogReasonSource();
 
-        try {
-            UnitedLandsEconomyManager.instance().withdraw(payer.getUuid(), amount, BankRecordTransactionType.DIPLOMACY, moneyLogReasonSource + target.getName());
-        } catch (Exception ex) {
-            United.logger().info("Failed to withdraw propaganda investment from account of " + payer.getName(), "UnitedPolitics");
+        if (!withdraw(payer, amount, moneyLogReasonSource + target.getName())) {
+            United.logger().warning("Failed to withdraw propaganda investment from account of " + payer.getName(), "UnitedPolitics");
             return false;
         }
 
@@ -182,5 +212,28 @@ public class TreatyManager {
         ReputationManager.instance().handleReputationChange(payer, target, modifier, "paid-propaganda", player, false);
 
         return true;
+    }
+
+    private boolean withdraw(GeopolObject payer, double amount, String reason) {
+        try {
+            return UnitedLandsEconomyManager.instance().withdraw(payer.getUuid(), amount,
+                    BankRecordTransactionType.DIPLOMACY, reason);
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private void refund(GeopolObject payer, double amount, String reason) {
+        boolean refunded;
+        try {
+            refunded = UnitedLandsEconomyManager.instance().deposit(payer.getUuid(), amount,
+                    BankRecordTransactionType.DIPLOMACY, "Refund: " + reason);
+        } catch (Exception ex) {
+            refunded = false;
+        }
+        if (!refunded) {
+            United.logger().error("Failed to refund " + amount + " to account of " + payer.getName()
+                    + ", manual correction required.", "UnitedPolitics");
+        }
     }
 }

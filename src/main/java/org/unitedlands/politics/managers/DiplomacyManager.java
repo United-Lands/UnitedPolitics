@@ -1,5 +1,6 @@
 package org.unitedlands.politics.managers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -68,6 +69,54 @@ public class DiplomacyManager {
         var removed = diplomacyRecords.remove(record.getUuid());
         if (removed != null)
             databaseManager.getDiplomacyRecordService().deleteAsync(removed);
+    }
+
+    public void removeEverythingFor(Country country) {
+        var ownRecord = diplomacyRecords.get(country.getUuid());
+        if (ownRecord != null)
+            removeDiplomacyRecord(ownRecord);
+
+        for (var record : new ArrayList<>(diplomacyRecords.values())) {
+            boolean changed = false;
+            if (record.isOnEmbargo(country)) {
+                record.removeEmbargo(country);
+                changed = true;
+            }
+            var ambassadorsInCountry = record.getAmbassadors().entrySet().stream()
+                    .filter(e -> e.getValue().equals(country))
+                    .map(Map.Entry::getKey)
+                    .toList();
+            for (var citizen : ambassadorsInCountry) {
+                record.removeAmbassador(citizen);
+                changed = true;
+            }
+            if (changed)
+                saveDiplomacyRecord(record);
+        }
+    }
+
+    public void validateAmbassador(Citizen citizen) {
+        for (var record : new ArrayList<>(diplomacyRecords.values())) {
+            if (!record.isAmbassador(citizen))
+                continue;
+
+            var citizenCountry = citizen.getCountry();
+            if (citizenCountry != null && citizenCountry.getUuid().equals(record.getUuid()))
+                continue;
+
+            var targetCountry = record.getAmbassdorCountry(citizen);
+            record.removeAmbassador(citizen);
+            saveDiplomacyRecord(record);
+
+            if (targetCountry != null) {
+                var entry = ReputationManager.instance().getReputationScoreEntryWithKey(targetCountry.getUuid(),
+                        record.getUuid(), "ambassador");
+                ReputationManager.instance().removeReputationEntry(entry);
+            }
+
+            United.logger().info("Removed ambassador " + citizen.getName()
+                    + " because they are no longer a citizen of the sending country.", "UnitedPolitics");
+        }
     }
 
     public boolean embargoExists(Country country, Country targetCountry) {

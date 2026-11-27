@@ -58,6 +58,11 @@ public class CmdDiplomacyPayTribute extends DiplomacyCommandHandler {
             return;
         }
 
+        if (!TreatyManager.isValidPaymentAmount(amount)) {
+            United.messenger().send(sender, "errors.pay.invalid-amount", args[1]);
+            return;
+        }
+
         if (context.country().getBalance() < amount) {
             United.messenger().send(sender, "errors.pay.insufficient-funds");
             return;
